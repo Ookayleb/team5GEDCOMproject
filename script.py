@@ -168,8 +168,10 @@ if(len(sys.argv) == 2):	#Check that we have 2 arguments
 
 		def printIndi():
 			print("Individuals")
-			df = pd.DataFrame(indiList, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Alive', 'Death', 'Child', 'Spouse'])
-			print(df)
+			indiDF = pd.DataFrame(indiList, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Alive', 'Death', 'Child', 'Spouse'])
+			indiDF.sort_values(by=['ID'], inplace=True)
+			indiDF.reset_index(inplace=True)
+			print(indiDF)
 
 
 
@@ -180,6 +182,8 @@ if(len(sys.argv) == 2):	#Check that we have 2 arguments
 				famList[i]['Wife Name'] 		= lookup('Name', famList[i]['Wife ID'])
 
 			famDF = pd.DataFrame(famList, columns = ['ID', 'Married', 'Divorced', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Children'])
+			famDF.sort_values(by=['ID'], inplace=True)
+			famDF.reset_index(inplace=True)
 			print(famDF)
 
 
