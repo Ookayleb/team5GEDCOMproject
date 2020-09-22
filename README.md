@@ -2,7 +2,8 @@
 
 Dependacies:
 * Python3
-* Pandas
+* Pip3
+* Pandas `pip3 install pandas`
 * Valid GEDCOM file
 
 Usage:

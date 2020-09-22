@@ -23,7 +23,7 @@ def read_a_file():
 	for ele in new_words:
 		if ele == 'INDI':
 			ind_count += 1
-	
+
 
 	#creating empty list for the number of individuals
 	person = []
@@ -88,7 +88,7 @@ def read_a_file():
 			family[l].append(new_words[j+3])
 			family[l].append(new_words[j+4])
 			family[l].append(new_words[j+5])
-	
+
 		if (new_words[j] == "HUSB"):
 			family[l].append(new_words[j+1])
 		if (new_words[j] == "WIFE"):
@@ -126,7 +126,7 @@ def print_individual_pretty_table():
 
 
 		#adding rows to the table
-		x.add_row([a_person[0], a_person[1]+ ' ' +a_person[2], a_person[3], 
+		x.add_row([a_person[0], a_person[1]+ ' ' +a_person[2], a_person[3],
 			a_person[5]+ ' ' + a_person[4] + ' ' + a_person[6], (2020 - int(a_person[6])),
 			 'Yes', 'No', child,spouse])
 	print(x)
