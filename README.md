@@ -1,4 +1,5 @@
 # team5GEDCOMproject
+File is `script.py`
 
 Dependacies:
 * Python3
