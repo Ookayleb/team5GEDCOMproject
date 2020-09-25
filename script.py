@@ -185,6 +185,21 @@ if(len(sys.argv) == 2):	#Check that we have 2 arguments
 
 
 
+		# Now have access to indiDF and famDF DataFrames, can use below
+		# Example template:
+			# To print two columns of a table:
+			# print(indiDF[['ID', 'Age']])
+			#
+			# To create a new table that has values that meet a certain criteria (Here our criteria is Age > 60 and Gender = M)
+			# newTable = indiDF.loc[
+			# 	(indiDF['Age']>60) & (indiDF['Gender'] == "M"),		#This line specifies the query
+			# 	['Name','Age','Gender']							#This line specifies what columns our output contains. Is independent from the above line
+			# ]
+			# print(newTable)
+
+
+		# CODE HERE
+
 
 		def printIndi():
 			print("Individuals")
