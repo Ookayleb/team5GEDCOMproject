@@ -166,24 +166,32 @@ if(len(sys.argv) == 2):	#Check that we have 2 arguments
 			# print("--> " + line.rstrip('\n'))
 			# print("<-- " + level + "|" + tag + "|" + valid + "|" + arguments)
 
+
+		#Populate the individuals DataFrame
+		indiDF = pd.DataFrame(indiList, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Alive', 'Death', 'Child', 'Spouse'])
+		indiDF["Age"] = pd.to_numeric(indiDF["Age"])
+		indiDF.sort_values(by=['ID'], inplace=True)
+		indiDF.reset_index(inplace=True, drop=True)
+
+
+		#Populate the families DataFrame
+		for i in range(len(famList)):		#Loop through the list of families
+			famList[i]['Husband Name'] 	= lookup('Name', famList[i]['Husband ID']) #lookup husband name from id
+			famList[i]['Wife Name'] 		= lookup('Name', famList[i]['Wife ID'])
+		famDF = pd.DataFrame(famList, columns = ['ID', 'Married', 'Divorced', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Children'])
+		famDF.sort_values(by=['ID'], inplace=True)
+		famDF.reset_index(inplace=True, drop=True)
+
+
+
+
+
 		def printIndi():
 			print("Individuals")
-			indiDF = pd.DataFrame(indiList, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Alive', 'Death', 'Child', 'Spouse'])
-			indiDF.sort_values(by=['ID'], inplace=True)
-			indiDF.reset_index(inplace=True)
 			print(indiDF)
-
-
 
 		def printFam():
 			print("Families")
-			for i in range(len(famList)):
-				famList[i]['Husband Name'] 	= lookup('Name', famList[i]['Husband ID'])
-				famList[i]['Wife Name'] 		= lookup('Name', famList[i]['Wife ID'])
-
-			famDF = pd.DataFrame(famList, columns = ['ID', 'Married', 'Divorced', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Children'])
-			famDF.sort_values(by=['ID'], inplace=True)
-			famDF.reset_index(inplace=True)
 			print(famDF)
 
 
