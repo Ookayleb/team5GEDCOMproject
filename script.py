@@ -116,7 +116,7 @@ if(len(sys.argv) == 2):	#Check that we have 2 arguments
 				nextLineBirt 	= False
 				nextLineDeat 	= False
 				nextLineMarr 	= False
-				newestIndiv 	= indiList[-1] if indiList else None
+				newestIndiv 	= indiList[-1] if indiList else None	#This syntax chooses the the last element in indiList if it exists, otherwise the newestIndiv is None
 				newestFam		= famList[-1] if famList else None
 				if tag == "NAME":
 					newestIndiv['Name'] 	= arguments
