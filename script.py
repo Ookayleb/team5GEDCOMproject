@@ -37,6 +37,9 @@ THIRD_TOKEN_TAGS =[
 	'FAM'
 ]
 
+indiList 	= []		#will hold all individuals
+famList	= []		#will hold all families
+
 
 
 
@@ -56,162 +59,176 @@ def calculateAge(born, death=False):
 	return endDate.year - born.year - ((endDate.month, endDate.day) < (born.month, born.day))
 
 
+# Checks date argument to see if that date is not after today's date
+def validDate(arguments):
+	current_date = date.today()
+	try:
+		date_arg = datetime.strptime(arguments, "%d %b %Y").date()
+	except ValueError:
+		raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+
+	if date_arg > current_date:
+		return False
+	return True
 
 
 
 
 ### MAIN CODE ###
-if(len(sys.argv) == 2):	#Check that we have 2 arguments
-	with open(sys.argv[1], "r", encoding="utf8") as inFile:		#open the file provided in the argument
+def main():
+	if(len(sys.argv) == 2):	#Check that we have 2 arguments
+		with open(sys.argv[1], "r", encoding="utf8") as inFile:		#open the file provided in the argument
 
-		indiList 	= []		#will hold all individuals
-		famList	= []		#will hold all families
+			for line in inFile:
 
-		for line in inFile:
+				level		= ""
+				tag			= ""
+				valid		= ""
+				arguments 	= ""
+				tokenizedStr 	= re.search("(\d) (\S*) ?(.*)", line).groups()			#Use regex to store each token into a var. "1 NAME Bob /Smith/" becomes ["1", "NAME", "Bob /Smith/"]
 
-			level		= ""
-			tag			= ""
-			valid		= ""
-			arguments 	= ""
-			tokenizedStr 	= re.search("(\d) (\S*) ?(.*)", line).groups()			#Use regex to store each token into a var. "1 NAME Bob /Smith/" becomes ["1", "NAME", "Bob /Smith/"]
+				level	= tokenizedStr[0]
 
-			level	= tokenizedStr[0]
+				#Check if third token is in the special list
+				if tokenizedStr[2] in THIRD_TOKEN_TAGS:
+					arguments	= tokenizedStr[1]	#if so, tag is actually the last token
+					tag 		= tokenizedStr[2]	#arguments were the second argument
+				else:
+					tag 		= tokenizedStr[1]
+					arguments	= tokenizedStr[2]
 
-			#Check if third token is in the special list
-			if tokenizedStr[2] in THIRD_TOKEN_TAGS:
-				arguments	= tokenizedStr[1]	#if so, tag is actually the last token
-				tag 		= tokenizedStr[2]	#arguments were the second argument
-			else:
-				tag 		= tokenizedStr[1]
-				arguments	= tokenizedStr[2]
+				#Valid is Y if we find the tag in the list of valid tags
+				valid 	= 'N' if tag not in VALID_TAGS else 'Y'
 
-			#Valid is Y if we find the tag in the list of valid tags
-			valid 	= 'N' if tag not in VALID_TAGS else 'Y'
-
-			#Check for invalid tags
-			if (tag=='DATE' and level=='1')  or  (tag=='NAME' and level=='2'):
-				valid = 'N'
-
-
-
-
-			if level == '0':
-				if tag == "INDI":
-					try:
-						indiList[len(indiList) - 1] = newestIndiv
-					except:
-						pass
-					newIndiv 			= {}
-					newIndiv['ID'] 	= arguments
-					newIndiv['Alive'] 	= True
-					indiList.append(newIndiv)
-				elif tag == "FAM":
-					newFam 			= {}
-					newFam['ID'] 		= arguments
-					newFam['Children']	= []
-					famList.append(newFam)
+				#Check for invalid tags
+				if (tag=='DATE' and level=='1')  or  (tag=='NAME' and level=='2'):
+					valid = 'N'
+				if(tag == 'DATE'):
+					if not validDate(arguments):
+						raise Exception("No dates should be after the current date")
 
 
-			elif level == '1':
-				nextLineBirt 	= False
-				nextLineDeat 	= False
-				nextLineMarr 	= False
-				newestIndiv 	= indiList[-1] if indiList else None	#This syntax chooses the the last element in indiList if it exists, otherwise the newestIndiv is None
-				newestFam		= famList[-1] if famList else None
-				if tag == "NAME":
-					newestIndiv['Name'] 	= arguments
-				elif tag == "SEX":
-					newestIndiv['Gender'] 	= arguments
-				elif tag == "BIRT":
-					nextLineBirt 			= True
-				elif tag == "DEAT":
-					nextLineDeat 			= True
-				elif tag == "MARR":
-					nextLineMarr 			= True
-				elif tag == "DIV":
-					nextLineDiv			= True
-				elif tag == "FAMS":
-					newestIndiv['Spouse'] 	= arguments
-				elif tag == "FAMC":
-					newestIndiv['Child'] 	= arguments
-				elif tag == "HUSB":
-					newestFam['Husband ID'] 	= arguments
-				elif tag == "WIFE":
-					newestFam['Wife ID'] 	= arguments
-				elif tag == "CHIL":
-					newestFam['Children'].append(arguments)
+				if level == '0':
+					if tag == "INDI":
+						try:
+							indiList[len(indiList) - 1] = newestIndiv
+						except:
+							pass
+						newIndiv 			= {}
+						newIndiv['ID'] 	= arguments
+						newIndiv['Alive'] 	= True
+						indiList.append(newIndiv)
+					elif tag == "FAM":
+						newFam 			= {}
+						newFam['ID'] 		= arguments
+						newFam['Children']	= []
+						famList.append(newFam)
 
 
-			elif level == '2':
-				newestIndiv 	= indiList[-1] if indiList else None
-				newestFam		= famList[-1] if famList else None
-				if nextLineBirt:
-					newestIndiv['Birthday'] 	= arguments
-					newestIndiv['Age'] 		= calculateAge(arguments)
-				elif nextLineDeat:
-					newestIndiv['Death'] 	= arguments
-					newestIndiv['Age'] 		= calculateAge(newestIndiv['Birthday'], arguments)
-					newestIndiv['Alive'] 	= False
-				elif nextLineMarr:
-					newestFam['Married'] 	= arguments
-				elif nextLineDiv:
-					newestFam['Divorced'] 	= arguments
+				elif level == '1':
+					nextLineBirt 	= False
+					nextLineDeat 	= False
+					nextLineMarr 	= False
+					newestIndiv 	= indiList[-1] if indiList else None	#This syntax chooses the the last element in indiList if it exists, otherwise the newestIndiv is None
+					newestFam		= famList[-1] if famList else None
+					if tag == "NAME":
+						newestIndiv['Name'] 	= arguments
+					elif tag == "SEX":
+						newestIndiv['Gender'] 	= arguments
+					elif tag == "BIRT":
+						nextLineBirt 			= True
+					elif tag == "DEAT":
+						nextLineDeat 			= True
+					elif tag == "MARR":
+						nextLineMarr 			= True
+					elif tag == "DIV":
+						nextLineDiv			= True
+					elif tag == "FAMS":
+						newestIndiv['Spouse'] 	= arguments
+					elif tag == "FAMC":
+						newestIndiv['Child'] 	= arguments
+					elif tag == "HUSB":
+						newestFam['Husband ID'] 	= arguments
+					elif tag == "WIFE":
+						newestFam['Wife ID'] 	= arguments
+					elif tag == "CHIL":
+						newestFam['Children'].append(arguments)
 
+
+				elif level == '2':
+					newestIndiv 	= indiList[-1] if indiList else None
+					newestFam		= famList[-1] if famList else None
+					if nextLineBirt:
+						newestIndiv['Birthday'] 	= arguments
+						newestIndiv['Age'] 		= calculateAge(arguments)
+					elif nextLineDeat:
+						newestIndiv['Death'] 	= arguments
+						newestIndiv['Age'] 		= calculateAge(newestIndiv['Birthday'], arguments)
+						newestIndiv['Alive'] 	= False
+					elif nextLineMarr:
+						newestFam['Married'] 	= arguments
+					elif nextLineDiv:
+						newestFam['Divorced'] 	= arguments
 
 
 
 
 
-			#Code from Project 02
-			# print("--> " + line.rstrip('\n'))
-			# print("<-- " + level + "|" + tag + "|" + valid + "|" + arguments)
+
+				#Code from Project 02
+				# print("--> " + line.rstrip('\n'))
+				# print("<-- " + level + "|" + tag + "|" + valid + "|" + arguments)
 
 
-		#Populate the individuals DataFrame
-		indiDF = pd.DataFrame(indiList, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Alive', 'Death', 'Child', 'Spouse'])
-		indiDF["Age"] = pd.to_numeric(indiDF["Age"])
-		indiDF.sort_values(by=['ID'], inplace=True)
-		indiDF.reset_index(inplace=True, drop=True)
+			#Populate the individuals DataFrame
+			indiDF = pd.DataFrame(indiList, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Alive', 'Death', 'Child', 'Spouse'])
+			indiDF["Age"] = pd.to_numeric(indiDF["Age"])
+			indiDF.sort_values(by=['ID'], inplace=True)
+			indiDF.reset_index(inplace=True, drop=True)
 
 
-		#Populate the families DataFrame
-		for i in range(len(famList)):		#Loop through the list of families
-			famList[i]['Husband Name'] 	= lookup('Name', famList[i]['Husband ID']) #lookup husband name from id
-			famList[i]['Wife Name'] 		= lookup('Name', famList[i]['Wife ID'])
-		famDF = pd.DataFrame(famList, columns = ['ID', 'Married', 'Divorced', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Children'])
-		famDF.sort_values(by=['ID'], inplace=True)
-		famDF.reset_index(inplace=True, drop=True)
+			#Populate the families DataFrame
+			for i in range(len(famList)):		#Loop through the list of families
+				famList[i]['Husband Name'] 	= lookup('Name', famList[i]['Husband ID']) #lookup husband name from id
+				famList[i]['Wife Name'] 		= lookup('Name', famList[i]['Wife ID'])
+			famDF = pd.DataFrame(famList, columns = ['ID', 'Married', 'Divorced', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Children'])
+			famDF.sort_values(by=['ID'], inplace=True)
+			famDF.reset_index(inplace=True, drop=True)
 
 
 
 
-		# Now have access to indiDF and famDF DataFrames, can use below
-		# Example template:
-			# To print two columns of a table:
-			# print(indiDF[['ID', 'Age']])
-			#
-			# To create a new table that has values that meet a certain criteria (Here our criteria is Age > 60 and Gender = M)
-			# newTable = indiDF.loc[
-			# 	(indiDF['Age']>60) & (indiDF['Gender'] == "M"),		#This line specifies the query
-			# 	['Name','Age','Gender']							#This line specifies what columns our output contains. Is independent from the above line
-			# ]
-			# print(newTable)
+			# Now have access to indiDF and famDF DataFrames, can use below
+			# Example template:
+				# To print two columns of a table:
+				# print(indiDF[['ID', 'Age']])
+				#
+				# To create a new table that has values that meet a certain criteria (Here our criteria is Age > 60 and Gender = M)
+				# newTable = indiDF.loc[
+				# 	(indiDF['Age']>60) & (indiDF['Gender'] == "M"),		#This line specifies the query
+				# 	['Name','Age','Gender']							#This line specifies what columns our output contains. Is independent from the above line
+				# ]
+				# print(newTable)
 
 
-		# CODE HERE
+			# CODE HERE
 
 
-		def printIndi():
-			print("Individuals")
-			print(indiDF)
+			def printIndi():
+				print("Individuals")
+				print(indiDF)
 
-		def printFam():
-			print("Families")
-			print(famDF)
+			def printFam():
+				print("Families")
+				print(famDF)
 
 
-		printIndi()
-		print("\n\n")
-		printFam()
-else:
-	print("Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")
+			printIndi()
+			print("\n\n")
+			printFam()
+	else:
+		print("Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")
+
+if __name__ == "__main__":
+    # execute only if run as a script
+    main()
