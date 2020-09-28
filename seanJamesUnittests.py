@@ -1,48 +1,81 @@
 import unittest
 import sys
 import pandas
-from script import validDate
-from script import maleLastNames, generateInitialData
+from script import maleLastNames, generateInitialData, reset
 
-# xDF = pd.read_csv("indiDF_badlastname.csv")
+#Choy_familyTree.ged
+#All last names ==
+gedcomeStructuredData0 = generateInitialData("gedFiles/Choy_familyTree.ged")
+indiDF = 	gedcomeStructuredData0['indiDF']
+famDF = 	gedcomeStructuredData0['famDF']
+indiList = 	gedcomeStructuredData0['indiList']
+famList = 	gedcomeStructuredData0['famList']
 
-gedcomeStructuredData = generateInitialData("gedFiles/badLastName.ged")
+reset()
 
+#badLastName.ged
+#one male child different last name 
+gedcomeStructuredData1 = generateInitialData("gedFiles/badLastName.ged")
+indiDF_badLastName = 	gedcomeStructuredData1['indiDF']
+famDF_badLastName = 	gedcomeStructuredData1['famDF']
+indiList_badLastName = 	gedcomeStructuredData1['indiList']
+famList_badLastName = 	gedcomeStructuredData1['famList']
 
-indiDF = 	gedcomeStructuredData['indiDF']
-famDF = 	gedcomeStructuredData['famDF']
-indiList = 	gedcomeStructuredData['indiList']
-famList = 	gedcomeStructuredData['famList']
-
-class TestDates(unittest.TestCase):
-    def test_success(self):
-        result = validDate("15 OCT 2019")
-        self.assertTrue(result)
-        result = validDate("27 SEP 2020")
-        self.assertTrue(result)
-
-    def test_fail(self):
-        result = validDate("15 OCT 2020")
-        self.assertFalse(result)
-        result = validDate("28 SEP 2020")
-        self.assertFalse(result)
+reset()
 
 
-    def test_input_fail(self):
-        with self.assertRaises(ValueError): validDate("15")
+#maleLastNamesEqFemaleDiff.ged
+#all males == one female !=
+gedcomeStructuredData2 = generateInitialData("gedFiles/maleLastNamesEqFemaleDiff.ged")
+indiDF_maleLastNamesEqFemaleDiff = 	gedcomeStructuredData2['indiDF']
+famDF_maleLastNamesEqFemaleDiff = 	gedcomeStructuredData2['famDF']
+indiList_maleLastNamesEqFemaleDiff = 	gedcomeStructuredData2['indiList']
+famList_maleLastNamesEqFemaleDiff = 	gedcomeStructuredData2['famList']
+
+reset()
+#allFemaleLastNamesEq
+#all the females have the same last name 
+gedcomeStructuredData3 = generateInitialData("gedFiles/allFemaleLastNamesEq.ged")
+indiDF_allFemaleLastNamesEq = 	gedcomeStructuredData3['indiDF']
+famDF_allFemaleLastNamesEq = 	gedcomeStructuredData3['famDF']
+indiList_allFemaleLastNamesEq = 	gedcomeStructuredData3['indiList']
+famList_allFemaleLastNamesEq = 	gedcomeStructuredData3['famList']
+
+reset()
+
+#maleLastNamesDiffFamsEq.ged
+# for different families there are different last names
+gedcomeStructuredData4 = generateInitialData("gedFiles/maleLastNamesDiffFamsEq.ged")
+indiDF_maleLastNamesDiffFamsEq = 	gedcomeStructuredData4['indiDF']
+famDF_maleLastNamesDiffFamsEq = 	gedcomeStructuredData4['famDF']
+indiList_maleLastNamesDiffFamsEq = 	gedcomeStructuredData4['indiList']
+famList_maleLastNamesDiffFamsEq = 	gedcomeStructuredData4['famList']
+
+
 
 class TestMaleLastNames(unittest.TestCase):
-    def test_fail(self):
-        result = maleLastNames(indiDF, famList, '1')
-        self.assertFalse(result)
-        result = maleLastNames.child
-        self.assertFalse(result)
 
-    def test_success(self):
-        result = maleLastNames(indiDF, famList, 'Smith')
+    def test_Pass_femaleLastNameDiff(self):
+        result = maleLastNames(indiDF_maleLastNamesEqFemaleDiff, famList_maleLastNamesEqFemaleDiff)
         self.assertTrue(result)
-        result = maleLastNames(indiDF, famList, 'Terrace Smith')
+    
+    def test_Pass_femaleLastNameEq(self):
+        result = maleLastNames(indiDF_allFemaleLastNamesEq, famList_allFemaleLastNamesEq)
         self.assertTrue(result)
+    
+    def test_Fail_MaleLastNameDiff(self):
+        result = maleLastNames(indiDF_badLastName, famList_badLastName)
+        self.assertFalse(result)
+    
+    def test_Pass_DiffFamNameEq(self):
+        result = maleLastNames(indiDF_maleLastNamesDiffFamsEq, famList_maleLastNamesDiffFamsEq)
+        self.assertTrue(result)
+    
+    def test_Pass_MaleLastNameEq(self):
+        result = maleLastNames(indiDF, famList)
+        self.assertTrue(result)
+
+
 
 
 
