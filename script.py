@@ -71,8 +71,11 @@ def validDate(arguments):
 		return False
 	return True
 
-
-
+# Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
+def validAge(age):
+	if age >= 150:
+		return False
+	return True
 
 ### MAIN CODE ###
 def main():
@@ -80,7 +83,6 @@ def main():
 		with open(sys.argv[1], "r", encoding="utf8") as inFile:		#open the file provided in the argument
 
 			for line in inFile:
-
 				level		= ""
 				tag			= ""
 				valid		= ""
@@ -186,6 +188,10 @@ def main():
 			indiDF.sort_values(by=['ID'], inplace=True)
 			indiDF.reset_index(inplace=True, drop=True)
 
+			#Check age of all individuals
+			for i in range(len(indiList)):
+				if not validAge(indiList[i]["Age"]):
+					raise Exception("Individuals must be less than 150 years old")
 
 			#Populate the families DataFrame
 			for i in range(len(famList)):		#Loop through the list of families
