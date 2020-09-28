@@ -42,6 +42,67 @@ indiList 	= []		#will hold all individuals
 famList	= []		#will hold all families
 
 
+#************************************************************************
+
+def test(indList):
+	for i in indList:
+		print( "****" + str(i))
+
+# def get_exactly_130_years_of_age():
+# 	age_limit = 130
+# 	one_thirty_age = (datetime.now() - relativedelta(years=age_limit)).strftime('%Y-%m-%d')
+# 	return datetime.strptime(one_thirty_age, '%Y-%m-%d')
+
+# def get_number_month(letter_month):
+# 	letter_month = letter_month.capitalize()
+# 	abbr_to_num = {name: num for num, name in enumerate(calendar.month_abbr) if num}
+# 	return abbr_to_num[letter_month]
+
+# def turn_arr_into_date_arr(arr):
+# 	return [arr[-1], get_number_month(arr[-2]), arr[0]]
+
+def print_age_qualification(indiList):
+
+	#person = get_person_record()
+	#one_hundred_and_thirty = get_exactly_130_years_of_age()
+	each_person = []
+	isQualified = ""
+
+	for i in indiList:
+		one_hundred_thirty = 130
+		if (type(i['Age']) == int) :
+			name_arr = i['Name']
+			birth_day = i['Birthday']
+			
+			name = ""
+			for j in range(len(name_arr)):
+				name += name_arr[j].strip("/") + " "
+			if(i['Age'] <= one_hundred_thirty):
+				isQualified = 'Yes'
+				each_person.append([name, birth_day,  isQualified])
+			else:
+				isQualified = 'No'
+				each_person.append([name, birth_day,  isQualified])
+	return each_person
+
+def print_data(indiList):
+	person_record = print_age_qualification(indiList)
+	n_arr = []
+	b_arr = []
+	q_arr = []
+	person_data = {}
+	for i in range(len(person_record)):
+		n_arr.append(person_record[i][0])
+		b_arr.append(person_record[i][1])
+		q_arr.append(person_record[i][2])
+
+
+	person_data['Name'] = n_arr
+	person_data['Birth Date'] = b_arr
+	person_data['Qualified'] = q_arr
+
+	df = pd.DataFrame(person_data, columns = ['Name', 'Birth Date','Qualified'])
+	return df
 
 
 
@@ -103,8 +164,9 @@ def verifyBirthDeathDateOrder(indiList):
 	return len(warnDF)
 
 #US16 SJ Sprint 1
-def maleLastNames(indiDF, famList, Name):
-	childrenName = Name	#init child / husb name and childrenID
+def maleLastNames(indiDF, famList):
+	lastNamesEqual = False
+	childrenName = ''	#init child / husb name and childrenID
 	husbandName = ''
 	childrenID = ''
 	malesList = indiDF[(indiDF['Gender'] == 'M')] #created list of males
@@ -126,7 +188,8 @@ def maleLastNames(indiDF, famList, Name):
 				#print('Childs name is ' + childFirstName + ' ' + childLastName)
 			else:
 				#print ('Gender is ' + indiDF.loc[indiDF['ID'] == id, ['Gender'] ] + ' So do not check ')
-				return True #Because it is a female so it does not matter what the last name is
+				#Because it is a female so it does not matter what the last name is
+				lastNamesEqual =True
 
 			if(lastName == childLastName): #if the childs name contains the husbands name its true otherwise false
 				#print('Family name is ' + lastName)
@@ -135,7 +198,7 @@ def maleLastNames(indiDF, famList, Name):
 			else:
 				print( '\n the name that doesnt match is ' + childFirstName + " " + childLastName)
 				return False
-	return True
+	return lastNamesEqual
 
 
 # Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
@@ -278,6 +341,13 @@ def generateInitialData(fileName):
 			"famList":	famList
 		}
 
+def reset():
+	global indiList, famList
+	indiDF = []
+	indiList = []
+	famDF = []
+	famList = []
+
 
 
 
@@ -322,9 +392,10 @@ def main():
 		printIndi()
 		print("\n\n")
 		printFam()
-
+		test(indiList)
+		print(print_data(indiList))
 		#US16
-		if(maleLastNames(indiDF, famList, '')):
+		if(maleLastNames(indiDF, famList)):
 			print("\n")
 			print('All males have same last name')
 			print("\n")
@@ -340,3 +411,5 @@ def main():
 if __name__ == "__main__":
     # execute only if run as a script
     main()
+
+
