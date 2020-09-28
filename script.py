@@ -53,6 +53,7 @@ def lookup(attr, id):
 		if id == indi['ID']:		#if we find id
 			return indi[attr]			#return the individual's data that we desire
 
+
 #Calculate age given two dates. If death not supplied assume not dead
 def calculateAge(born, death=False):
 	born 	= datetime.strptime(born, "%d %b %Y")
@@ -71,6 +72,7 @@ def validDate(arguments):
 	if date_arg > current_date:
 		return False
 	return True
+
 
 #US16 SJ Sprint 1
 def maleLastNames(indiDF, famList, Name):
@@ -107,6 +109,7 @@ def maleLastNames(indiDF, famList, Name):
 				return False
 	return True
 
+
 # Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
 def validAge(age):
 	if age >= 150:
@@ -117,6 +120,8 @@ def validAge(age):
 
 
 
+
+#Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
 def generateInitialData(fileName):
 	with open(fileName, "r", encoding="utf8") as inFile:		#open the file provided in the argument
 		line_num=-1
@@ -236,6 +241,8 @@ def generateInitialData(fileName):
 		famDF.sort_values(by=['ID'], inplace=True)
 		famDF.reset_index(inplace=True, drop=True)
 
+
+		#return a dictionary, whose keys are "indiDF", "famDF", "indiList", and "famList". Use this key value pair to obtain the actual dataframes or lists
 		return {
 			"indiDF": 	indiDF,
 			"famDF":		famDF,
@@ -244,15 +251,20 @@ def generateInitialData(fileName):
 		}
 
 
+
+
+
+
+
 ### MAIN CODE ###
 def main():
 	if(len(sys.argv) == 2):	#Check that we have 2 arguments
-		gedcomeStructuredData = generateInitialData(sys.argv[1])
+		gedcomStructuredData = generateInitialData(sys.argv[1]) #store the tables and lists into gedcomStructuredData
 
-		indiDF = 		gedcomeStructuredData['indiDF']
-		famDF = 		gedcomeStructuredData['famDF']
-		indiList = 	gedcomeStructuredData['indiList']
-		famList = 	gedcomeStructuredData['famList']
+		indiDF = 		gedcomStructuredData['indiDF']
+		famDF = 		gedcomStructuredData['famDF']
+		indiList = 	gedcomStructuredData['indiList']
+		famList = 	gedcomStructuredData['famList']
 
 		# Now have access to indiDF and famDF DataFrames, can use below
 		# Example template:
