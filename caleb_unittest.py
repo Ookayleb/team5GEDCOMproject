@@ -18,7 +18,7 @@ class TestDateOrder(unittest.TestCase):
         self.assertFalse(result, "Earlier year, month, and day failed")
 
     def test_birthWithNoDeath(self):
-        result = check_dateOrder("15 OCT 2020", "")
+        result = check_dateOrder("15 OCT 2020", None)
         self.assertTrue(result)
 
     def test_birthEqualsDeath(self):
@@ -26,7 +26,7 @@ class TestDateOrder(unittest.TestCase):
         self.assertTrue(result)
 
     def test_deathWithNoBirth(self):
-        result = check_dateOrder("", "15 OCT 2021")
+        result = check_dateOrder(None, "15 OCT 2021")
         self.assertFalse(result)
 
 
