@@ -73,9 +73,7 @@ def print_age_qualification(indiList):
 		if (type(i['Age']) == int) :
 			name_arr = i['Name']
 			birth_day = i['Birthday']
-			# date_str = turn_arr_into_date_arr(date_arr)
-			# born_date = date_str[0] + '-' + str(date_str[1]) + '-' + str(date_str[2])
-			#curr_born_date = datetime.strptime(born_date, '%Y-%m-%d')
+			
 			name = ""
 			for j in range(len(name_arr)):
 				name += name_arr[j].strip("/") + " "
