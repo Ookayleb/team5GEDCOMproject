@@ -1,6 +1,6 @@
 import unittest
 import sys
-from script import validDate, calculateAge
+from script import validDate, check_dateOrder
 
 class TestDateOrder(unittest.TestCase):
     def test_birthBeforeDeath(self):
@@ -16,7 +16,6 @@ class TestDateOrder(unittest.TestCase):
         self.assertFalse(result, "Earlier day failed")
         result = check_dateOrder("15 OCT 2020", "14 SEP 2019")
         self.assertFalse(result, "Earlier year, month, and day failed")
-
 
     def test_birthWithNoDeath(self):
         result = check_dateOrder("15 OCT 2020", "")
