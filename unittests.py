@@ -1,6 +1,7 @@
 import unittest
 import sys
-from script import validDate, calculateAge
+from script import validDate
+
 
 class TestDates(unittest.TestCase):
     def test_success(self):
@@ -17,6 +18,8 @@ class TestDates(unittest.TestCase):
 
     def test_input_fail(self):
         with self.assertRaises(ValueError): validDate("15")
+
+
 
 if __name__ == "__main__":
     # test_classes_to_run = [TestClassA, TestClassC]
