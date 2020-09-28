@@ -1,10 +1,6 @@
 import unittest
 import sys
 from script import validDate
-<<<<<<< HEAD
-
-=======
->>>>>>> Changed date on TestDates fail test case. Generated .gitignore file from gitignore.io
 
 class TestDates(unittest.TestCase):
     def test_success(self):
