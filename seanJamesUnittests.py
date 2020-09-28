@@ -21,6 +21,19 @@ class TestDates(unittest.TestCase):
     def test_input_fail(self):
         with self.assertRaises(ValueError): validDate("15")
 
+class TestMaleLastNames(unittest.TestCase):
+    def test_fail(self):
+        result = maleLastNames(indiDF, famList, '1')
+        self.assertFalse(result)
+        result = maleLastNames.child
+        self.assertFalse(result)
+    
+    def test_success(self):
+        result = maleLastNames(indiDF, famList, 'Smith')
+        self.assertTrue(result)
+        result = maleLastNames(indiDF, famList, 'Terrace Smith')
+        self.assertTrue(result)
+    
 
 
 if __name__ == "__main__":

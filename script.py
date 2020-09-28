@@ -5,6 +5,7 @@ import re
 import pandas as pd
 from datetime import datetime
 from datetime import date
+import unittest
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -71,7 +72,40 @@ def validDate(arguments):
 		return False
 	return True
 
-
+#US16 SJ Sprint 1
+def maleLastNames(indiDF, famList, Name):
+	childrenName = Name	#init child / husb name and childrenID
+	husbandName = ''
+	childrenID = ''
+	malesList = indiDF[(indiDF['Gender'] == 'M')] #created list of males
+	for fam in famList:
+		# print(fam)
+		husbandName = fam['Husband Name'] #for each family stor the husb name
+		lastName = re.findall("\/(.*)\/", str(husbandName))[0]
+		childrenID = fam['Children'] #get the childrenid
+		# print('children ids', str(childrenID))
+		# print('husband Last name' , str(lastName))
+		for id in childrenID: #for all ids in childrenID
+			#print('\n', str(id))
+			malesID = malesList['ID'].to_list()
+			if (id in malesID): #if child is in male list
+				childrenName_bad = str(malesList.loc[malesList['ID'] == id, ['Name']])
+				x = re.findall("\s*(\S*) \/(.*)\/", childrenName_bad)[0]
+				childFirstName = x[0]
+				childLastName 	= x[1]
+				#print('Childs name is ' + childFirstName + ' ' + childLastName)
+			else:
+				#print ('Gender is ' + indiDF.loc[indiDF['ID'] == id, ['Gender'] ] + ' So do not check ')
+				return True #Because it is a female so it does not matter what the last name is
+				
+			if(lastName == childLastName): #if the childs name contains the husbands name its true otherwise false
+				#print('Family name is ' + lastName)
+				lastNamesEqual = True
+				
+			else:
+				print( '\n the name that doesnt match is ' + childFirstName + " " + childLastName)
+				return False
+	return True
 
 
 ### MAIN CODE ###
@@ -213,6 +247,9 @@ def main():
 
 			# CODE HERE
 
+			
+
+
 
 			def printIndi():
 				print("Individuals")
@@ -226,6 +263,16 @@ def main():
 			printIndi()
 			print("\n\n")
 			printFam()
+
+			#US16
+			if(maleLastNames(indiDF, famList, '')):
+				print("\n")
+				print('All males have same last name')
+				print("\n")
+			else:
+				print("\n")
+				print('All males do not have the same last name')
+				print("\n")
 	else:
 		print("Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")
 
