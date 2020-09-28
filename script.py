@@ -42,6 +42,69 @@ indiList 	= []		#will hold all individuals
 famList	= []		#will hold all families
 
 
+#************************************************************************
+
+def test(indList):
+	for i in indList:
+		print( "****" + str(i))
+
+# def get_exactly_130_years_of_age():
+# 	age_limit = 130
+# 	one_thirty_age = (datetime.now() - relativedelta(years=age_limit)).strftime('%Y-%m-%d')
+# 	return datetime.strptime(one_thirty_age, '%Y-%m-%d')
+
+# def get_number_month(letter_month):
+# 	letter_month = letter_month.capitalize()
+# 	abbr_to_num = {name: num for num, name in enumerate(calendar.month_abbr) if num}
+# 	return abbr_to_num[letter_month]
+
+# def turn_arr_into_date_arr(arr):
+# 	return [arr[-1], get_number_month(arr[-2]), arr[0]]
+
+def print_age_qualification(indiList):
+
+	#person = get_person_record()
+	#one_hundred_and_thirty = get_exactly_130_years_of_age()
+	each_person = []
+	isQualified = ""
+
+	for i in indiList:
+		one_hundred_thirty = 130
+		if (type(i['Age']) == int) :
+			name_arr = i['Name']
+			birth_day = i['Birthday']
+			# date_str = turn_arr_into_date_arr(date_arr)
+			# born_date = date_str[0] + '-' + str(date_str[1]) + '-' + str(date_str[2])
+			#curr_born_date = datetime.strptime(born_date, '%Y-%m-%d')
+			name = ""
+			for j in range(len(name_arr)):
+				name += name_arr[j].strip("/") + " "
+			if(i['Age'] <= one_hundred_thirty):
+				isQualified = 'Yes'
+				each_person.append([name, birth_day,  isQualified])
+			else:
+				isQualified = 'No'
+				each_person.append([name, birth_day,  isQualified])
+	return each_person
+
+def print_data(indiList):
+	person_record = print_age_qualification(indiList)
+	n_arr = []
+	b_arr = []
+	q_arr = []
+	person_data = {}
+	for i in range(len(person_record)):
+		n_arr.append(person_record[i][0])
+		b_arr.append(person_record[i][1])
+		q_arr.append(person_record[i][2])
+
+
+	person_data['Name'] = n_arr
+	person_data['Birth Date'] = b_arr
+	person_data['Qualified'] = q_arr
+
+	df = pd.DataFrame(person_data, columns = ['Name', 'Birth Date','Qualified'])
+	return df
 
 
 
@@ -303,7 +366,8 @@ def main():
 		printIndi()
 		print("\n\n")
 		printFam()
-
+		test(indiList)
+		print(print_data(indiList))
 		#US16
 		if(maleLastNames(indiDF, famList, '')):
 			print("\n")
@@ -319,3 +383,5 @@ def main():
 if __name__ == "__main__":
     # execute only if run as a script
     main()
+
+
