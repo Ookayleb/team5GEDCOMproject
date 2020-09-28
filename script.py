@@ -73,6 +73,15 @@ def validDate(arguments):
 		return False
 	return True
 
+# Returns true if date1 is before date2,
+def check_dateOrder(date1, date2):
+	date1 = datetime.strptime(date1, "%d %b %Y")
+	date2 = datetime.strptime(date2, "%d %b %Y")
+
+	if date1 >= date2:
+		return True
+	else:
+		return False
 
 #US16 SJ Sprint 1
 def maleLastNames(indiDF, famList, Name):
