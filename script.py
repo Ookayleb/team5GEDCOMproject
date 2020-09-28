@@ -42,6 +42,69 @@ indiList 	= []		#will hold all individuals
 famList	= []		#will hold all families
 
 
+#************************************************************************
+
+def test(indList):
+	for i in indList:
+		print( "****" + str(i))
+
+# def get_exactly_130_years_of_age():
+# 	age_limit = 130
+# 	one_thirty_age = (datetime.now() - relativedelta(years=age_limit)).strftime('%Y-%m-%d')
+# 	return datetime.strptime(one_thirty_age, '%Y-%m-%d')
+
+# def get_number_month(letter_month):
+# 	letter_month = letter_month.capitalize()
+# 	abbr_to_num = {name: num for num, name in enumerate(calendar.month_abbr) if num}
+# 	return abbr_to_num[letter_month]
+
+# def turn_arr_into_date_arr(arr):
+# 	return [arr[-1], get_number_month(arr[-2]), arr[0]]
+
+def print_age_qualification(indiList):
+
+	#person = get_person_record()
+	#one_hundred_and_thirty = get_exactly_130_years_of_age()
+	each_person = []
+	isQualified = ""
+
+	for i in indiList:
+		one_hundred_thirty = 130
+		if (type(i['Age']) == int) :
+			name_arr = i['Name']
+			birth_day = i['Birthday']
+			# date_str = turn_arr_into_date_arr(date_arr)
+			# born_date = date_str[0] + '-' + str(date_str[1]) + '-' + str(date_str[2])
+			#curr_born_date = datetime.strptime(born_date, '%Y-%m-%d')
+			name = ""
+			for j in range(len(name_arr)):
+				name += name_arr[j].strip("/") + " "
+			if(i['Age'] <= one_hundred_thirty):
+				isQualified = 'Yes'
+				each_person.append([name, birth_day,  isQualified])
+			else:
+				isQualified = 'No'
+				each_person.append([name, birth_day,  isQualified])
+	return each_person
+
+def print_data(indiList):
+	person_record = print_age_qualification(indiList)
+	n_arr = []
+	b_arr = []
+	q_arr = []
+	person_data = {}
+	for i in range(len(person_record)):
+		n_arr.append(person_record[i][0])
+		b_arr.append(person_record[i][1])
+		q_arr.append(person_record[i][2])
+
+
+	person_data['Name'] = n_arr
+	person_data['Birth Date'] = b_arr
+	person_data['Qualified'] = q_arr
+
+	df = pd.DataFrame(person_data, columns = ['Name', 'Birth Date','Qualified'])
+	return df
 
 
 
@@ -52,6 +115,7 @@ def lookup(attr, id):
 	for indi in indiList:			#loop over all individuals
 		if id == indi['ID']:		#if we find id
 			return indi[attr]			#return the individual's data that we desire
+
 
 #Calculate age given two dates. If death not supplied assume not dead
 def calculateAge(born, death=False):
@@ -71,6 +135,16 @@ def validDate(arguments):
 	if date_arg > current_date:
 		return False
 	return True
+
+# Returns true if date1 is before date2,
+def check_dateOrder(date1, date2):
+	date1 = datetime.strptime(date1, "%d %b %Y")
+	date2 = datetime.strptime(date2, "%d %b %Y")
+
+	if date1 >= date2:
+		return True
+	else:
+		return False
 
 #US16 SJ Sprint 1
 def maleLastNames(indiDF, famList):
@@ -109,6 +183,7 @@ def maleLastNames(indiDF, famList):
 				return False
 	return lastNamesEqual
 
+
 # Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
 def validAge(age):
 	if age >= 150:
@@ -119,6 +194,8 @@ def validAge(age):
 
 
 
+
+#Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
 def generateInitialData(fileName):
 	with open(fileName, "r", encoding="utf8") as inFile:		#open the file provided in the argument
 		line_num=-1
@@ -238,6 +315,8 @@ def generateInitialData(fileName):
 		famDF.sort_values(by=['ID'], inplace=True)
 		famDF.reset_index(inplace=True, drop=True)
 
+
+		#return a dictionary, whose keys are "indiDF", "famDF", "indiList", and "famList". Use this key value pair to obtain the actual dataframes or lists
 		return {
 			"indiDF": 	indiDF,
 			"famDF":		famDF,
@@ -253,15 +332,20 @@ def reset():
 	famList = []
 
 
+
+
+
+
+
 ### MAIN CODE ###
 def main():
 	if(len(sys.argv) == 2):	#Check that we have 2 arguments
-		gedcomeStructuredData = generateInitialData(sys.argv[1])
+		gedcomStructuredData = generateInitialData(sys.argv[1]) #store the tables and lists into gedcomStructuredData
 
-		indiDF = 		gedcomeStructuredData['indiDF']
-		famDF = 		gedcomeStructuredData['famDF']
-		indiList = 	gedcomeStructuredData['indiList']
-		famList = 	gedcomeStructuredData['famList']
+		indiDF = 		gedcomStructuredData['indiDF']
+		famDF = 		gedcomStructuredData['famDF']
+		indiList = 	gedcomStructuredData['indiList']
+		famList = 	gedcomStructuredData['famList']
 
 		# Now have access to indiDF and famDF DataFrames, can use below
 		# Example template:
@@ -291,7 +375,8 @@ def main():
 		printIndi()
 		print("\n\n")
 		printFam()
-
+		test(indiList)
+		print(print_data(indiList))
 		#US16
 		if(maleLastNames(indiDF, famList)):
 			print("\n")
@@ -307,3 +392,5 @@ def main():
 if __name__ == "__main__":
     # execute only if run as a script
     main()
+
+
