@@ -1,8 +1,22 @@
-from prettytable import PrettyTable
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+import calendar
+import pandas as pd
 
+def get_exactly_130_years_of_age():
+	age_limit = 130
+	one_thirty_age = (datetime.now() - relativedelta(years=age_limit)).strftime('%Y-%m-%d')
+	return datetime.strptime(one_thirty_age, '%Y-%m-%d')
 
+def get_number_month(letter_month):
+	letter_month = letter_month.capitalize()
+	abbr_to_num = {name: num for num, name in enumerate(calendar.month_abbr) if num}
+	return abbr_to_num[letter_month]
 
-def read_a_file():
+def turn_arr_into_date_arr(arr):
+	return [arr[-1], get_number_month(arr[-2]), arr[0]]
+
+def get_person_record():
 	file = open('family_project.ged', 'r')
 	Lines = file.readlines()
 	tags = ['INDI', 'NAME', 'SEX', 'BIRT', 'DEAT',
@@ -10,142 +24,122 @@ def read_a_file():
 			'CHIL', 'DIV', 'DATE', 'HEAD', 'TRLR', 'NOTE']
 	levels = ['0', '1', '2']
 
-	words = []
+
+
+
+	individual = []
+	a_person = []
+	someone = []
+	num_of_individual = 0
+
 	for line in Lines:
-		word = line.split()
-		words.append(word)
+		arr = line.split()
+		if(len(arr) > 2):
+			tag = arr[2]
+		if tag == "INDI":
+			num_of_individual += 1
 
-	#removing brackets
-	new_words = [val for sub_person in words for val in sub_person]
-
-	#finding the number of individuals
-	ind_count = 0
-	for ele in new_words:
-		if ele == 'INDI':
-			ind_count += 1
-
-
-	#creating empty list for the number of individuals
-	person = []
-	for i in range(ind_count):
-		person.append([])
-
-	# Individuals index
-	k = -1
-
-	#Checking data from new_words list and appending the data to person list
-	for j in range(len(new_words)):
-		if(new_words[j] == "INDI"):
-			k += 1
-			person[k].append(new_words[j-1])
-		if new_words[j] == 'NAME':
-			person[k].append(new_words[j+1])
-			person[k].append(new_words[j+2])
-		if(new_words[j] == "SEX"):
-			person[k].append(new_words[j+1])
-		if(new_words[j] == "DATE" and new_words[j-2] == 'BIRT'):
-			person[k].append(new_words[j+1])
-			person[k].append(new_words[j+2])
-			person[k].append(new_words[j+3])
-		if(new_words[j] == 'DEAT'):
-			person[k].append(new_words[j+1])
-			person[k].append(new_words[j+2])
-			person[k].append(new_words[j+3])
-		if (new_words[j] == "FAMC"):
-			person[k].append(new_words[j])
-			person[k].append(new_words[j])
-			person[k].append(new_words[j+1])
-		if( new_words[j]=="FAMS"):
-			person[k].append(new_words[j])
-			person[k].append(new_words[j])
-			person[k].append(new_words[j+1])
-
-	#finding the number of families
-	fam_count = 0
-	for ele in new_words:
-		if ele == 'FAM':
-			fam_count += 1
-
-	#creating empty list for the number of families
-	family = []
-	for i in range(fam_count):
-		family.append([])
-
-	#family index
-	l = -1
-
-	#Checking data from new_words list and appending the data to family list
-
-	for j in range(len(new_words)):
-		if(new_words[j] == "FAM"):
-			l += 1
-			family[l].append(new_words[j-1])
-		if(new_words[j] == 'MARR'):
-			family[l].append(new_words[j+3])
-			family[l].append(new_words[j+4])
-			family[l].append(new_words[j+5])
-		if(new_words[j] == "DIV"):
-			family[l].append(new_words[j+3])
-			family[l].append(new_words[j+4])
-			family[l].append(new_words[j+5])
-
-		if (new_words[j] == "HUSB"):
-			family[l].append(new_words[j+1])
-		if (new_words[j] == "WIFE"):
-			family[l].append(new_words[j+1])
-		if (new_words[j] == "CHIL"):
-			family[l].append(new_words[j+1])
-
-	return person, family;
+	for i in range(num_of_individual):
+		individual.append([])
+		a_person.append([])
+		someone.append([])	
 
 
-def print_individual_pretty_table():
 
-	#Making prettytable structure
-	x = PrettyTable()
-	x.field_names = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Alive', 'Death', 'Child', 'Spouse']
-	persons = read_a_file()[0]
+	i = -1
+	for line in Lines:
+		arr = line.split()
+		level = arr[0]
+		tag = arr[1]
+		arguments = arr[2:]
 
-	#Getting record of each person
-	for i in range(len(persons)):
-		a_person = persons[i]
+		for arg in arguments:
+			if arg == "INDI":
+				tag = arg
+				arguments = arr[1]
 
-		#Checking if you are a child
-		child = ""
-		if (a_person[7] == 'FAMC'):
-			child = a_person[9]
-		else:
-			child = 'NA'
-
-		#checking if you are married
-		spouse = ""
-		if (a_person[7] == 'FAMS'):
-			spouse = a_person[9]
-		else:
-			spouse = 'NA'
+		if tag == "INDI":
+			i += 1
+		individual[i].append({tag:arguments})
 
 
-		#adding rows to the table
-		x.add_row([a_person[0], a_person[1]+ ' ' +a_person[2], a_person[3],
-			a_person[5]+ ' ' + a_person[4] + ' ' + a_person[6], (2020 - int(a_person[6])),
-			 'Yes', 'No', child,spouse])
-	print(x)
+	for i in range(len(individual)):
+		person = individual[i]
+		for j in range(len(person)):
+			obj = person[j]
+			keys = obj.keys()
+			values = obj.values()
+			for key in keys:
+				if key == "DATE":
+					a_person[i].append({key: obj[key]})
+				if key == "INDI":
+					a_person[i].append({key:obj[key]})
+				if key == "NAME":
+					a_person[i].append({key:obj[key]})
+				if key == "BIRT":
+					a_person[i].append({key: True})
 
-print_individual_pretty_table()
+	for i in range(len(a_person)):
+		try:
+			elem0 = a_person[i][0]['INDI']
+			elem1 = a_person[i][1]['NAME']
+			elem2 = a_person[i][2]['BIRT']
+			elem3 = a_person[i][3]['DATE']
+		except IndexError:
+			elem0 = "N/A"
+			elem1 = "N/A"
+			elem2 = "N/A"
+			elem3 = "N/A"
+
+		someone[i].append(elem0)
+		someone[i].append(elem1)
+		someone[i].append(elem2)
+		someone[i].append(elem3)
+	file.close()
+	return someone
+
+def print_age_qualification():
+
+	person = get_person_record()
+	one_hundred_and_thirty = get_exactly_130_years_of_age()
+	each_person = []
+	isQualified = ""
+
+	for i in range(len(person)):
+		if (person[i][2] == True):
+			name_arr = person[i][1]
+			date_arr = person[i][3]
+			date_str = turn_arr_into_date_arr(date_arr)
+			born_date = date_str[0] + '-' + str(date_str[1]) + '-' + str(date_str[2])
+			curr_born_date = datetime.strptime(born_date, '%Y-%m-%d')
+			name = ""
+			for j in range(len(name_arr)):
+				name += name_arr[j].strip("/") + " "
+			if(curr_born_date >= one_hundred_and_thirty):
+				isQualified = 'Yes'
+				each_person.append([name, born_date,  isQualified])
+			else:
+				isQualified = 'No'
+				each_person.append([name, born_date,  isQualified])
+	return each_person
+
+def print_data():
+	person_record = print_age_qualification()
+	n_arr = []
+	b_arr = []
+	q_arr = []
+	person_data = {}
+	for i in range(len(person_record)):
+		n_arr.append(person_record[i][0])
+		b_arr.append(person_record[i][1])
+		q_arr.append(person_record[i][2])
 
 
-def print_family_pretty_table():
-	y = PrettyTable()
-	y.field_names = ['ID', 'Married', 'Divorced', 'Husband ID', 'Wife ID', 'Children']
-	families = read_a_file()[1]
+	person_data['Name'] = n_arr
+	person_data['Birth Date'] = b_arr
+	person_data['Qualified'] = q_arr
 
-	divorce = ""
+	df = pd.DataFrame(person_data, columns = ['Name', 'Birth Date','Qualified'])
+	return df
 
-	#print(families)
-	for i in range(len(families)):
-		family = families[i]
-		y.add_row([family[0], family[1] + family[2] + family[3], 'NA', family[4], family[5], {family[6] + ', ' + family[7]}])
-	print(y)
-
-
-print_family_pretty_table()
+print(print_data())
