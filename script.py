@@ -73,7 +73,7 @@ def print_age_qualification(indiList):
 		if (type(i['Age']) == int) :
 			name_arr = i['Name']
 			birth_day = i['Birthday']
-			
+
 			name = ""
 			for j in range(len(name_arr)):
 				name += name_arr[j].strip("/") + " "
@@ -117,6 +117,8 @@ def lookup(attr, id):
 
 #Calculate age given two dates. If death not supplied assume not dead
 def calculateAge(born, death=False):
+	if born is None:
+		return 0
 	born 	= datetime.strptime(born, "%d %b %Y")
 	endDate 	= datetime.strptime(death, "%d %b %Y") if death else date.today() #if death is set, set end date as death. Otherwise, set end date as today
 	return endDate.year - born.year - ((endDate.month, endDate.day) < (born.month, born.day))
@@ -136,13 +138,32 @@ def validDate(arguments):
 
 # Returns true if date1 is before date2,
 def check_dateOrder(date1, date2):
-	date1 = datetime.strptime(date1, "%d %b %Y")
-	date2 = datetime.strptime(date2, "%d %b %Y")
+	if (date1 is None):
+		return False
 
-	if date1 >= date2:
+	date1 = datetime.strptime(date1, "%d %b %Y")
+	date2 = datetime.strptime(date2, "%d %b %Y") if date2 else None
+
+	if date2 is None or date1 <= date2:
 		return True
 	else:
 		return False
+
+#Verify that all death dates are after birth dates. Returns 0 if no offenders. If offenders detected, returns the number of them
+def verifyBirthDeathDateOrder(indiList):
+	warningList = []
+	for i in indiList:
+		if (check_dateOrder(i.get('Birthday', None), i.get('Death', None)) == False):
+			warningList.append(i)
+
+	warnDF = pd.DataFrame(warningList)
+	if len(warnDF) < 1:
+		print("No Death before Birth")
+	else:
+		print("WARNING: Death before Birth found:")
+		print(pd.DataFrame(warningList))
+
+	return len(warnDF)
 
 #US16 SJ Sprint 1
 def maleLastNames(indiDF, famList):
@@ -281,7 +302,7 @@ def generateInitialData(fileName):
 					newestIndiv['Age'] 		= calculateAge(arguments)
 				elif nextLineDeat:
 					newestIndiv['Death'] 	= arguments
-					newestIndiv['Age'] 		= calculateAge(newestIndiv['Birthday'], arguments)
+					newestIndiv['Age'] 		= calculateAge(newestIndiv.get('Birthday', None), arguments)
 					newestIndiv['Alive'] 	= False
 				elif nextLineMarr:
 					newestFam['Married'] 	= arguments
@@ -384,11 +405,11 @@ def main():
 			print("\n")
 			print('All males do not have the same last name')
 			print("\n")
+
+		verifyBirthDeathDateOrder(indiList)
 	else:
 		print("Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")
 
 if __name__ == "__main__":
     # execute only if run as a script
     main()
-
-
