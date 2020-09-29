@@ -73,7 +73,7 @@ def print_age_qualification(indiList):
 		if (type(i['Age']) == int) :
 			name_arr = i['Name']
 			birth_day = i['Birthday']
-			
+
 			name = ""
 			for j in range(len(name_arr)):
 				name += name_arr[j].strip("/") + " "
@@ -117,6 +117,8 @@ def lookup(attr, id):
 
 #Calculate age given two dates. If death not supplied assume not dead
 def calculateAge(born, death=False):
+	if born is None:
+		return 0
 	born 	= datetime.strptime(born, "%d %b %Y")
 	endDate 	= datetime.strptime(death, "%d %b %Y") if death else date.today() #if death is set, set end date as death. Otherwise, set end date as today
 	return endDate.year - born.year - ((endDate.month, endDate.day) < (born.month, born.day))
@@ -151,7 +153,7 @@ def check_dateOrder(date1, date2):
 def verifyBirthDeathDateOrder(indiList):
 	warningList = []
 	for i in indiList:
-		if (check_dateOrder(i['Birthday'], i['Death'] if 'Death' in i.keys() else None) == False):
+		if (check_dateOrder(i.get('Birthday', None), i.get('Death', None)) == False):
 			warningList.append(i)
 
 	warnDF = pd.DataFrame(warningList)
@@ -300,7 +302,7 @@ def generateInitialData(fileName):
 					newestIndiv['Age'] 		= calculateAge(arguments)
 				elif nextLineDeat:
 					newestIndiv['Death'] 	= arguments
-					newestIndiv['Age'] 		= calculateAge(newestIndiv['Birthday'], arguments)
+					newestIndiv['Age'] 		= calculateAge(newestIndiv.get('Birthday', None), arguments)
 					newestIndiv['Alive'] 	= False
 				elif nextLineMarr:
 					newestFam['Married'] 	= arguments
@@ -411,5 +413,3 @@ def main():
 if __name__ == "__main__":
     # execute only if run as a script
     main()
-
-
