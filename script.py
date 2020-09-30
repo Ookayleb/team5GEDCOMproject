@@ -48,18 +48,7 @@ def test(indList):
 	for i in indList:
 		print( "****" + str(i))
 
-# def get_exactly_130_years_of_age():
-# 	age_limit = 130
-# 	one_thirty_age = (datetime.now() - relativedelta(years=age_limit)).strftime('%Y-%m-%d')
-# 	return datetime.strptime(one_thirty_age, '%Y-%m-%d')
 
-# def get_number_month(letter_month):
-# 	letter_month = letter_month.capitalize()
-# 	abbr_to_num = {name: num for num, name in enumerate(calendar.month_abbr) if num}
-# 	return abbr_to_num[letter_month]
-
-# def turn_arr_into_date_arr(arr):
-# 	return [arr[-1], get_number_month(arr[-2]), arr[0]]
 #************************************************************************
 #                   US29- List deceased
 def get_deceased_records(indList):
