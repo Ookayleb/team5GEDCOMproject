@@ -60,7 +60,41 @@ def test(indList):
 
 # def turn_arr_into_date_arr(arr):
 # 	return [arr[-1], get_number_month(arr[-2]), arr[0]]
+#************************************************************************
+#US29- List deceased
+def get_deceased_records(indList):
+	print('\n\n')
+	print('Deceased\n')
+	decease_list = {}
+	id_arr = []
+	name_arr = []
+	gender_arr = []
+	birth_arr = []
+	age_arr = []
+	death_arr = []
+	spouse_arr = []
+	for record in indList:
+		if (record['Alive'] == False):
+			id_arr.append(record['ID'])
+			name_arr.append(record['Name'])
+			gender_arr.append(record['Gender'])
+			birth_arr.append(record['Birthday'])
+			age_arr.append(record['Age'])
+			death_arr.append(record['Death'])
+			spouse_arr.append(record['Spouse'])
 
+	decease_list['ID'] = id_arr
+	decease_list['Name'] = name_arr
+	decease_list['Gender'] = gender_arr
+	decease_list['Birthday'] = birth_arr
+	decease_list['Age'] = age_arr
+	decease_list['Death'] = death_arr
+	decease_list['Spouse'] = spouse_arr
+
+	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death', 'Spouse'])
+	print(df)
+	print('\n\n')
+#*****************************************************************************************************************end
 def print_age_qualification(indiList):
 
 	#person = get_person_record()
@@ -76,7 +110,7 @@ def print_age_qualification(indiList):
 			
 			name = ""
 			for j in range(len(name_arr)):
-				name += name_arr[j].strip("/") + " "
+				name += name_arr[j].strip("/")
 			if(i['Age'] <= one_hundred_thirty):
 				isQualified = 'Yes'
 				each_person.append([name, birth_day,  isQualified])
@@ -374,6 +408,7 @@ def main():
 		print("\n\n")
 		printFam()
 		test(indiList)
+		get_deceased_records(indiList)
 		print(print_data(indiList))
 		#US16
 		if(maleLastNames(indiDF, famList)):
