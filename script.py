@@ -61,7 +61,7 @@ def test(indList):
 # def turn_arr_into_date_arr(arr):
 # 	return [arr[-1], get_number_month(arr[-2]), arr[0]]
 #************************************************************************
-#US29- List deceased
+#                   US29- List deceased
 def get_deceased_records(indList):
 	print('\n\n')
 	print('Deceased\n')
