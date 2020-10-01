@@ -212,43 +212,54 @@ def validAge(age):
 
 
 def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
-	maritalPositionID 	= "Husband ID" if maritalPosition == "Husband" else "Wife ID"
-	spousePositionID	= "Wife ID" 	if maritalPosition == "Husband" else "Husband ID"
-	spouseName		= "Wife Name"	if maritalPosition == "Husband" else "Husband Name"
+	#Set up variables
 	anomalyBigamyDF = pd.DataFrame()
+	if maritalPosition == "Husband":
+		maritalPositionID 	= "Husband ID"
+		spousePositionID	= "Wife ID"
+		spouseName		= "Wife Name"
+	else:
+		maritalPositionID 	= "Wife ID"
+		spousePositionID	= "Husband ID"
+		spouseName		= "Husband Name"
 
+	#loop over every personID in the remarried Set
 	for personID in remarriedSet:
-		marrInfoDF = famDF.loc[
-			(famDF[maritalPositionID] == personID),		#This line specifies the query
-			['Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Married', 'Divorced']							#This line specifies what columns our output contains. Is independent from the above line
+		marrInfoDF = famDF.loc[		#Make a dataframe based on the famDF, but here all rows are related to personID
+			(famDF[maritalPositionID] == personID),									#This line specifies the query
+			['Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Married', 'Divorced']	#This line specifies what columns our output contains. Is independent from the above line
 		]
 
+		#Merge data from indiDF into our newly created marrInfoDF table. We are intrested in getting Death dates from indiDF
 		marrInfoDF = marrInfoDF.merge(indiDF[["ID", "Death"]], how="left", left_on=spousePositionID, right_on="ID")
-		marrInfoDF.rename(columns={"Death": "Spouse Death"}, inplace=True)
-		marrInfoDF.drop('ID', axis=1, inplace=True)
+		marrInfoDF.rename(columns={"Death": "Spouse Death"}, inplace=True)		#Rename death to spouse death just to be more descriptive
+		marrInfoDF.drop('ID', axis=1, inplace=True)							#drop the ID column as we dont need it
 
-
+		#Convert all dates to datetime so we can easily compare dates
 		marrInfoDF['Married'] 		= pd.to_datetime(marrInfoDF['Married'], format='%d %b %Y')
 		marrInfoDF['Divorced'] 		= pd.to_datetime(marrInfoDF['Divorced'], format='%d %b %Y')
 		marrInfoDF['Spouse Death'] 	= pd.to_datetime(marrInfoDF['Spouse Death'], format='%d %b %Y')
 
+		#sort the table by Married, so we get the earliest marriage first
 		marrInfoDF.sort_values(by=['Married'], inplace=True)
 
+		#Create four new columns that hold the previous row's info using .shift(), which copies Divorced, Spouse Death, Huband Name, and Husband ID from row 1 to row 2, from row 2 to row 3, etc.
+		#This way when we look at one row, we also have information of the previous row in our own row.
 		marrInfoDF[['prev_divorced', 'prev_spouseDeath', 'prev_spouseName', 'prev_spouseID']] = marrInfoDF[['Divorced', 'Spouse Death', spouseName, spousePositionID]].shift()
 
+		#set the previous marriage end date to the previous divorce. If that doesnt exist, set it to the previous spouse's death date. if that didnt exist it will be NaT
 		marrInfoDF['prev_marriageEndDate'] = np.where(pd.isnull(marrInfoDF['prev_divorced']), marrInfoDF['prev_spouseDeath'], marrInfoDF['prev_divorced'])
-		marrInfoDF = marrInfoDF.iloc[1:]
+		marrInfoDF = marrInfoDF.iloc[1:]	#We don't care about the first row, because we can't tell if a bigamy is happening if we just have one entry for married
 
-
+		#make a table for entries that have bigamy. This is the case when the Married date comes before the previous marriage's end date
 		offendingEntriesDF = marrInfoDF.loc[
-			~(marrInfoDF['Married'] > marrInfoDF['prev_marriageEndDate'])
+			~(marrInfoDF['Married'] > marrInfoDF['prev_marriageEndDate']) #~ means not. We have to do "not greater than" because any date < NaT returns false. But we want true so we flip
 		]
 
+		#Concatonate our findings to a table that has all bigamies
 		anomalyBigamyDF = pd.concat([anomalyBigamyDF, offendingEntriesDF])
 
 	return anomalyBigamyDF
-
-
 
 def verifyBigamy(indiList, famList, famDF, indiDF):
 	husbID_list 		= famDF["Husband ID"].to_list()	#list of all husband IDs, duplicates included
@@ -284,7 +295,7 @@ def verifyBigamy(indiList, famList, famDF, indiDF):
 	else:
 		printGreen("No Females Commiting Bigamy")
 
-
+#Colors!!
 def printRed(str):			print("\033[91m{}\033[00m" .format(str))
 def printRedBold(str):		print("\033[1m\033[91m{}\033[00m" .format(str))
 def printGreen(str):		print("\033[92m{}\033[00m" .format(str))
