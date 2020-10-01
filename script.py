@@ -211,6 +211,45 @@ def validAge(age):
 	return True
 
 
+def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
+	maritalPositionID 	= "Husband ID" if maritalPosition == "Husband" else "Wife ID"
+	spousePositionID	= "Wife ID" 	if maritalPosition == "Husband" else "Husband ID"
+	spouseName		= "Wife Name"	if maritalPosition == "Husband" else "Husband Name"
+	anomalyBigamyDF = pd.DataFrame()
+
+	for personID in remarriedSet:
+		marrInfoDF = famDF.loc[
+			(famDF[maritalPositionID] == personID),		#This line specifies the query
+			['Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Married', 'Divorced']							#This line specifies what columns our output contains. Is independent from the above line
+		]
+
+		marrInfoDF = marrInfoDF.merge(indiDF[["ID", "Death"]], how="left", left_on=spousePositionID, right_on="ID")
+		marrInfoDF.rename(columns={"Death": "Spouse Death"}, inplace=True)
+		marrInfoDF.drop('ID', axis=1, inplace=True)
+
+
+		marrInfoDF['Married'] 		= pd.to_datetime(marrInfoDF['Married'], format='%d %b %Y')
+		marrInfoDF['Divorced'] 		= pd.to_datetime(marrInfoDF['Divorced'], format='%d %b %Y')
+		marrInfoDF['Spouse Death'] 	= pd.to_datetime(marrInfoDF['Spouse Death'], format='%d %b %Y')
+
+		marrInfoDF.sort_values(by=['Married'], inplace=True)
+
+		marrInfoDF[['prev_divorced', 'prev_spouseDeath', 'prev_spouseName', 'prev_spouseID']] = marrInfoDF[['Divorced', 'Spouse Death', spouseName, spousePositionID]].shift()
+
+		marrInfoDF['prev_marriageEndDate'] = np.where(pd.isnull(marrInfoDF['prev_divorced']), marrInfoDF['prev_spouseDeath'], marrInfoDF['prev_divorced'])
+		marrInfoDF = marrInfoDF.iloc[1:]
+
+
+		offendingEntriesDF = marrInfoDF.loc[
+			~(marrInfoDF['Married'] > marrInfoDF['prev_marriageEndDate'])
+		]
+
+		anomalyBigamyDF = pd.concat([anomalyBigamyDF, offendingEntriesDF])
+
+	return anomalyBigamyDF
+
+
+
 def verifyBigamy(indiList, famList, famDF, indiDF):
 	husbID_list 		= famDF["Husband ID"].to_list()	#list of all husband IDs, duplicates included
 	wifeID_list 		= famDF["Wife ID"].to_list()
@@ -225,68 +264,45 @@ def verifyBigamy(indiList, famList, famDF, indiDF):
 		if(husbID_list.count(husbID) > 1):			#Check if this row's husb ID appears more than once in the husbID list
 			remarriedSet_male.add(husbID)
 
-		if(wifeID.count(wifeID) > 1):			#Check if this row's husb ID appears more than once in the husbID list
+		if(wifeID_list.count(wifeID) > 1):			#Check if this row's husb ID appears more than once in the husbID list
 			remarriedSet_female.add(wifeID)
 
-			# Now have access to indiDF and famDF DataFrames, can use below
-					# Example template:
-						# To print two columns of a table:
-						# print(indiDF[['ID', 'Age']])
-						#
-						# To create a new table that has values that meet a certain criteria (Here our criteria is Age > 60 and Gender = M)
-						# newTable = indiDF.loc[
-						# 	(indiDF['Age']>60) & (indiDF['Gender'] == "M"),		#This line specifies the query
-						# 	['Name','Age','Gender']							#This line specifies what columns our output contains. Is independent from the above line
-						# ]
-						# print(newTable)
-
-					# CODE HERE
-
-	#check these cases
-	for maleID in remarriedSet_male:
-		maleMarrInfoDF = famDF.loc[
-			(famDF['Husband ID'] == maleID),		#This line specifies the query
-			['Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Married', 'Divorced']							#This line specifies what columns our output contains. Is independent from the above line
-		]
-
-		maleMarrInfoDF = maleMarrInfoDF.merge(indiDF[["ID", "Death"]], how="left", left_on="Wife ID", right_on="ID")
-		maleMarrInfoDF.rename(columns={"Death": "Spouse Death"}, inplace=True)
+	maleBigamyDF = getAnomaliesBigamy(remarriedSet_male, famDF, indiDF, "Husband")
+	femaleBigamyDF = getAnomaliesBigamy(remarriedSet_female, famDF, indiDF, "Wife")
 
 
-
-		dateArray = []
-		maleMarrInfoDF['Married'] 		= pd.to_datetime(maleMarrInfoDF['Married'], format='%d %b %Y')
-		maleMarrInfoDF['Divorced'] 		= pd.to_datetime(maleMarrInfoDF['Divorced'], format='%d %b %Y')
-		maleMarrInfoDF['Spouse Death'] 	= pd.to_datetime(maleMarrInfoDF['Spouse Death'], format='%d %b %Y')
-		# maleMarrInfoDF['MarriageEndDate']	= pd.to_datetime(maleMarrInfoDF['Divorced'] if )
-
-		maleMarrInfoDF.sort_values(by=['Married'], inplace=True)
-
-		maleMarrInfoDF[['prev_divorced', 'prev_spouseDeath']] = maleMarrInfoDF[['Divorced', 'Spouse Death']].shift()
-
-		print(pd.isnull(maleMarrInfoDF['prev_divorced']))
-		maleMarrInfoDF['prev_marriageEndDate'] = np.where(pd.isnull(maleMarrInfoDF['prev_divorced']), maleMarrInfoDF['prev_spouseDeath'], maleMarrInfoDF['prev_divorced'])
-		# maleMarrInfoDF['Error'] = (maleMarrInfoDF['Married'] < (maleMarrInfoDF['prev_divorced'] if not pd.isnull(maleMarrInfoDF['prev_divorced']) else maleMarrInfoDF['prev_spouseDeath']))
-		maleMarrInfoDF['prev_marriageEndDate'] = np.where((pd.isnull(maleMarrInfoDF['prev_divorced', 'prev_spouseDeath']) and pd.isnull(maleMarrInfoDF['prev_spouseDeath'])), "Never", "Nat")
-
-		# if maleMarrInfoDF['Married'] > maleMarrInfoDF['prev_divorced']:
-		# 	print("BADD")
-
-		print(maleMarrInfoDF)
+	if(len(maleBigamyDF) > 0):
+		printYellowBold("\n\nMale Bigamy:")
+		print(maleBigamyDF)
 		print()
+	else:
+		printGreen("No Males Commiting Bigamy")
+	if(len(femaleBigamyDF) > 0):
+		printYellowBold("\n\nFemale Bigamy:")
+		print(femaleBigamyDF)
+		print()
+	else:
+		printGreen("No Females Commiting Bigamy")
 
 
-	print(remarriedSet_male)
-	print(remarriedSet_female)
-		# if count(husbID) in famList > 1 then we know husb remarr
-		# if count(wifeID) in famList > 1 then we kno wife remarr
-
+def printRed(str):			print("\033[91m{}\033[00m" .format(str))
+def printRedBold(str):		print("\033[1m\033[91m{}\033[00m" .format(str))
+def printGreen(str):		print("\033[92m{}\033[00m" .format(str))
+def printYellow(str):		print("\033[93m{}\033[00m" .format(str))
+def printYellowBold(str):	print("\033[1m\033[93m{}\033[00m" .format(str))
+def printLightPurple(str):	print("\033[94m{}\033[00m" .format(str))
+def printPurple(str):		print("\033[95m{}\033[00m" .format(str))
+def printCyan(str):			print("\033[96m{}\033[00m" .format(str))
+def printCyanBold(str):		print("\033[1m\033[96m{}\033[00m" .format(str))
+def printLightGray(str):		print("\033[97m{}\033[00m" .format(str))
+def printBlack(str):		print("\033[98m{}\033[00m" .format(str))
 
 
 
 
 #Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
 def generateInitialData(fileName):
+	# global indiDF, indiList, famDF, famList
 	with open(fileName, "r", encoding="utf8") as inFile:		#open the file provided in the argument
 		line_num=-1
 		for line in inFile:
@@ -339,6 +355,7 @@ def generateInitialData(fileName):
 				nextLineBirt 	= False
 				nextLineDeat 	= False
 				nextLineMarr 	= False
+				nextLineDiv 	= False
 				newestIndiv 	= indiList[-1] if indiList else None	#This syntax chooses the the last element in indiList if it exists, otherwise the newestIndiv is None
 				newestFam		= famList[-1] if famList else None
 				if tag == "NAME":
@@ -453,11 +470,11 @@ def main():
 
 
 		def printIndi():
-			print("Individuals")
+			printCyanBold("Individuals")
 			print(indiDF)
 
 		def printFam():
-			print("Families")
+			printCyanBold("Families")
 			print(famDF)
 
 		indiDF.to_csv("indiDF.csv", index=False)
@@ -467,22 +484,23 @@ def main():
 		printFam()
 		# test(indiList)
 		# print(print_data(indiList))
+		print()
 		verifyBigamy(indiList, famList, famDF, indiDF)
 
 
 		#US16
 		if(maleLastNames(indiDF, famList)):
 			print("\n")
-			print('All males have same last name')
+			printGreen('All males have same last name')
 			print("\n")
 		else:
 			print("\n")
-			print('All males do not have the same last name')
+			printYellowBold('All males do not have the same last name')
 			print("\n")
 
 		verifyBirthDeathDateOrder(indiList)
 	else:
-		print("Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")
+		printRedBold("Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")
 
 if __name__ == "__main__":
     # execute only if run as a script
