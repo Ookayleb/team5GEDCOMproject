@@ -6,6 +6,7 @@ import pandas as pd
 from datetime import datetime
 from datetime import date
 import unittest
+import numpy as np
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -44,9 +45,9 @@ famList	= []		#will hold all families
 
 #************************************************************************
 
-def test(indList):
-	for i in indList:
-		print( "****" + str(i))
+# def test(indList):
+# 	for i in indList:
+# 		print( "****" + str(i))
 
 # def get_exactly_130_years_of_age():
 # 	age_limit = 130
@@ -209,6 +210,76 @@ def validAge(age):
 		return False
 	return True
 
+
+def verifyBigamy(indiList, famList, famDF, indiDF):
+	husbID_list 		= famDF["Husband ID"].to_list()	#list of all husband IDs, duplicates included
+	wifeID_list 		= famDF["Wife ID"].to_list()
+	remarriedSet_male 	= set([])
+	remarriedSet_female = set([])
+
+	#identify all posssible cases
+	for families in famList:					#loop through all families
+		husbID = families["Husband ID"]			#grab this row's husband ID
+		wifeID = families["Wife ID"]
+
+		if(husbID_list.count(husbID) > 1):			#Check if this row's husb ID appears more than once in the husbID list
+			remarriedSet_male.add(husbID)
+
+		if(wifeID.count(wifeID) > 1):			#Check if this row's husb ID appears more than once in the husbID list
+			remarriedSet_female.add(wifeID)
+
+			# Now have access to indiDF and famDF DataFrames, can use below
+					# Example template:
+						# To print two columns of a table:
+						# print(indiDF[['ID', 'Age']])
+						#
+						# To create a new table that has values that meet a certain criteria (Here our criteria is Age > 60 and Gender = M)
+						# newTable = indiDF.loc[
+						# 	(indiDF['Age']>60) & (indiDF['Gender'] == "M"),		#This line specifies the query
+						# 	['Name','Age','Gender']							#This line specifies what columns our output contains. Is independent from the above line
+						# ]
+						# print(newTable)
+
+					# CODE HERE
+
+	#check these cases
+	for maleID in remarriedSet_male:
+		maleMarrInfoDF = famDF.loc[
+			(famDF['Husband ID'] == maleID),		#This line specifies the query
+			['Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Married', 'Divorced']							#This line specifies what columns our output contains. Is independent from the above line
+		]
+
+		maleMarrInfoDF = maleMarrInfoDF.merge(indiDF[["ID", "Death"]], how="left", left_on="Wife ID", right_on="ID")
+		maleMarrInfoDF.rename(columns={"Death": "Spouse Death"}, inplace=True)
+
+
+
+		dateArray = []
+		maleMarrInfoDF['Married'] 		= pd.to_datetime(maleMarrInfoDF['Married'], format='%d %b %Y')
+		maleMarrInfoDF['Divorced'] 		= pd.to_datetime(maleMarrInfoDF['Divorced'], format='%d %b %Y')
+		maleMarrInfoDF['Spouse Death'] 	= pd.to_datetime(maleMarrInfoDF['Spouse Death'], format='%d %b %Y')
+		# maleMarrInfoDF['MarriageEndDate']	= pd.to_datetime(maleMarrInfoDF['Divorced'] if )
+
+		maleMarrInfoDF.sort_values(by=['Married'], inplace=True)
+
+		maleMarrInfoDF[['prev_divorced', 'prev_spouseDeath']] = maleMarrInfoDF[['Divorced', 'Spouse Death']].shift()
+
+		print(pd.isnull(maleMarrInfoDF['prev_divorced']))
+		maleMarrInfoDF['prev_marriageEndDate'] = np.where(pd.isnull(maleMarrInfoDF['prev_divorced']), maleMarrInfoDF['prev_spouseDeath'], maleMarrInfoDF['prev_divorced'])
+		# maleMarrInfoDF['Error'] = (maleMarrInfoDF['Married'] < (maleMarrInfoDF['prev_divorced'] if not pd.isnull(maleMarrInfoDF['prev_divorced']) else maleMarrInfoDF['prev_spouseDeath']))
+		maleMarrInfoDF['prev_marriageEndDate'] = np.where((pd.isnull(maleMarrInfoDF['prev_divorced', 'prev_spouseDeath']) and pd.isnull(maleMarrInfoDF['prev_spouseDeath'])), "Never", "Nat")
+
+		# if maleMarrInfoDF['Married'] > maleMarrInfoDF['prev_divorced']:
+		# 	print("BADD")
+
+		print(maleMarrInfoDF)
+		print()
+
+
+	print(remarriedSet_male)
+	print(remarriedSet_female)
+		# if count(husbID) in famList > 1 then we know husb remarr
+		# if count(wifeID) in famList > 1 then we kno wife remarr
 
 
 
@@ -394,8 +465,11 @@ def main():
 		printIndi()
 		print("\n\n")
 		printFam()
-		test(indiList)
-		print(print_data(indiList))
+		# test(indiList)
+		# print(print_data(indiList))
+		verifyBigamy(indiList, famList, famDF, indiDF)
+
+
 		#US16
 		if(maleLastNames(indiDF, famList)):
 			print("\n")
