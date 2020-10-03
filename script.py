@@ -42,48 +42,86 @@ indiList 	= []		#will hold all individuals
 famList	= []		#will hold all families
 
 
-#************************************************************************
+#US12-Parents not too old(father not 80 yrs older, and mother not 60 yrs older than child)****start
 
-def test(indList):
-	for i in indList:
-		print( "****" + str(i))
+#helper function to check age constraint
+def check_age_difference(parent_name, child_name, parent_age, child_age, parent_gender, child_gender):
+	#variables that hold age to compare with age difference
+	male_age_limit = 80
+	female_age_limit = 60
+
+	#check gender if male or female
+	child = ""
+	if child_gender == 'M':
+		child = 'son'
+	else:
+		child = 'daughter'
+
+	age_difference = (int(parent_age) - int(child_age))
+
+	#father can not be more than 80 years older than son or daughter and mother can not be 60 years older than son or daughter
+	# print a message if they are
+	if (parent_gender == 'M' and age_difference>male_age_limit):
+		print(parent_name + ' can not be ' + str(male_age_limit) + ' years older than ' + child + '(' + child_name + ').')
+	elif (parent_gender == 'F' and age_difference>female_age_limit):
+		print(parent_name + 'can not be ' + str(female_age_limit) + ' years older than ' + child + '(' + child_name + ').')
 
 
-#************************************************************************
-#                   US29- List deceased
-def get_deceased_records(indList):
-	print('\n\n')
-	print('Deceased\n')
-	decease_list = {}
-	id_arr = []
-	name_arr = []
-	gender_arr = []
-	birth_arr = []
-	age_arr = []
-	death_arr = []
-	spouse_arr = []
-	for record in indList:
-		if (record['Alive'] == False):
-			id_arr.append(record['ID'])
-			name_arr.append(record['Name'])
-			gender_arr.append(record['Gender'])
-			birth_arr.append(record['Birthday'])
-			age_arr.append(record['Age'])
-			death_arr.append(record['Death'])
-			spouse_arr.append(record['Spouse'])
+#function to print message if age constraint not meeting requirements
+def get_parents_not_too_old(indList):
+	family_spouse = []
+	family_child = []
 
-	decease_list['ID'] = id_arr
-	decease_list['Name'] = name_arr
-	decease_list['Gender'] = gender_arr
-	decease_list['Birthday'] = birth_arr
-	decease_list['Age'] = age_arr
-	decease_list['Death'] = death_arr
-	decease_list['Spouse'] = spouse_arr
+	#get the id, name, gender, age of all spouses to an family_spouse list
+	for i in range(len(indList)):
+		try:
+			family_spouse.append({'ID':indList[i]['Spouse'], 'Name':indList[i]['Name'], 'Gender': indList[i]['Gender'], 
+				'Age': indList[i]['Age'] })
+		except:
+			indList[i]['N/A'] = 'N/A'
+			family_spouse.append({indList[i]['N/A']})
 
-	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death', 'Spouse'])
-	print(df)
-	print('\n\n')
-#*****************************************************************************************************************end
+	#get the id, name, gender, age of all children to an family_child list
+	for j in range(len(indList)):
+		try:
+			family_child.append({'ID':indList[j]['Child'], 'Name': indList[j]['Name'], 'Gender': indList[j]['Gender'], 
+				'Age': indList[j]['Age'] })
+		except:
+			indList[j]['N/A'] = 'N/A'
+			family_child.append({indList[j]['N/A']})
+
+	#filter family_child and family_spouse list to get rid of N/A data
+	filtered_fam_spouse = filter(lambda x: x != {'N/A'}, family_spouse)
+	filtered_fam_child = filter(lambda x: x != {'N/A'}, family_child) 
+	
+	arr = []
+
+	#put the filters data to a list
+	fam_child = list(filtered_fam_child)
+	fam_spouse = list(filtered_fam_spouse)
+	
+	#if child ID is the same as spouse ID then child belong to that parent
+	for child in fam_child:
+		for spouse in fam_spouse:
+			if child['ID'] == spouse['ID']:
+				arr.append({'child': child['Name'], 'child_age':child['Age'], 
+					'child_gender':child['Gender'], 'parent': spouse['Name'], 
+					'parent_age':spouse['Age'], 'parent_gender':spouse['Gender']})
+
+	#call for check_age_difference() to check on age constraints betwen children and parents
+	for k in range(len(arr)):
+		check_age_difference(arr[k]['parent'], arr[k]['child'], arr[k]['parent_age'], arr[k]['child_age'], arr[k]['parent_gender'],arr[k]['child_gender'])
+	
+
+
+#************************************************************************end
+
+# def test(indList):
+# 	for i in indList:
+# 		print( "****" + str(i))
+
+
+#**********************************end
 def print_age_qualification(indiList):
 
 	#person = get_person_record()
@@ -396,9 +434,10 @@ def main():
 		printIndi()
 		print("\n\n")
 		printFam()
-		test(indiList)
-		get_deceased_records(indiList)
+		#test(indiList)
+		#get_deceased_records(indiList)
 		print(print_data(indiList))
+		get_parents_not_too_old(indiList)
 		#US16
 		if(maleLastNames(indiDF, famList)):
 			print("\n")
