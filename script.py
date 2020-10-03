@@ -134,7 +134,7 @@ def print_age_qualification(indiList):
 		if (type(i['Age']) == int) :
 			name_arr = i['Name']
 			birth_day = i['Birthday']
-			
+
 			name = ""
 			for j in range(len(name_arr)):
 				name += name_arr[j].strip("/")
@@ -169,7 +169,7 @@ def print_data(indiList):
 
 
 ### HELPER FUNCTIONS ###
-#Given an id and an attribute of intrest, returns the value of the attribute desired
+#Given an id and an attribute of intrest, returns the value of the attribute desired ex lookup("birthday", "I343628")
 def lookup(attr, id):
 	for indi in indiList:			#loop over all individuals
 		if id == indi['ID']:		#if we find id
@@ -178,10 +178,12 @@ def lookup(attr, id):
 
 #Calculate age given two dates. If death not supplied assume not dead
 def calculateAge(born, death=False):
+	if born is None:
+		return 0
 	born 	= datetime.strptime(born, "%d %b %Y")
 	endDate 	= datetime.strptime(death, "%d %b %Y") if death else date.today() #if death is set, set end date as death. Otherwise, set end date as today
 	return endDate.year - born.year - ((endDate.month, endDate.day) < (born.month, born.day))
-
+	
 
 # Checks date argument to see if that date is not after today's date
 def validDate(arguments):
@@ -197,50 +199,82 @@ def validDate(arguments):
 
 # Returns true if date1 is before date2,
 def check_dateOrder(date1, date2):
-	date1 = datetime.strptime(date1, "%d %b %Y")
-	date2 = datetime.strptime(date2, "%d %b %Y")
+	if (date1 is None):
+		return False
 
-	if date1 >= date2:
+	date1 = datetime.strptime(date1, "%d %b %Y")
+	date2 = datetime.strptime(date2, "%d %b %Y") if date2 else None
+
+	if date2 is None or date1 <= date2:
 		return True
 	else:
 		return False
 
-#US16 SJ Sprint 1
-def maleLastNames(indiDF, famList):
-	lastNamesEqual = False
-	childrenName = ''	#init child / husb name and childrenID
-	husbandName = ''
-	childrenID = ''
-	malesList = indiDF[(indiDF['Gender'] == 'M')] #created list of males
-	for fam in famList:
-		# print(fam)
-		husbandName = fam['Husband Name'] #for each family stor the husb name
-		lastName = re.findall("\/(.*)\/", str(husbandName))[0]
-		childrenID = fam['Children'] #get the childrenid
-		# print('children ids', str(childrenID))
-		# print('husband Last name' , str(lastName))
-		for id in childrenID: #for all ids in childrenID
-			#print('\n', str(id))
-			malesID = malesList['ID'].to_list()
-			if (id in malesID): #if child is in male list
-				childrenName_bad = str(malesList.loc[malesList['ID'] == id, ['Name']])
-				x = re.findall("\s*(\S*) \/(.*)\/", childrenName_bad)[0]
-				childFirstName = x[0]
-				childLastName 	= x[1]
-				#print('Childs name is ' + childFirstName + ' ' + childLastName)
-			else:
-				#print ('Gender is ' + indiDF.loc[indiDF['ID'] == id, ['Gender'] ] + ' So do not check ')
-				#Because it is a female so it does not matter what the last name is
-				lastNamesEqual =True
+#Verify that all death dates are after birth dates. Returns 0 if no offenders. If offenders detected, returns the number of them
+def verifyBirthDeathDateOrder(indiList):
+	print()
+	print(indiList)
+	print()
+	print()
+	for individual in indiList:
+		if individual['Child'] is not 'NaN':
+			indiID = individual['ID']
 
-			if(lastName == childLastName): #if the childs name contains the husbands name its true otherwise false
-				#print('Family name is ' + lastName)
-				lastNamesEqual = True
+			childBirthday = lookup("Birthday", indiID)
+			childFamilyID = lookup("Child", indiID)
 
-			else:
-				print( '\n the name that doesnt match is ' + childFirstName + " " + childLastName)
-				return False
-	return lastNamesEqual
+	print("birth" + childBirthday + "")
+
+	warningList = []
+	for i in indiList:
+		if (check_dateOrder(i.get('Birthday', None), i.get('Death', None)) == False):
+			warningList.append(i)
+
+	warnDF = pd.DataFrame(warningList)
+	if len(warnDF) < 1:
+		print("No Death before Birth")
+	else:
+		print("WARNING: Death before Birth found:")
+		print(pd.DataFrame(warningList))
+
+	return len(warnDF)
+
+#US16 SJ Sprint 1 CURRENTLY BUGGED
+# def maleLastNames(indiDF, famList):
+# 	lastNamesEqual = False
+# 	childrenName = ''	#init child / husb name and childrenID
+# 	husbandName = ''
+# 	childrenID = ''
+# 	malesList = indiDF[(indiDF['Gender'] == 'M')] #created list of males
+# 	for fam in famList:
+# 		# print(fam)
+# 		husbandName = fam['Husband Name'] #for each family stor the husb name
+# 		lastName = re.findall("\/(.*)\/", str(husbandName))[0]
+# 		childrenID = fam['Children'] #get the childrenid
+# 		# print('children ids', str(childrenID))
+# 		# print('husband Last name' , str(lastName))
+# 		for id in childrenID: #for all ids in childrenID
+# 			#print('\n', str(id))
+# 			malesID = malesList['ID'].to_list()
+# 			if (id in malesID): #if child is in male list
+# 				childrenName_bad = str(malesList.loc[malesList['ID'] == id, ['Name']])
+# 				x = re.findall("\s*(\S*) \/(.*)\/", childrenName_bad)[0]
+# 				childFirstName = x[0]
+# 				childLastName 	= x[1]
+# 				#print('Childs name is ' + childFirstName + ' ' + childLastName)
+# 			else:
+# 				#print ('Gender is ' + indiDF.loc[indiDF['ID'] == id, ['Gender'] ] + ' So do not check ')
+# 				#Because it is a female so it does not matter what the last name is
+# 				lastNamesEqual =True
+
+# 			if(lastName == childLastName): #if the childs name contains the husbands name its true otherwise false
+# 				#print('Family name is ' + lastName)
+# 				lastNamesEqual = True
+
+# 			else:
+# 				print( '\n the name that doesnt match is ' + childFirstName + " " + childLastName)
+# 				return False
+# 	return lastNamesEqual
 
 
 # Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
@@ -248,8 +282,21 @@ def validAge(age):
 	if age >= 150:
 		return False
 	return True
+	
+#convert to datetime object
+def dateToCompare(date):
+	return datetime.strptime(date, "%d %b %Y")
 
 
+def birthBeforeMarriage(famList):
+	for family in famList:
+		for childId in family["Children"]:
+			marriageDate = dateToCompare(family['Married'])
+			if childId != "NaN":
+				birthday = dateToCompare(lookup("Birthday", childId))
+				if marriageDate > birthday:
+					return False
+	return True
 
 
 
@@ -342,7 +389,7 @@ def generateInitialData(fileName):
 					newestIndiv['Age'] 		= calculateAge(arguments)
 				elif nextLineDeat:
 					newestIndiv['Death'] 	= arguments
-					newestIndiv['Age'] 		= calculateAge(newestIndiv['Birthday'], arguments)
+					newestIndiv['Age'] 		= calculateAge(newestIndiv.get('Birthday', None), arguments)
 					newestIndiv['Alive'] 	= False
 				elif nextLineMarr:
 					newestFam['Married'] 	= arguments
@@ -405,7 +452,7 @@ def main():
 		famDF = 		gedcomStructuredData['famDF']
 		indiList = 	gedcomStructuredData['indiList']
 		famList = 	gedcomStructuredData['famList']
-
+		
 		# Now have access to indiDF and famDF DataFrames, can use below
 		# Example template:
 			# To print two columns of a table:
@@ -429,7 +476,9 @@ def main():
 			print("Families")
 			print(famDF)
 
-		indiDF.to_csv("indiDF.csv", index=False)
+		if not birthBeforeMarriage(famList):
+			print("All children must be born after marriage")
+		# indiDF.to_csv("indiDF.csv", index=False)
 
 		printIndi()
 		print("\n\n")
@@ -439,19 +488,19 @@ def main():
 		print(print_data(indiList))
 		get_parents_not_too_old(indiList)
 		#US16
-		if(maleLastNames(indiDF, famList)):
-			print("\n")
-			print('All males have same last name')
-			print("\n")
-		else:
-			print("\n")
-			print('All males do not have the same last name')
-			print("\n")
+		# if(maleLastNames(indiDF, famList)):
+		# 	print("\n")
+		# 	print('All males have same last name')
+		# 	print("\n")
+		# else:
+		# 	print("\n")
+		# 	print('All males do not have the same last name')
+		# 	print("\n")
+
+		verifyBirthDeathDateOrder(indiList)
 	else:
 		print("Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")
 
 if __name__ == "__main__":
     # execute only if run as a script
     main()
-
-
