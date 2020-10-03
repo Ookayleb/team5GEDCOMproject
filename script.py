@@ -41,6 +41,40 @@ THIRD_TOKEN_TAGS =[
 indiList 	= []		#will hold all individuals
 famList	= []		#will hold all families
 
+#US29-Deceased list
+def get_deceased_records(indList):
+	print('Deceased list')
+	print('\n')
+	decease_list = {}
+	id_arr = []
+	name_arr = []
+	gender_arr = []
+	birth_arr = []
+	age_arr = []
+	death_arr = []
+	spouse_arr = []
+	for record in indList:
+		if (record['Alive'] == False):
+			id_arr.append(record['ID'])
+			name_arr.append(record['Name'])
+			gender_arr.append(record['Gender'])
+			birth_arr.append(record['Birthday'])
+			age_arr.append(record['Age'])
+			death_arr.append(record['Death'])
+			spouse_arr.append(record['Spouse'])
+
+	decease_list['ID'] = id_arr
+	decease_list['Name'] = name_arr
+	decease_list['Gender'] = gender_arr
+	decease_list['Birthday'] = birth_arr
+	decease_list['Age'] = age_arr
+	decease_list['Death'] = death_arr
+	decease_list['Spouse'] = spouse_arr
+
+	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death', 'Spouse'])
+	print(df)
+#***************************************************************************end
+
 
 #US12-Parents not too old(father not 80 yrs older, and mother not 60 yrs older than child)****start
 
@@ -108,6 +142,8 @@ def get_parents_not_too_old(indList):
 					'child_gender':child['Gender'], 'parent': spouse['Name'], 
 					'parent_age':spouse['Age'], 'parent_gender':spouse['Gender']})
 
+	#print(arr)
+
 	#call for check_age_difference() to check on age constraints betwen children and parents
 	for k in range(len(arr)):
 		check_age_difference(arr[k]['parent'], arr[k]['child'], arr[k]['parent_age'], arr[k]['child_age'], arr[k]['parent_gender'],arr[k]['child_gender'])
@@ -116,9 +152,9 @@ def get_parents_not_too_old(indList):
 
 #************************************************************************end
 
-# def test(indList):
-# 	for i in indList:
-# 		print( "****" + str(i))
+def test(indList):
+	for i in indList:
+		print( "****" + str(i))
 
 
 #**********************************end
@@ -217,7 +253,7 @@ def verifyBirthDeathDateOrder(indiList):
 	print()
 	print()
 	for individual in indiList:
-		if individual['Child'] is not 'NaN':
+		if individual['Child'] != 'NaN':
 			indiID = individual['ID']
 
 			childBirthday = lookup("Birthday", indiID)
@@ -476,15 +512,15 @@ def main():
 			print("Families")
 			print(famDF)
 
-		if not birthBeforeMarriage(famList):
-			print("All children must be born after marriage")
+		# if not birthBeforeMarriage(famList):
+		# 	print("All children must be born after marriage")
 		# indiDF.to_csv("indiDF.csv", index=False)
 
 		printIndi()
 		print("\n\n")
 		printFam()
 		#test(indiList)
-		#get_deceased_records(indiList)
+		get_deceased_records(indiList)
 		print(print_data(indiList))
 		get_parents_not_too_old(indiList)
 		#US16
@@ -497,7 +533,7 @@ def main():
 		# 	print('All males do not have the same last name')
 		# 	print("\n")
 
-		verifyBirthDeathDateOrder(indiList)
+		#verifyBirthDeathDateOrder(indiList)
 	else:
 		print("Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")
 
