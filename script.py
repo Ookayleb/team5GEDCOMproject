@@ -108,7 +108,7 @@ def print_data(indiList):
 
 
 ### HELPER FUNCTIONS ###
-#Given an id and an attribute of intrest, returns the value of the attribute desired
+#Given an id and an attribute of intrest, returns the value of the attribute desired ex lookup("birthday", "I343628")
 def lookup(attr, id):
 	for indi in indiList:			#loop over all individuals
 		if id == indi['ID']:		#if we find id
@@ -151,6 +151,19 @@ def check_dateOrder(date1, date2):
 
 #Verify that all death dates are after birth dates. Returns 0 if no offenders. If offenders detected, returns the number of them
 def verifyBirthDeathDateOrder(indiList):
+	print()
+	print(indiList)
+	print()
+	print()
+	for individual in indiList:
+		if individual['Child'] is not 'NaN':
+			indiID = individual['ID']
+
+			childBirthday = lookup("Birthday", indiID)
+			childFamilyID = lookup("Child", indiID)
+
+	print("birth" + childBirthday + "")
+
 	warningList = []
 	for i in indiList:
 		if (check_dateOrder(i.get('Birthday', None), i.get('Death', None)) == False):
