@@ -272,42 +272,42 @@ def verifyBirthDeathDateOrder(indiList):
 
 	return len(warnDF)
 
-#US16 SJ Sprint 1 CURRENTLY BUGGED
-# def maleLastNames(indiDF, famList):
-# 	lastNamesEqual = False
-# 	childrenName = ''	#init child / husb name and childrenID
-# 	husbandName = ''
-# 	childrenID = ''
-# 	malesList = indiDF[(indiDF['Gender'] == 'M')] #created list of males
-# 	for fam in famList:
-# 		# print(fam)
-# 		husbandName = fam['Husband Name'] #for each family stor the husb name
-# 		lastName = re.findall("\/(.*)\/", str(husbandName))[0]
-# 		childrenID = fam['Children'] #get the childrenid
-# 		# print('children ids', str(childrenID))
-# 		# print('husband Last name' , str(lastName))
-# 		for id in childrenID: #for all ids in childrenID
-# 			#print('\n', str(id))
-# 			malesID = malesList['ID'].to_list()
-# 			if (id in malesID): #if child is in male list
-# 				childrenName_bad = str(malesList.loc[malesList['ID'] == id, ['Name']])
-# 				x = re.findall("\s*(\S*) \/(.*)\/", childrenName_bad)[0]
-# 				childFirstName = x[0]
-# 				childLastName 	= x[1]
-# 				#print('Childs name is ' + childFirstName + ' ' + childLastName)
-# 			else:
-# 				#print ('Gender is ' + indiDF.loc[indiDF['ID'] == id, ['Gender'] ] + ' So do not check ')
-# 				#Because it is a female so it does not matter what the last name is
-# 				lastNamesEqual =True
+#US16 SJ Sprint 1
+def maleLastNames(indiDF, famList):
+	lastNamesEqual = False
+	childrenName = ''	#init child / husb name and childrenID
+	husbandName = ''
+	childrenID = ''
+	malesList = indiDF[(indiDF['Gender'] == 'M')] #created list of males
+	for fam in famList:
+		# print(fam)
+		husbandName = fam['Husband Name'] #for each family stor the husb name
+		lastName = re.findall("\/(.*)\/", str(husbandName))[0]
+		childrenID = fam['Children'] #get the childrenid
+		# print('children ids', str(childrenID))
+		# print('husband Last name' , str(lastName))
+		for id in childrenID: #for all ids in childrenID
+			#print('\n', str(id))
+			malesID = malesList['ID'].to_list()
+			if (id in malesID): #if child is in male list
+				childrenName_bad = str(malesList.loc[malesList['ID'] == id, ['Name']])
+				x = re.findall("\s*(\S*) \/(.*)\/", childrenName_bad)[0]
+				childFirstName = x[0]
+				childLastName 	= x[1]
+				#print('Childs name is ' + childFirstName + ' ' + childLastName)
+			else:
+				#print ('Gender is ' + indiDF.loc[indiDF['ID'] == id, ['Gender'] ] + ' So do not check ')
+				#Because it is a female so it does not matter what the last name is
+				lastNamesEqual =True
 
-# 			if(lastName == childLastName): #if the childs name contains the husbands name its true otherwise false
-# 				#print('Family name is ' + lastName)
-# 				lastNamesEqual = True
+			if(lastName == childLastName): #if the childs name contains the husbands name its true otherwise false
+				#print('Family name is ' + lastName)
+				lastNamesEqual = True
 
-# 			else:
-# 				print( '\n the name that doesnt match is ' + childFirstName + " " + childLastName)
-# 				return False
-# 	return lastNamesEqual
+			else:
+				print( '\n the name that doesnt match is ' + childFirstName + " " + childLastName)
+				return False
+	return lastNamesEqual
 
 
 # Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
