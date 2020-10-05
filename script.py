@@ -115,7 +115,8 @@ def lookup(attr, id):
 		if id == indi['ID']:		#if we find id
 			return indi[attr]			#return the individual's data that we desire
 
-
+import test
+test.veri()
 #Calculate age given two dates. If death not supplied assume not dead
 def calculateAge(born, death=False):
 	if born is None:
@@ -498,7 +499,7 @@ def main():
 		print()
 		verifyBigamy(indiList, famList, famDF, indiDF)
 
-
+		print("hi")
 		#US16
 		if(maleLastNames(indiDF, famList)):
 			print("\n")
