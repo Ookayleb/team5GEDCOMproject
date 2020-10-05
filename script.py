@@ -338,10 +338,10 @@ def printBlack(str):		print("\033[98m{}\033[00m" .format(str))
 #Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
 def generateInitialData(fileName):
 	# global indiDF, indiList, famDF, famList
-	with open(fileName, "r", encoding="utf8") as inFile:		#open the file provided in the argument
+	with open(fileName, "r", encoding="utf-8") as inFile:		#open the file provided in the argument
 		line_num=-1
 		for line in inFile:
-			line_num+=1
+			line_num		+= 1
 			level		= ""
 			tag			= ""
 			valid		= ""

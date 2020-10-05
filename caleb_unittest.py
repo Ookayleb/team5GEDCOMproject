@@ -1,6 +1,6 @@
 import unittest
 import sys
-from script import validDate, check_dateOrder, reset, generateInitialData, verifyBirthDeathDateOrder
+from script import validDate, check_dateOrder, reset, generateInitialData, verifyBirthDeathDateOrder, verifyMarriageDivorceOrder
 
 
 class TestDateOrder(unittest.TestCase):
@@ -33,20 +33,34 @@ class TestDateOrder(unittest.TestCase):
 
 class TestVerifyBirthDeathDateOrder(unittest.TestCase):
 	def test_0BirthAfterDeath(self):
+		reset()
 		gedcomStructuredData	= generateInitialData("gedFiles/0BirthAfterDeath.ged") #store the tables and lists into gedcomStructuredData
 		indiList_0warnings		= gedcomStructuredData['indiList']
-		reset()
 		result = verifyBirthDeathDateOrder(indiList_0warnings)
 		self.assertEqual(result, 0)
 
 	def test_2BirthAfterDeath(self):
+		reset()
 		gedcomStructuredData	= generateInitialData("gedFiles/2BirthAfterDeath.ged") #store the tables and lists into gedcomStructuredData
 		indiList_2warnings		= gedcomStructuredData['indiList']
-		reset()
 		result = verifyBirthDeathDateOrder(indiList_2warnings)
 		self.assertEqual(result, 2)
 
 
+class TestVerifyMarriageDivorceDateOrder(unittest.TestCase):
+	def test_0MarriageAfterDivorce(self):
+		reset()
+		gedcomStructuredData	= generateInitialData("gedFiles/0MarrAfterDeat.ged") #store the tables and lists into gedcomStructuredData
+		famList_0warnings		= gedcomStructuredData['famList']
+		result = verifyMarriageDivorceOrder(famList_0warnings)
+		self.assertEqual(result, 0)
+
+	def test_2MarriageAfterDivorce(self):
+		reset()
+		gedcomStructuredData	= generateInitialData("gedFiles/2MarrAfterDeat.ged") #store the tables and lists into gedcomStructuredData
+		famList_2warnings		= gedcomStructuredData['famList']
+		result = verifyMarriageDivorceOrder(famList_2warnings)
+		self.assertEqual(result, 2)
 
 if __name__ == "__main__":
 	# test_classes_to_run = [TestClassA, TestClassC]
