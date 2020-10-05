@@ -1,12 +1,17 @@
 # team5GEDCOMproject
+Source code is `script.py`
 
 Dependacies:
 * Python3
-* Pandas
+* Pip3
+* Pandas `pip3 install pandas`
 * Valid GEDCOM file
 
 Usage:
 `python3 script.py path/to/file.ged`
+
+For Test Script:
+`python -m unittest unittests.py`
 
 # How will the program be split up?
 

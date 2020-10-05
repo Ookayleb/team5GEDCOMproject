@@ -216,8 +216,24 @@ def marriageAge(age):
 		return True
 	return False
 
-
-
+print(indiList)
+def realBirthday(indiList):
+	for individual in indiList:
+		if individual['Child'] is not 'NaN':
+			indiID = individual['ID']
+			childBirthday = lookup("Birthday", indiID)
+			childFamilyID = lookup("Child", indiID)
+	print("Birthday" + childBirthday + "")
+	for family in famList:
+		if family['Children'] is not 'NaN':
+			#Checked for wife only, husband not required to be a parent.
+			wifeID = family['Wife ID']
+			wifeDeath = lookup("Death", indiID)
+	print("Death" + wifeDeath + "")
+	if childBirthday > wifeDeath:
+		return False
+	else:
+		return True
 
 #Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
 def generateInitialData(fileName):

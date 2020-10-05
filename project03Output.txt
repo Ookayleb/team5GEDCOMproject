@@ -1,0 +1,22 @@
+Individuals
+    index                      ID                Name Gender     Birthday  Age  Alive        Death                   Child                  Spouse
+0       6  @I6000000150512113035@         Joe /Smith/      M   4 APR 1951   69   True          NaN  @F6000000150515745826@  @F6000000150521431836@
+1       0  @I6000000150514811822@         Bob /Smith/      M   5 JAN 1950   70   True          NaN  @F6000000150515745826@  @F6000000150517412841@
+2       4  @I6000000150515745822@     Terrace /Smith/      M   4 MAY 1900   80  False   8 JUL 1980                     NaN  @F6000000150515745826@
+3       5  @I6000000150516107833@   Carrie /Williams/      F   3 APR 1904   84  False  19 AUG 1988                     NaN  @F6000000150515745826@
+4       1  @I6000000150517412837@    Tiffany /Jacobs/      F   9 JUL 1949   71   True          NaN                     NaN  @F6000000150517412841@
+5       2  @I6000000150517748837@       Chris /Smith/      M   5 MAY 2000   20   True          NaN  @F6000000150517412841@                     NaN
+6       3  @I6000000150517979828@       Julia /Smith/      F   8 MAY 2001   19   True          NaN  @F6000000150517412841@                     NaN
+7       9  @I6000000150521431830@  Jennifer /Tuckers/      F  18 APR 1952   47  False  28 APR 1999                     NaN  @F6000000150521431836@
+8       7  @I6000000150521797821@       Jessica /Cho/      F   8 JUL 1952   68   True          NaN                     NaN  @F6000000150521797825@
+9      10  @I6000000150522001821@        Bret /Smith/      M   4 JAN 1991   29   True          NaN  @F6000000150521431836@                     NaN
+10      8  @I6000000150522180821@        Jill /Smith/      F   9 JAN 2002   18   True          NaN  @F6000000150521797825@                     NaN
+
+
+
+Families
+   index                      ID      Married  Divorced              Husband ID     Husband Name                 Wife ID           Wife Name                                          Children
+0      1  @F6000000150515745826@          NaN       NaN  @I6000000150515745822@  Terrace /Smith/  @I6000000150516107833@   Carrie /Williams/  [@I6000000150512113035@, @I6000000150514811822@]
+1      0  @F6000000150517412841@  19 JUL 1970       NaN  @I6000000150514811822@      Bob /Smith/  @I6000000150517412837@    Tiffany /Jacobs/  [@I6000000150517748837@, @I6000000150517979828@]
+2      3  @F6000000150521431836@  28 APR 1980       NaN  @I6000000150512113035@      Joe /Smith/  @I6000000150521431830@  Jennifer /Tuckers/                          [@I6000000150522001821@]
+3      2  @F6000000150521797825@   7 JAN 2000       NaN  @I6000000150512113035@      Joe /Smith/  @I6000000150521797821@       Jessica /Cho/                          [@I6000000150522180821@]
