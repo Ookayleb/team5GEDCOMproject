@@ -50,14 +50,14 @@ class TestVerifyBirthDeathDateOrder(unittest.TestCase):
 class TestVerifyMarriageDivorceDateOrder(unittest.TestCase):
 	def test_0MarriageAfterDivorce(self):
 		reset()
-		gedcomStructuredData	= generateInitialData("gedFiles/0MarrAfterDeat.ged") #store the tables and lists into gedcomStructuredData
+		gedcomStructuredData	= generateInitialData("gedFiles/0MarrAfterDiv.ged") #store the tables and lists into gedcomStructuredData
 		famList_0warnings		= gedcomStructuredData['famList']
 		result = verifyMarriageDivorceOrder(famList_0warnings)
 		self.assertEqual(result, 0)
 
 	def test_2MarriageAfterDivorce(self):
 		reset()
-		gedcomStructuredData	= generateInitialData("gedFiles/2MarrAfterDeat.ged") #store the tables and lists into gedcomStructuredData
+		gedcomStructuredData	= generateInitialData("gedFiles/2MarrAfterDiv.ged") #store the tables and lists into gedcomStructuredData
 		famList_2warnings		= gedcomStructuredData['famList']
 		result = verifyMarriageDivorceOrder(famList_2warnings)
 		self.assertEqual(result, 2)
