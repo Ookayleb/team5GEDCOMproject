@@ -221,7 +221,9 @@ def main():
 			def printFam():
 				print("Families")
 				print(famDF)
-
+			
+			indiDF.to_csv('indi.csv')
+			famDF.to_csv('fam.csv')
 
 			printIndi()
 			print("\n\n")
