@@ -521,6 +521,9 @@ def main():
 			print("Families")
 			print(famDF)
 
+		indiDF.to_csv('indi.csv')
+		famDF.to_csv('fam.csv')
+
 		# if not birthBeforeMarriage(famList):
 		# 	print("All children must be born after marriage")
 		# indiDF.to_csv("indiDF.csv", index=False)
