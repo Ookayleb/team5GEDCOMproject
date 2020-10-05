@@ -519,8 +519,7 @@ def main():
 		printFam()
 		# test(indiList)
 		# print(print_data(indiList))
-		print()
-		verifyBigamy(indiList, famList, famDF, indiDF)
+		# print()
 
 		#US16
 		if(maleLastNames(indiDF, famList)):
@@ -532,6 +531,7 @@ def main():
 			printYellowBold('All males do not have the same last name')
 			print("\n")
 
+		# verifyBigamy(indiList, famList, famDF, indiDF)
 		verifyBirthDeathDateOrder(indiList)
 		verifyMarriageDivorceOrder(famList)
 	else:
