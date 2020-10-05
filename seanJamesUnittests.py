@@ -1,7 +1,7 @@
 import unittest
 import sys
 import pandas
-from script import maleLastNames, generateInitialData, reset
+from script import maleLastNames, generateInitialData, reset, SiblingSpacing
 
 #Choy_familyTree.ged
 #All last names ==
@@ -74,6 +74,22 @@ class TestMaleLastNames(unittest.TestCase):
     def test_Pass_MaleLastNameEq(self):
         result = maleLastNames(indiDF, famList)
         self.assertTrue(result)
+
+class TestSiblingSpacing(unittest.TestCase):
+
+    def test_Pass_DiffYearMore8Months(self):
+        result = SiblingSpacing(indiDF, famList)
+        self.assertTrue(result)
+        self.assertIsNot(result, False)
+
+    def test_Fail_SameYearLess8Months(self):
+        result = SiblingSpacing(indiDF_allFemaleLastNamesEq, famList_allFemaleLastNamesEq)
+        self.assertTrue(result)
+    
+    def test_Pass_SameYearMore8Months(self):
+        result = SiblingSpacing(indiDF_maleLastNamesDiffFamsEq, famList_maleLastNamesDiffFamsEq)
+        self.assertTrue(result)
+        self.assertIs(result, True)
 
 
 

@@ -312,18 +312,18 @@ def maleLastNames(indiDF, famList):
 #US13 SJ Sibling Spacing birth dates of siblings must be 8 months or more apart from each other or less than 2 days for twins 
 def SiblingSpacing(indiDF, famList):
 	birthday = ''
-	
+	SiblingSpacing = True
 	for fam in famList:
 		i = 0
 		childrenList = fam['Children']
-		print('childrenList ' + str(childrenList))
+		#print('childrenList ' + str(childrenList))
 		birthdays = list()
 		for id in childrenList:
 			birthday = lookup("Birthday", id)
-			print('ID ' + id)
+		#	print('ID ' + id)
 			birthdays.append(birthday)
-			print('birthday ' + str(birthdays))
-			print('\n')	
+		#	print('birthday ' + str(birthdays))
+		#	print('\n')	
 			if len(birthdays) < 2:
 				pass
 			elif (len(birthdays) < 3) :
@@ -331,21 +331,22 @@ def SiblingSpacing(indiDF, famList):
 				yYears = birthdays[1][-4:]
 				x = birthdays[0]
 				y = birthdays[1]				
-				print('Birthday 1 ' + xYears)
-				print('Birthday 2 ' + yYears)
+		#		print('Birthday 1 ' + xYears)
+		#		print('Birthday 2 ' + yYears)
 				xDate = datetime.strptime(x, "%d %b %Y").date()
 				yDate = datetime.strptime(y, "%d %b %Y").date()
 				dayDifference = abs((xDate - yDate).days)
 				if dayDifference > 240:
 					print('Day difference = ' + str(dayDifference))
-					return True
+					SiblingSpacing = True
 				else:
 					print('Day difference = ' + str(dayDifference))
-					return False
+					SiblingSpacing = False
 				
 					
 			else:
-				break
+				pass
+	return SiblingSpacing
 
 
 # Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
@@ -369,7 +370,21 @@ def birthBeforeMarriage(famList):
 					return False
 	return True
 
-
+def siblingAgeDif(famList):
+	for family in famList:
+		if len(family["Children"]) > 1:
+			dlow = dateToCompare(lookup("Birthday", family["Children"][0]))
+			dhigh = dateToCompare(lookup("Birthday", family["Children"][0]))
+			for childId in family["Children"]:
+				birthday = dateToCompare(lookup("Birthday", childId))
+				if birthday < dlow: 
+					dlow=birthday
+				if birthday > dhigh:
+					dhigh=birthday
+			ageDiff = dhigh.year - dlow.year - ((dhigh.month, dhigh.day) < (dlow.month, dlow.day))
+			if ageDiff >= 35:
+				return False
+	return True
 
 
 #Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
@@ -550,6 +565,9 @@ def main():
 		# if not birthBeforeMarriage(famList):
 		# 	print("All children must be born after marriage")
 		# indiDF.to_csv("indiDF.csv", index=False)
+
+		if not siblingAgeDif(famList):
+			raise Exception("Sibling age difference must be less than 35 years")
 
 		printIndi()
 		print("\n\n")
