@@ -2,13 +2,6 @@ import unittest
 import sys
 from script import validDate, check_dateOrder, reset, generateInitialData, verifyBirthDeathDateOrder
 
-gedcomStructuredData    = generateInitialData("gedFiles/0BirthAfterDeath.ged") #store the tables and lists into gedcomStructuredData
-indiList_0warnings		= gedcomStructuredData['indiList']
-reset()
-
-gedcomStructuredData    = generateInitialData("gedFiles/2BirthAfterDeath.ged") #store the tables and lists into gedcomStructuredData
-indiList_2warnings		= gedcomStructuredData['indiList']
-reset()
 
 class TestDateOrder(unittest.TestCase):
 	def test_birthBeforeDeath(self):
@@ -40,10 +33,16 @@ class TestDateOrder(unittest.TestCase):
 
 class TestVerifyBirthDeathDateOrder(unittest.TestCase):
 	def test_0BirthAfterDeath(self):
+		gedcomStructuredData	= generateInitialData("gedFiles/0BirthAfterDeath.ged") #store the tables and lists into gedcomStructuredData
+		indiList_0warnings		= gedcomStructuredData['indiList']
+		reset()
 		result = verifyBirthDeathDateOrder(indiList_0warnings)
 		self.assertEqual(result, 0)
 
 	def test_2BirthAfterDeath(self):
+		gedcomStructuredData	= generateInitialData("gedFiles/2BirthAfterDeath.ged") #store the tables and lists into gedcomStructuredData
+		indiList_2warnings		= gedcomStructuredData['indiList']
+		reset()
 		result = verifyBirthDeathDateOrder(indiList_2warnings)
 		self.assertEqual(result, 2)
 

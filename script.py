@@ -115,8 +115,7 @@ def lookup(attr, id):
 		if id == indi['ID']:		#if we find id
 			return indi[attr]			#return the individual's data that we desire
 
-import test
-test.veri()
+
 #Calculate age given two dates. If death not supplied assume not dead
 def calculateAge(born, death=False):
 	if born is None:
@@ -138,7 +137,7 @@ def validDate(arguments):
 		return False
 	return True
 
-# Returns true if date1 is before date2,
+# Returns true if date1 is before or equals date2,
 def check_dateOrder(date1, date2):
 	if (date1 is None):
 		return False
@@ -151,21 +150,44 @@ def check_dateOrder(date1, date2):
 	else:
 		return False
 
+
+#US03 CC Sprint 1: Birth before death -
 #Verify that all death dates are after birth dates. Returns 0 if no offenders. If offenders detected, returns the number of them
 def verifyBirthDeathDateOrder(indiList):
 	warningList = []
-	for i in indiList:
-		if (check_dateOrder(i.get('Birthday', None), i.get('Death', None)) == False):
+	for i in indiList:		#loop over all individuals
+		if (check_dateOrder(i.get('Birthday', None), i.get('Death', None)) == False):	#using check_dateOrder, if Birthday is after Death append the offender to warningList
 			warningList.append(i)
 
-	warnDF = pd.DataFrame(warningList)
-	if len(warnDF) < 1:
-		print("No Death before Birth")
+	if len(warningList) < 1:		#if warningList is empty
+		printGreen("No Deaths before Births")
 	else:
-		print("WARNING: Death before Birth found:")
+		printYellowBold("WARNING: Deaths before Births found:")
+		# warnDF = pd.DataFrame(warningList)
 		print(pd.DataFrame(warningList))
 
-	return len(warnDF)
+	return len(warningList)
+
+
+
+# US04 CC Sprint 1: Marriage before divorce -
+#Verify that all divorce dates are after marriage dates. Returns 0 if no offenders. If offenders detected, returns the number of them
+def verifyMarriageDivorceOrder(famList):
+	warningList = []
+	for f in famList:		#loop over all families
+		if (check_dateOrder(f.get('Married', None), f.get('Divorced', None)) == False):	#using check_dateOrder, if Married is after Divorced append the offender to warningList
+			warningList.append(f)
+
+	if len(warningList) < 1:		#if warningList is empty
+		printGreen("No Divorces before Marriages")
+	else:
+		printYellowBold("WARNING: Divorces before Mariages found:")
+		# warnDF = pd.DataFrame(warningList)
+		print(pd.DataFrame(warningList))
+
+	return len(warningList)
+
+
 
 #US16 SJ Sprint 1
 def maleLastNames(indiDF, famList):
@@ -261,6 +283,7 @@ def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
 		anomalyBigamyDF = pd.concat([anomalyBigamyDF, offendingEntriesDF])
 
 	return anomalyBigamyDF
+
 
 def verifyBigamy(indiList, famList, famDF, indiDF):
 	husbID_list 		= famDF["Husband ID"].to_list()	#list of all husband IDs, duplicates included
@@ -499,7 +522,6 @@ def main():
 		print()
 		verifyBigamy(indiList, famList, famDF, indiDF)
 
-		print("hi")
 		#US16
 		if(maleLastNames(indiDF, famList)):
 			print("\n")
@@ -511,6 +533,7 @@ def main():
 			print("\n")
 
 		verifyBirthDeathDateOrder(indiList)
+		verifyMarriageDivorceOrder(famList)
 	else:
 		printRedBold("Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")
 
