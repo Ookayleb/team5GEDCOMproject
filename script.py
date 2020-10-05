@@ -309,8 +309,6 @@ def maleLastNames(indiDF, famList):
 				return False
 	return lastNamesEqual
 
-
-# Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
 def validAge(age):
 	if age >= 150:
 		return False
@@ -331,7 +329,21 @@ def birthBeforeMarriage(famList):
 					return False
 	return True
 
-
+def siblingAgeDif(famList):
+	for family in famList:
+		if len(family["Children"]) > 1:
+			dlow = dateToCompare(lookup("Birthday", family["Children"][0]))
+			dhigh = dateToCompare(lookup("Birthday", family["Children"][0]))
+			for childId in family["Children"]:
+				birthday = dateToCompare(lookup("Birthday", childId))
+				if birthday < dlow: 
+					dlow=birthday
+				if birthday > dhigh:
+					dhigh=birthday
+			ageDiff = dhigh.year - dlow.year - ((dhigh.month, dhigh.day) < (dlow.month, dlow.day))
+			if ageDiff >= 35:
+				return False
+	return True
 
 
 #Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
@@ -512,6 +524,9 @@ def main():
 		# if not birthBeforeMarriage(famList):
 		# 	print("All children must be born after marriage")
 		# indiDF.to_csv("indiDF.csv", index=False)
+
+		if not siblingAgeDif(famList):
+			raise Exception("Sibling age difference must be less than 35 years")
 
 		printIndi()
 		print("\n\n")
