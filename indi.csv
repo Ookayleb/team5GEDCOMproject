@@ -1,0 +1,5 @@
+,ID,Name,Gender,Birthday,Age,Alive,Death,Child,Spouse
+0,I24,Bob /Smith/,M,24 OCT 1995,24,True,,,f32
+1,I32,Sarah /Smith/,F,12 FEB 1996,24,True,,,f32
+2,I40,Ann /Smith/,F,05 JUL 2012,8,True,,f32,
+3,I48,Jake /Smith/,M,31 OCT 2016,3,True,,f32,

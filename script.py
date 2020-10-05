@@ -519,7 +519,7 @@ def generateInitialData(fileName):
 		#Check age of all individuals
 		for i in range(len(indiList)):
 			if not validAge(indiList[i]["Age"]):
-				raise Exception(indiList[i]["Name"]+": Individuals must be less than 150 years old")
+				print(indiList[i]["Name"]+": Individuals must be less than 150 years old")
 
 		#Populate the families DataFrame
 		for i in range(len(famList)):		#Loop through the list of families
@@ -592,10 +592,10 @@ def main():
 		# indiDF.to_csv("indiDF.csv", index=False)
 
 		if not siblingAgeDiff(famList, indiList):
-			raise Exception("Sibling age difference must be less than 35 years")
+			print("ERROR: Sibling age difference must be less than 35 years")
 
 		if not birthBeforeMarriage2(famList, indiList):
-			raise Exception("All children must be born after marriage and within 9 months of divorce")
+			print("ERROR: All children must be born after marriage and within 9 months of divorce")
 		# indiDF.to_csv("indiDF.csv", index=False)
 
 		printIndi()
