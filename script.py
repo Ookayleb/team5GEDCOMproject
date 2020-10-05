@@ -309,6 +309,44 @@ def maleLastNames(indiDF, famList):
 				return False
 	return lastNamesEqual
 
+#US13 SJ Sibling Spacing birth dates of siblings must be 8 months or more apart from each other or less than 2 days for twins 
+def SiblingSpacing(indiDF, famList):
+	birthday = ''
+	
+	for fam in famList:
+		i = 0
+		childrenList = fam['Children']
+		print('childrenList ' + str(childrenList))
+		birthdays = list()
+		for id in childrenList:
+			birthday = lookup("Birthday", id)
+			print('ID ' + id)
+			birthdays.append(birthday)
+			print('birthday ' + str(birthdays))
+			print('\n')	
+			if len(birthdays) < 2:
+				pass
+			elif (len(birthdays) < 3) :
+				xYears = birthdays[0][-4:]
+				yYears = birthdays[1][-4:]
+				x = birthdays[0]
+				y = birthdays[1]				
+				print('Birthday 1 ' + xYears)
+				print('Birthday 2 ' + yYears)
+				xDate = datetime.strptime(x, "%d %b %Y").date()
+				yDate = datetime.strptime(y, "%d %b %Y").date()
+				dayDifference = abs((xDate - yDate).days)
+				if dayDifference > 240:
+					print('Day difference = ' + str(dayDifference))
+					return True
+				else:
+					print('Day difference = ' + str(dayDifference))
+					return False
+				
+					
+			else:
+				break
+
 
 # Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
 def validAge(age):
@@ -520,15 +558,18 @@ def main():
 		get_deceased_records(indiList)
 		print(print_data(indiList))
 		get_parents_not_too_old(famList)
+		
 		#US16
-		# if(maleLastNames(indiDF, famList)):
-		# 	print("\n")
-		# 	print('All males have same last name')
-		# 	print("\n")
-		# else:
-		# 	print("\n")
-		# 	print('All males do not have the same last name')
-		# 	print("\n")
+		if(maleLastNames(indiDF, famList)):
+			print("\n")
+			print('All males have same last name')
+			print("\n")
+		else:
+			print("\n")
+			print('All males do not have the same last name')
+			print("\n")
+		#US13
+		SiblingSpacing(indiDF, famList)
 
 		#verifyBirthDeathDateOrder(indiList)
 	else:
