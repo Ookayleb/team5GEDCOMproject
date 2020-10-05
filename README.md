@@ -10,7 +10,7 @@ Dependacies:
 Usage:
 `python3 script.py path/to/file.ged`
 
-For Test Script:
+For Test Script (at the moment test scripts will have different names to test different items):
 `python -m unittest unittests.py`
 
 # How will the program be split up?
