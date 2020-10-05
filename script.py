@@ -5,6 +5,7 @@ import re
 import pandas as pd
 from datetime import datetime
 from datetime import date
+from dateutil.relativedelta import relativedelta
 import unittest
 from prettytable import PrettyTable
 
@@ -194,6 +195,12 @@ def lookup(attr, id):
 		if id == indi['ID']:		#if we find id
 			return indi[attr]			#return the individual's data that we desire
 
+#Given an id,an attribute of intrest, and a list returns the value of the attribute desired ex lookup("birthday", "I343628")
+def modified_lookup(attr, id, inputlist):
+	for indi in inputlist:			#loop over all individuals
+		if id == indi['ID']:		#if we find id
+			return indi[attr]			#return the individual's data that we desire
+
 
 #Calculate age given two dates. If death not supplied assume not dead
 def calculateAge(born, death=False):
@@ -318,7 +325,7 @@ def validAge(age):
 def dateToCompare(date):
 	return datetime.strptime(date, "%d %b %Y")
 
-
+#US2
 def birthBeforeMarriage(famList):
 	for family in famList:
 		for childId in family["Children"]:
@@ -328,14 +335,29 @@ def birthBeforeMarriage(famList):
 				if marriageDate > birthday:
 					return False
 	return True
+#US8
+def birthBeforeMarriage2(famList, individualListName): 
+	for family in famList:
+		for childId in family["Children"]:
+			marriageDate = dateToCompare(family['Married'])
+			if childId != "NaN":
+				birthday = dateToCompare(modified_lookup("Birthday", childId, individualListName))
+				if family.get("Divorced") != None:
+					divorceDate = dateToCompare(family['Divorced'])
+					divorceNineMonths = divorceDate + relativedelta(months=+9)
+					if birthday > divorceNineMonths:
+						return False
+				if marriageDate > birthday:
+					return False
+	return True
 
-def siblingAgeDif(famList):
+def siblingAgeDiff(famList, individualListName):
 	for family in famList:
 		if len(family["Children"]) > 1:
-			dlow = dateToCompare(lookup("Birthday", family["Children"][0]))
-			dhigh = dateToCompare(lookup("Birthday", family["Children"][0]))
+			dlow = dateToCompare(modified_lookup("Birthday", family["Children"][0],individualListName))
+			dhigh = dateToCompare(modified_lookup("Birthday", family["Children"][0], individualListName))
 			for childId in family["Children"]:
-				birthday = dateToCompare(lookup("Birthday", childId))
+				birthday = dateToCompare(modified_lookup("Birthday", childId, individualListName))
 				if birthday < dlow: 
 					dlow=birthday
 				if birthday > dhigh:
@@ -525,8 +547,12 @@ def main():
 		# 	print("All children must be born after marriage")
 		# indiDF.to_csv("indiDF.csv", index=False)
 
-		if not siblingAgeDif(famList):
+		if not siblingAgeDiff(famList, indiList):
 			raise Exception("Sibling age difference must be less than 35 years")
+
+		if not birthBeforeMarriage2(famList, indiList):
+			raise Exception("All children must be born after marriage and within 9 months of divorce")
+		# indiDF.to_csv("indiDF.csv", index=False)
 
 		printIndi()
 		print("\n\n")
