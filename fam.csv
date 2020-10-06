@@ -1,5 +1,2 @@
 ,ID,Married,Divorced,Husband ID,Husband Name,Wife ID,Wife Name,Children
-0,0515745826,7 APR 1930,,0515745822,Terrace /Smith/,0516107833,Carrie /Williams/,"['0512113035', '0514811822']"
-1,0517412841,19 JUL 1970,,0514811822,Bob /Smith/,0517412837,Tiffany /Jacobs/,"['0517748837', '0517979828']"
-2,0521431836,28 APR 1980,,0512113035,Joe /Smith/,0521431830,Jennifer /Tuckers/,['0522001821']
-3,0521797825,7 JAN 2000,,0512113035,Joe /Smith/,0521797821,Jessica /Cho/,['0522180821']
+0,f32,16 DEC 2010,,I24,Bob /Smith/,I32,Sarah /Smith/,"['I40', 'I48']"

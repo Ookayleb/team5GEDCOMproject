@@ -744,7 +744,7 @@ def main():
 			printYellowBold('All males do not have the same last name')
 			print("\n")
 		#US13
-		SiblingSpacing(indiDF, famList)
+		SiblingSpacing(indiDF, famList, indiList)
 
 		# verifyBigamy(indiList, famList, famDF, indiDF)
 		verifyBirthDeathDateOrder(indiList)
