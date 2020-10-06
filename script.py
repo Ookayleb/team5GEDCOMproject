@@ -211,20 +211,20 @@ def validAge(age):
 
 #Austin Luo
 def marriageAge(indiList, famList):
-    for family in famList:
-        husbandID = family['Husband ID']
-        wifeID = family['Wife ID']
-        husbandBirthday = modified_lookup('Birthday', husbandID, indiList)
-        wifeBirthday = modified_lookup('Birthday', wifeID, indiList)
-        marriageDate = family['Married']
-        husbandMarriageAge = calculateAge(husbandBirthday, marriageDate)
-        wifeMarriageAge = calculateAge(wifeBirthday, marriageDate)
-        if husbandMarriageAge < 14:
-            print("This person is not allow to marry before 14 years old." + husbandID)
-        if wifeMarriageAge < 14:
-            print("This person is not allow to marry before 14 years old." + wifeID)
+	for family in famList:
+		husbandID = family['Husband ID']
+		wifeID = family['Wife ID']
+		husbandBirthday = modified_lookup('Birthday', husbandID, indiList)
+		wifeBirthday = modified_lookup('Birthday', wifeID, indiList)
+		marriageDate = family['Married']
+		husbandMarriageAge = calculateAge(husbandBirthday, marriageDate)
+		wifeMarriageAge = calculateAge(wifeBirthday, marriageDate)
+		if husbandMarriageAge < 14:
+			print("US10: Husband " + husbandID + " married before 14 years old, got married at " + str(husbandMarriageAge) + "yrs old")
+		if wifeMarriageAge < 14:
+			print("US10: Wife " + wifeID + " married before 14 years old, got married at " + str(wifeMarriageAge) + "yrs old")
 
-print(indiList)
+
 def diffMonth(d1, d2):
 	if d1 is None or d2 is None:
 		return None
