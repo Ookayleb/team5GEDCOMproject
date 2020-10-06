@@ -256,10 +256,6 @@ def replace_id_with_children_data(children_arr):
 #US03 CC Sprint 1: Birth before death -
 #Verify that all death dates are after birth dates. Returns 0 if no offenders. If offenders detected, returns the number of them
 def verifyBirthDeathDateOrder(indiList):
-	print()
-	print(indiList)
-	print()
-	print()
 	for individual in indiList:
 		if 'Child' in individual.keys():
 			indiID = individual['ID']
@@ -334,7 +330,7 @@ def maleLastNames(indiDF, famList):
 				#Because it is a female so it does not matter what the last name is
 				lastNamesEqual =True
 
-			if(lastName == childLastName): #if the childs name contains the husbands name its true otherwise false
+			if(lastName == childLastName or childLastName == ""): #if the childs name contains the husbands name its true otherwise false
 				#print('Family name is ' + lastName)
 				lastNamesEqual = True
 
