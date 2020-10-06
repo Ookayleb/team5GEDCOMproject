@@ -200,8 +200,63 @@ def lookup(attr, id):
 def modified_lookup(attr, id, inputlist):
 	for indi in inputlist:			#loop over all individuals
 		if id == indi['ID']:		#if we find id
-			return indi[attr]			#return the individual's data that we desire
+			return indi.get(attr, None)			#return the individual's data that we desire
 
+# Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
+def validAge(age):
+	if age >= 150:
+		return False
+	return True
+
+
+#Austin Luo
+def marriageAge(indiList, famList):
+	for family in famList:
+		husbandID = family['Husband ID']
+		wifeID = family['Wife ID']
+		husbandBirthday = modified_lookup('Birthday', husbandID, indiList)
+		wifeBirthday = modified_lookup('Birthday', wifeID, indiList)
+		marriageDate = family['Married']
+		husbandMarriageAge = calculateAge(husbandBirthday, marriageDate)
+		wifeMarriageAge = calculateAge(wifeBirthday, marriageDate)
+		if husbandMarriageAge < 14:
+			print("US10: Husband " + husbandID + " married before 14 years old, got married at " + str(husbandMarriageAge) + "yrs old")
+		if wifeMarriageAge < 14:
+			print("US10: Wife " + wifeID + " married before 14 years old, got married at " + str(wifeMarriageAge) + "yrs old")
+
+
+def diffMonth(d1, d2):
+	if d1 is None or d2 is None:
+		return None
+	date1 = dateToCompare(d1)
+	date2 = dateToCompare(d2)
+	return (date1.year - date2.year) * 12 + date1.month - date2.month
+
+def realBirthday(indiList, famList):
+	for family in famList:
+		if 'Children' in family.keys():
+			for childID in family["Children"]:
+				childBirthday 	= modified_lookup("Birthday", childID, indiList)
+				wifeDeath		= modified_lookup("Death", family['Wife ID'], indiList)
+				husbDeath		= modified_lookup("Death", family['Husband ID'], indiList)
+				if (check_dateOrder(childBirthday, wifeDeath) == False):
+					print("US09: Child " + childID + " was born on " + childBirthday + ", mother died on " + wifeDeath)
+				monthDifference = diffMonth(husbDeath, childBirthday)
+				if((monthDifference is not None) and monthDifference < -9):
+					print("US09: Child " + childID + " was born on " + childBirthday + ", father died on " + husbDeath)
+
+
+#Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
+def generateInitialData(fileName):
+	with open(fileName, "r", encoding="utf8") as inFile:		#open the file provided in the argument
+		line_num=-1
+		for line in inFile:
+			line_num+=1
+			level		= ""
+			tag			= ""
+			valid		= ""
+			arguments 	= ""
+			tokenizedStr 	= re.search("(\d) (\S*) ?(.*)", line).groups()			#Use regex to store each token into a var. "1 NAME Bob /Smith/" becomes ["1", "NAME", "Bob /Smith/"]
 
 #Calculate age given two dates. If death not supplied assume not dead
 def calculateAge(born, death=False):
@@ -743,6 +798,8 @@ def main():
 
 		# verifyBigamy(indiList, famList, famDF, indiDF)
 		verifyBirthDeathDateOrder(indiList)
+		marriageAge(indiList, famList)
+		realBirthday(indiList, famList)
 		verifyMarriageDivorceOrder(famList)
 	else:
 		printRedBold("Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")

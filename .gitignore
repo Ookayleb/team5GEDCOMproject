@@ -143,5 +143,9 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
+<<<<<<< HEAD
+# End of https://www.toptal.com/developers/gitignore/api/python
+=======
 # End of https://www.toptal.com/developers/gitignore/api/python
 indiDF.csv
+>>>>>>> 32c5496ab962a8ed8840f382f7ca62c226d6170a
