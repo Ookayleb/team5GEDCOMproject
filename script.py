@@ -98,15 +98,15 @@ def get_parents_not_too_old(famList):
 		x.add_row([table_arr[n][0], table_arr[n][1], table_arr[n][2],
 			table_arr[n][3], table_arr[n][4], table_arr[n][5], table_arr[n][6]])
 	print('\n\n')
-	print('Parents not too old table\n')
+	print('US12: Parents not too old table\n')
 	print(x)
 
 	#************************************************************************end
 
 #US29-Deceased list
 def get_deceased_records(indList):
-	print('Deceased list')
 	print('\n')
+	print('US29: Deceased list')
 	decease_list = {}
 	id_arr = []
 	name_arr = []
@@ -271,9 +271,9 @@ def verifyBirthDeathDateOrder(indiList):
 			warningList.append(i)
 
 	if len(warningList) < 1:		#if warningList is empty
-		printGreen("No Deaths before Births")
+		printGreen("US03: No Deaths before Births")
 	else:
-		printYellowBold("WARNING: Deaths before Births found:")
+		printYellowBold("US03: ERROR: Deaths before Births found:")
 		# warnDF = pd.DataFrame(warningList)
 		print(pd.DataFrame(warningList))
 
@@ -290,9 +290,9 @@ def verifyMarriageDivorceOrder(famList):
 			warningList.append(f)
 
 	if len(warningList) < 1:		#if warningList is empty
-		printGreen("No Divorces before Marriages")
+		printGreen("US04: No Divorces before Marriages")
 	else:
-		printYellowBold("WARNING: Divorces before Mariages found:")
+		printYellowBold("US04: ERROR: Divorces before Mariages found:")
 		# warnDF = pd.DataFrame(warningList)
 		print(pd.DataFrame(warningList))
 
@@ -335,7 +335,7 @@ def maleLastNames(indiDF, famList):
 				lastNamesEqual = True
 
 			else:
-				print( '\n the name that doesnt match is ' + childFirstName + " " + childLastName)
+				print( '\nUS16: the name that doesnt match is ' + childFirstName + " " + childLastName)
 				return False
 	return lastNamesEqual
 
@@ -368,13 +368,11 @@ def SiblingSpacing(indiDF, famList, indiList):
 				yDate = datetime.strptime(y, "%d %b %Y").date()
 				dayDifference = abs((xDate - yDate).days)
 				if dayDifference > 240:
-					print('Day difference = ' + str(dayDifference))
+					print('US13: Day difference = ' + str(dayDifference))
 					SiblingSpacing = True
 				else:
-					print('Day difference = ' + str(dayDifference))
+					print('US13: Day difference = ' + str(dayDifference))
 					SiblingSpacing = False
-
-
 			else:
 				pass
 	return SiblingSpacing
@@ -564,7 +562,8 @@ def generateInitialData(fileName):
 				valid = 'N'
 			if(tag == 'DATE'):
 				if not validDate(arguments):
-					raise Exception("No dates should be after the current date")
+					print("US01: ERROR: No dates should be after the current date: "+ arguments)
+					# raise Exception("No dates should be after the current date")
 
 
 			if level == '0':
@@ -645,7 +644,7 @@ def generateInitialData(fileName):
 		#Check age of all individuals
 		for i in range(len(indiList)):
 			if not validAge(indiList[i]["Age"]):
-				print(indiList[i]["Name"]+": Individuals must be less than 150 years old")
+				print("US07: " + indiList[i]["Name"]+": Individuals must be less than 150 years old")
 
 		#Populate the families DataFrame
 		for i in range(len(famList)):		#Loop through the list of families
@@ -709,24 +708,24 @@ def main():
 		def printFam():
 			printCyanBold("Families")
 			print(famDF)
-
-		indiDF.to_csv('indi.csv')
-		famDF.to_csv('fam.csv')
-
-		# if not birthBeforeMarriage(famList):
-		# 	print("All children must be born after marriage")
-		# indiDF.to_csv("indiDF.csv", index=False)
-
-		if not siblingAgeDiff(famList, indiList):
-			print("ERROR: Sibling age difference must be less than 35 years")
-
-		if not birthBeforeMarriage2(famList, indiList):
-			print("ERROR: All children must be born after marriage and within 9 months of divorce")
-		# indiDF.to_csv("indiDF.csv", index=False)
-
 		printIndi()
 		print("\n\n")
 		printFam()
+		indiDF.to_csv('indi.csv')
+		famDF.to_csv('fam.csv')
+
+		if not birthBeforeMarriage(famList):
+			print("US02: All children must be born after marriage")
+		# indiDF.to_csv("indiDF.csv", index=False)
+
+		if not siblingAgeDiff(famList, indiList):
+			print("US45: ERROR: Sibling age difference must be less than 35 years")
+
+		if not birthBeforeMarriage2(famList, indiList):
+			print("US08: ERROR: All children must be born after marriage and within 9 months of divorce")
+		# indiDF.to_csv("indiDF.csv", index=False)
+
+
 		#test(indiList)
 		get_deceased_records(indiList)
 		print(print_data(indiList))
@@ -734,12 +733,10 @@ def main():
 
 		#US16
 		if(maleLastNames(indiDF, famList)):
-			print("\n")
-			printGreen('All males have same last name')
+			printGreen('US16: All males have same last name')
 			print("\n")
 		else:
-			print("\n")
-			printYellowBold('All males do not have the same last name')
+			printYellowBold('US16: All males do not have the same last name')
 			print("\n")
 		#US13
 		SiblingSpacing(indiDF, famList, indiList)
