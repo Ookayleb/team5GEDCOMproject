@@ -1,6 +1,7 @@
 import unittest
 import sys
 from script import validDate
+from script import birthBeforeMarriage, reset, generateInitialData
 
 class TestDates(unittest.TestCase):
     def test_success(self):
@@ -17,6 +18,22 @@ class TestDates(unittest.TestCase):
 
     def test_input_fail(self):
         with self.assertRaises(ValueError): validDate("15")
+
+class TestBirthBeforeMarriage(unittest.TestCase):
+    def test_success(self):
+        reset()
+        gedcomStructuredData    = generateInitialData("gedFiles/0BirthAfterDeath.ged") #store the tables and lists into gedcomStructuredData
+        famList_0warnings		= gedcomStructuredData['famList']
+        result = birthBeforeMarriage(famList_0warnings)
+        self.assertTrue(result)
+
+    def test_fail(self):
+        reset()
+        gedcomStructuredData    = generateInitialData("gedFiles/2BirthAfterMarriage.ged") #store the tables and lists into gedcomStructuredData
+        famList_2warnings		= gedcomStructuredData['famList']
+        result = birthBeforeMarriage(famList_2warnings)
+        self.assertFalse(result)
+
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromModule( sys.modules[__name__] )
