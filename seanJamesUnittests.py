@@ -14,7 +14,7 @@ famList = 	gedcomeStructuredData0['famList']
 reset()
 
 #badLastName.ged
-#one male child different last name 
+#one male child different last name
 gedcomeStructuredData1 = generateInitialData("gedFiles/badLastName.ged")
 indiDF_badLastName = 	gedcomeStructuredData1['indiDF']
 famDF_badLastName = 	gedcomeStructuredData1['famDF']
@@ -34,7 +34,7 @@ famList_maleLastNamesEqFemaleDiff = 	gedcomeStructuredData2['famList']
 
 reset()
 #allFemaleLastNamesEq
-#all the females have the same last name 
+#all the females have the same last name
 gedcomeStructuredData3 = generateInitialData("gedFiles/allFemaleLastNamesEq.ged")
 indiDF_allFemaleLastNamesEq = 	gedcomeStructuredData3['indiDF']
 famDF_allFemaleLastNamesEq = 	gedcomeStructuredData3['famDF']
@@ -58,19 +58,19 @@ class TestMaleLastNames(unittest.TestCase):
     def test_Pass_femaleLastNameDiff(self):
         result = maleLastNames(indiDF_maleLastNamesEqFemaleDiff, famList_maleLastNamesEqFemaleDiff)
         self.assertTrue(result)
-    
+
     def test_Pass_femaleLastNameEq(self):
         result = maleLastNames(indiDF_allFemaleLastNamesEq, famList_allFemaleLastNamesEq)
         self.assertTrue(result)
-    
+
     def test_Fail_MaleLastNameDiff(self):
         result = maleLastNames(indiDF_badLastName, famList_badLastName)
         self.assertFalse(result)
-    
+
     def test_Pass_DiffFamNameEq(self):
         result = maleLastNames(indiDF_maleLastNamesDiffFamsEq, famList_maleLastNamesDiffFamsEq)
         self.assertTrue(result)
-    
+
     def test_Pass_MaleLastNameEq(self):
         result = maleLastNames(indiDF, famList)
         self.assertTrue(result)
@@ -78,16 +78,16 @@ class TestMaleLastNames(unittest.TestCase):
 class TestSiblingSpacing(unittest.TestCase):
 
     def test_Pass_DiffYearMore8Months(self):
-        result = SiblingSpacing(indiDF, famList)
+        result = SiblingSpacing(indiDF, famList, indiList)
         self.assertTrue(result)
         self.assertIsNot(result, False)
 
     def test_Fail_SameYearLess8Months(self):
-        result = SiblingSpacing(indiDF_allFemaleLastNamesEq, famList_allFemaleLastNamesEq)
+        result = SiblingSpacing(indiDF_allFemaleLastNamesEq, famList_allFemaleLastNamesEq, indiList_allFemaleLastNamesEq)
         self.assertTrue(result)
-    
+
     def test_Pass_SameYearMore8Months(self):
-        result = SiblingSpacing(indiDF_maleLastNamesDiffFamsEq, famList_maleLastNamesDiffFamsEq)
+        result = SiblingSpacing(indiDF_maleLastNamesDiffFamsEq, famList_maleLastNamesDiffFamsEq, indiList_maleLastNamesDiffFamsEq)
         self.assertTrue(result)
         self.assertIs(result, True)
 
