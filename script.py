@@ -320,6 +320,8 @@ def maleLastNames(indiDF, famList):
 		# print('husband Last name' , str(lastName))
 		for id in childrenID: #for all ids in childrenID
 			#print('\n', str(id))
+			childFirstName = ""
+			childLastName = ""
 			malesID = malesList['ID'].to_list()
 			if (id in malesID): #if child is in male list
 				childrenName_bad = str(malesList.loc[malesList['ID'] == id, ['Name']])
