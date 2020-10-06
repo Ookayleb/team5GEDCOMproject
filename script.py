@@ -5,8 +5,10 @@ import re
 import pandas as pd
 from datetime import datetime
 from datetime import date
+from dateutil.relativedelta import relativedelta
 import unittest
 import numpy as np
+from prettytable import PrettyTable
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -42,26 +44,105 @@ THIRD_TOKEN_TAGS =[
 indiList 	= []		#will hold all individuals
 famList	= []		#will hold all families
 
+#US12-Parents not too old(father not 80 yrs older, and mother not 60 yrs older than child)****start
 
-#************************************************************************
+#helper function to calculate age difference fot get_parents_not_too_old() function
+def get_age_difference(parent_age, child_age):
+	age = parent_age - child_age
+	return age
+
+#function to print father, mother and children data and display if parents are too hold to be a child's parent
+def get_parents_not_too_old(famList):
+	family = []
+	father_age_limit = 80
+	mother_age_limit = 60
+	father_too_old = ""
+	mother_too_old = ""
+
+	#loop to retrieve father, mother and children data from family record
+	for i in range(len(famList)):
+		try:
+			family.append({'Husband_ID':famList[i]['Husband ID'], 'Wife_ID':famList[i]['Wife ID'],
+				'Husband Name':famList[i]['Husband Name'], 'Wife Name':famList[i]['Wife Name'],
+				'Husband Age': lookup('Age', famList[i]['Husband ID']), 'Wife Age': lookup('Age', famList[i]['Wife ID']),
+				'Children': replace_id_with_children_data(famList[i]['Children'])})
+		except:
+			famList[i]['N/A'] = 'N/A'
+			family.append({famList[i]['N/A']})
+
+	table_arr = []
+
+	# loop to build list to hold father, mother and children data
+	for j in range(len(family)):
+		for k in range(len(family[j]['Children'])):
+			if(get_age_difference(family[j]['Husband Age'], family[j]['Children'][k]['Age']) > father_age_limit):
+				father_too_old = "Yes"
+			else:
+				father_too_old = "No"
+
+			if(get_age_difference(family[j]['Wife Age'], family[j]['Children'][k]['Age']) > mother_age_limit):
+				mother_too_old = "Yes"
+			else:
+				mother_too_old = "No"
+
+			table_arr.append([family[j]['Husband Name'],"Father", family[j]['Husband Age'],
+				family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], father_too_old])
+			table_arr.append([family[j]['Wife Name'], "Mother", family[j]['Wife Age'],
+				family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], mother_too_old])
+
+
+	#bring list to a prettytable structure
+	x = PrettyTable()
+	x.field_names = ['Parent Name', 'Relationship', 'Parent Age', 'Child Name', 'Sex', 'Child Age', 'Too old']
+	for n in range(len(table_arr)):
+		x.add_row([table_arr[n][0], table_arr[n][1], table_arr[n][2],
+			table_arr[n][3], table_arr[n][4], table_arr[n][5], table_arr[n][6]])
+	print('\n\n')
+	print('Parents not too old table\n')
+	print(x)
+
+	#************************************************************************end
+
+#US29-Deceased list
+def get_deceased_records(indList):
+	print('Deceased list')
+	print('\n')
+	decease_list = {}
+	id_arr = []
+	name_arr = []
+	gender_arr = []
+	birth_arr = []
+	age_arr = []
+	death_arr = []
+	spouse_arr = []
+	for record in indList:
+		if (record['Alive'] == False):
+			id_arr.append(record['ID'])
+			name_arr.append(record['Name'])
+			gender_arr.append(record['Gender'])
+			birth_arr.append(record['Birthday'])
+			age_arr.append(record['Age'])
+			death_arr.append(record['Death'])
+			spouse_arr.append(record['Spouse'])
+
+	decease_list['ID'] = id_arr
+	decease_list['Name'] = name_arr
+	decease_list['Gender'] = gender_arr
+	decease_list['Birthday'] = birth_arr
+	decease_list['Age'] = age_arr
+	decease_list['Death'] = death_arr
+	decease_list['Spouse'] = spouse_arr
+
+	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death', 'Spouse'])
+	print(df)
+#***************************************************************************end
 
 # def test(indList):
 # 	for i in indList:
 # 		print( "****" + str(i))
 
-# def get_exactly_130_years_of_age():
-# 	age_limit = 130
-# 	one_thirty_age = (datetime.now() - relativedelta(years=age_limit)).strftime('%Y-%m-%d')
-# 	return datetime.strptime(one_thirty_age, '%Y-%m-%d')
 
-# def get_number_month(letter_month):
-# 	letter_month = letter_month.capitalize()
-# 	abbr_to_num = {name: num for num, name in enumerate(calendar.month_abbr) if num}
-# 	return abbr_to_num[letter_month]
-
-# def turn_arr_into_date_arr(arr):
-# 	return [arr[-1], get_number_month(arr[-2]), arr[0]]
-
+#**********************************end
 def print_age_qualification(indiList):
 
 	#person = get_person_record()
@@ -77,7 +158,7 @@ def print_age_qualification(indiList):
 
 			name = ""
 			for j in range(len(name_arr)):
-				name += name_arr[j].strip("/") + " "
+				name += name_arr[j].strip("/")
 			if(i['Age'] <= one_hundred_thirty):
 				isQualified = 'Yes'
 				each_person.append([name, birth_day,  isQualified])
@@ -109,9 +190,15 @@ def print_data(indiList):
 
 
 ### HELPER FUNCTIONS ###
-#Given an id and an attribute of intrest, returns the value of the attribute desired
+#Given an id and an attribute of intrest, returns the value of the attribute desired ex lookup("birthday", "I343628")
 def lookup(attr, id):
 	for indi in indiList:			#loop over all individuals
+		if id == indi['ID']:		#if we find id
+			return indi[attr]			#return the individual's data that we desire
+
+#Given an id,an attribute of intrest, and a list returns the value of the attribute desired ex lookup("birthday", "I343628")
+def modified_lookup(attr, id, inputlist):
+	for indi in inputlist:			#loop over all individuals
 		if id == indi['ID']:		#if we find id
 			return indi[attr]			#return the individual's data that we desire
 
@@ -151,9 +238,37 @@ def check_dateOrder(date1, date2):
 		return False
 
 
+
+#function to find the children data
+def getChildren_and_age(id):
+	name = lookup('Name', id)
+	age = lookup('Age', id)
+	gender = lookup('Gender', id)
+	return {'Name': name, 'Age':age, 'Gender':gender}
+
+#function to replace the children id(s) with their actual data
+def replace_id_with_children_data(children_arr):
+	new_arr = []
+	for i in range(len(children_arr)):
+		new_arr.append(getChildren_and_age(children_arr[i]))
+	return new_arr
+
 #US03 CC Sprint 1: Birth before death -
 #Verify that all death dates are after birth dates. Returns 0 if no offenders. If offenders detected, returns the number of them
 def verifyBirthDeathDateOrder(indiList):
+	print()
+	print(indiList)
+	print()
+	print()
+	for individual in indiList:
+		if 'Child' in individual.keys():
+			indiID = individual['ID']
+
+			childBirthday = lookup("Birthday", indiID)
+			childFamilyID = lookup("Child", indiID)
+
+	print("birth " + childBirthday + "")
+
 	warningList = []
 	for i in indiList:		#loop over all individuals
 		if (check_dateOrder(i.get('Birthday', None), i.get('Death', None)) == False):	#using check_dateOrder, if Birthday is after Death append the offender to warningList
@@ -226,11 +341,81 @@ def maleLastNames(indiDF, famList):
 				return False
 	return lastNamesEqual
 
+#US13 SJ Sibling Spacing birth dates of siblings must be 8 months or more apart from each other or less than 2 days for twins
+def SiblingSpacing(indiDF, famList, indiList):
+	birthday = ''
+	SiblingSpacing = True
+	for fam in famList:
+		i = 0
+		childrenList = fam['Children']
+		#print('childrenList ' + str(childrenList))
+		birthdays = list()
+		for id in childrenList:
+			birthday = modified_lookup("Birthday", id,indiList)
+		#	print('ID ' + id)
+			birthdays.append(birthday)
+		#	print('birthday ' + str(birthdays))
+		#	print('\n')
+
+			if len(birthdays) < 2:
+				pass
+			elif (len(birthdays) < 3):
+				xYears = birthdays[0][-4:]
+				yYears = birthdays[1][-4:]
+				x = birthdays[0]
+				y = birthdays[1]
+				#print('Birthday 1 ' + xYears)
+				#print('Birthday 2 ' + yYears)
+				xDate = datetime.strptime(x, "%d %b %Y").date()
+				yDate = datetime.strptime(y, "%d %b %Y").date()
+				dayDifference = abs((xDate - yDate).days)
+				if dayDifference > 240:
+					print('Day difference = ' + str(dayDifference))
+					SiblingSpacing = True
+				else:
+					print('Day difference = ' + str(dayDifference))
+					SiblingSpacing = False
+
+
+			else:
+				pass
+	return SiblingSpacing
+
 
 # Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
 def validAge(age):
 	if age >= 150:
 		return False
+	return True
+
+#convert to datetime object
+def dateToCompare(date):
+	return datetime.strptime(date, "%d %b %Y")
+
+#US2
+def birthBeforeMarriage(famList):
+	for family in famList:
+		for childId in family["Children"]:
+			marriageDate = dateToCompare(family['Married'])
+			if childId != "NaN":
+				birthday = dateToCompare(lookup("Birthday", childId))
+				if marriageDate > birthday:
+					return False
+	return True
+#US8
+def birthBeforeMarriage2(famList, individualListName):
+	for family in famList:
+		for childId in family["Children"]:
+			marriageDate = dateToCompare(family['Married'])
+			if childId != "NaN":
+				birthday = dateToCompare(modified_lookup("Birthday", childId, individualListName))
+				if family.get("Divorced") != None:
+					divorceDate = dateToCompare(family['Divorced'])
+					divorceNineMonths = divorceDate + relativedelta(months=+9)
+					if birthday > divorceNineMonths:
+						return False
+				if marriageDate > birthday:
+					return False
 	return True
 
 
@@ -333,6 +518,21 @@ def printLightGray(str):		print("\033[97m{}\033[00m" .format(str))
 def printBlack(str):		print("\033[98m{}\033[00m" .format(str))
 
 
+def siblingAgeDiff(famList, individualListName):
+	for family in famList:
+		if len(family["Children"]) > 1:
+			dlow = dateToCompare(modified_lookup("Birthday", family["Children"][0],individualListName))
+			dhigh = dateToCompare(modified_lookup("Birthday", family["Children"][0], individualListName))
+			for childId in family["Children"]:
+				birthday = dateToCompare(modified_lookup("Birthday", childId, individualListName))
+				if birthday < dlow:
+					dlow=birthday
+				if birthday > dhigh:
+					dhigh=birthday
+			ageDiff = dhigh.year - dlow.year - ((dhigh.month, dhigh.day) < (dlow.month, dlow.day))
+			if ageDiff >= 35:
+				return False
+	return True
 
 
 #Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
@@ -447,7 +647,7 @@ def generateInitialData(fileName):
 		#Check age of all individuals
 		for i in range(len(indiList)):
 			if not validAge(indiList[i]["Age"]):
-				raise Exception(indiList[i]["Name"]+": Individuals must be less than 150 years old")
+				print(indiList[i]["Name"]+": Individuals must be less than 150 years old")
 
 		#Populate the families DataFrame
 		for i in range(len(famList)):		#Loop through the list of families
@@ -512,14 +712,27 @@ def main():
 			printCyanBold("Families")
 			print(famDF)
 
-		indiDF.to_csv("indiDF.csv", index=False)
+		indiDF.to_csv('indi.csv')
+		famDF.to_csv('fam.csv')
+
+		# if not birthBeforeMarriage(famList):
+		# 	print("All children must be born after marriage")
+		# indiDF.to_csv("indiDF.csv", index=False)
+
+		if not siblingAgeDiff(famList, indiList):
+			print("ERROR: Sibling age difference must be less than 35 years")
+
+		if not birthBeforeMarriage2(famList, indiList):
+			print("ERROR: All children must be born after marriage and within 9 months of divorce")
+		# indiDF.to_csv("indiDF.csv", index=False)
 
 		printIndi()
 		print("\n\n")
 		printFam()
-		# test(indiList)
-		# print(print_data(indiList))
-		# print()
+		#test(indiList)
+		get_deceased_records(indiList)
+		print(print_data(indiList))
+		get_parents_not_too_old(famList)
 
 		#US16
 		if(maleLastNames(indiDF, famList)):
@@ -530,6 +743,8 @@ def main():
 			print("\n")
 			printYellowBold('All males do not have the same last name')
 			print("\n")
+		#US13
+		SiblingSpacing(indiDF, famList)
 
 		# verifyBigamy(indiList, famList, famDF, indiDF)
 		verifyBirthDeathDateOrder(indiList)
