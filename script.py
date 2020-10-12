@@ -272,18 +272,20 @@ def marriageAge(indiList, famList):
 
 
 def realBirthday(indiList, famList):
-	for family in famList:
+	count = 0
+  for family in famList:
 		if 'Children' in family.keys():
 			for childID in family["Children"]:
 				childBirthday 	= modified_lookup("Birthday", childID, indiList)
 				wifeDeath		= modified_lookup("Death", family['Wife ID'], indiList)
 				husbDeath		= modified_lookup("Death", family['Husband ID'], indiList)
 				if (check_dateOrder(childBirthday, wifeDeath) == False):
-					print("ERRO: IND: US09: Child " + childID + " was born on " + childBirthday + ", mother died on " + wifeDeath)
-				monthDifference = diffMonth(husbDeath, childBirthday)
+					print("US09: Child " + childID + " was born on " + childBirthday + ", mother died on " + wifeDeath)
+          count += 1
 				if((monthDifference is not None) and monthDifference < -9):
 					print("WARN: IND: US09: Child " + childID + " was born on " + childBirthday + ", father died on " + husbDeath)
-
+          count += 1
+  return count
 
 #Checks date argument to see if that date is not after today's date
 def validDate(arguments):
