@@ -3,10 +3,10 @@ US01: ERROR: No dates should be after the current date: 8 AUG 4020
 US07: Julia /Smith/: Individuals must be less than 150 years old
 US07: Terrace /Smith/: Individuals must be less than 150 years old
 US07: Hamilton /Washington/: Individuals must be less than 150 years old
-[1m[96mIndividuals[00m
+Individuals
              ID                   Name Gender     Birthday   Age  Alive        Death        Child       Spouse
 0   I0512113035            Joe /Smith/      M   4 APR 1951    69   True          NaN  F0515745826  F0521431836
-1   I0514811822            Bob /Smith/      M   5 JAN 1950    70   True          NaN  F0515745826  F0517412841
+1   I0514811822            Bob /Smith/      M  19 JUL 1966    54   True          NaN  F0515745826  F0517412841
 2   I0515745822        Terrace /Smith/      M   4 MAY 1700   199  False   3 JAN 1900          NaN  F0515745826
 3   I0516107833      Carrie /Williams/      F   3 APR 3904 -2003  False  19 AUG 1901          NaN  F0515745826
 4   I0517412837       Tiffany /Jacobs/      F   9 JUL 1949    71   True          NaN          NaN  F0517412841
@@ -28,7 +28,7 @@ US07: Hamilton /Washington/: Individuals must be less than 150 years old
 
 
 
-[1m[96mFamilies[00m
+Families
              ID      Married    Divorced   Husband ID           Husband Name      Wife ID           Wife Name                    Children
 0   F0515745826  19 JUL 1970         NaN  I0515745822        Terrace /Smith/  I0516107833   Carrie /Williams/  [I0512113035, I0514811822]
 1   F0517412841  19 JUL 1970         NaN  I0514811822            Bob /Smith/  I0517412837    Tiffany /Jacobs/  [I0517748837, I0517979828]
@@ -56,7 +56,7 @@ US29: Deceased list
 3  I3712856872         Jarvis /Stark/      M   8 AUG 1999    19  15 JAN 2019  F3712856876
 4  I0521431830     Jennifer /Tuckers/      F  18 APR 1952    46  13 APR 1999  F0521431836
                    Name   Birth Date Qualified
-0             Bob Smith   5 JAN 1950       Yes
+0             Bob Smith  19 JUL 1966       Yes
 1        Tiffany Jacobs   9 JUL 1949       Yes
 2        Chris Smoothie   5 MAY 2000       Yes
 3           Julia Smith   8 MAY 1001        No
@@ -84,14 +84,14 @@ US12: Parents not too old table
 +--------------------+--------------+------------+------------------+-----+-----------+---------+
 |    Parent Name     | Relationship | Parent Age |    Child Name    | Sex | Child Age | Too old |
 +--------------------+--------------+------------+------------------+-----+-----------+---------+
-|    Bob /Smith/     |    Father    |     70     | Chris /Smoothie/ |  M  |     20    |    No   |
+|    Bob /Smith/     |    Father    |     54     | Chris /Smoothie/ |  M  |     20    |    No   |
 |  Tiffany /Jacobs/  |    Mother    |     71     | Chris /Smoothie/ |  M  |     20    |    No   |
-|    Bob /Smith/     |    Father    |     70     |  Julia /Smith/   |  F  |    1019   |    No   |
+|    Bob /Smith/     |    Father    |     54     |  Julia /Smith/   |  F  |    1019   |    No   |
 |  Tiffany /Jacobs/  |    Mother    |     71     |  Julia /Smith/   |  F  |    1019   |    No   |
 |  Terrace /Smith/   |    Father    |    199     |   Joe /Smith/    |  M  |     69    |   Yes   |
 | Carrie /Williams/  |    Mother    |   -2003    |   Joe /Smith/    |  M  |     69    |    No   |
-|  Terrace /Smith/   |    Father    |    199     |   Bob /Smith/    |  M  |     70    |   Yes   |
-| Carrie /Williams/  |    Mother    |   -2003    |   Bob /Smith/    |  M  |     70    |    No   |
+|  Terrace /Smith/   |    Father    |    199     |   Bob /Smith/    |  M  |     54    |   Yes   |
+| Carrie /Williams/  |    Mother    |   -2003    |   Bob /Smith/    |  M  |     54    |    No   |
 |    Joe /Smith/     |    Father    |     69     |   Jill /Smith/   |  F  |     18    |    No   |
 |   Jessica /Cho/    |    Mother    |     68     |   Jill /Smith/   |  F  |     18    |    No   |
 |    Joe /Smith/     |    Father    |     69     |   Bret /Smith/   |  M  |     49    |    No   |
@@ -99,16 +99,22 @@ US12: Parents not too old table
 +--------------------+--------------+------------+------------------+-----+-----------+---------+
 
 US16: the name that doesnt match is Chris Smoothie
-[1m[93mUS16: All males do not have the same last name[00m
+US16: All males do not have the same last name
 
 
 US13: Day difference = 364875
-US13: Day difference = 454
+US13: Day difference = 5585
 birth 4 JAN 1971
-[1m[93mUS03: ERROR: Deaths before Births found:[00m
+US03: ERROR: Deaths before Births found:
             ID  Alive               Name Gender    Birthday   Age        Death       Spouse
 0  I0516107833  False  Carrie /Williams/      F  3 APR 3904 -2003  19 AUG 1901  F0515745826
-[1m[93mUS04: ERROR: Divorces before Mariages found:[00m
+US10: Husband I0514811822 married before 14 years old, got married at 4yrs old
+US10: Wife I0516107833 married before 14 years old, got married at -1934yrs old
+US09: Child I0512113035 was born on 4 APR 1951, mother died on 19 AUG 1901
+US09: Child I0512113035 was born on 4 APR 1951, father died on 3 JAN 1900
+US09: Child I0514811822 was born on 19 JUL 1966, mother died on 19 AUG 1901
+US09: Child I0514811822 was born on 19 JUL 1966, father died on 3 JAN 1900
+US04: ERROR: Divorces before Mariages found:
             ID Children     Married    Divorced   Husband ID      Wife ID      Husband Name    Wife Name
 0  F3671292846       []  8 JAN 2020  5 JAN 2020  I0517748837  I3671292842  Chris /Smoothie/  Lisa /West/
 1  F3672607826       []  2 FEB 2015  1 SEP 2014  I0522001821  I3672607822      Bret /Smith/    Bob Smith
