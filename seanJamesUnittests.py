@@ -103,8 +103,6 @@ class TestSiblingSpacing(unittest.TestCase):
         self.assertIsNot(result, False)
 
     def test_Fail_SameYearLess8Months(self):
-        reset()
-        print(famDF_lessThan8Months)
         result = SiblingSpacing(indiDF_lessThan8Months, famList_lessThan8Months, indiList_lessThan8Months)
         self.assertFalse(result)
 
