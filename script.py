@@ -241,7 +241,12 @@ def realBirthday(indiList, famList):
 				husbDeath		= modified_lookup("Death", family['Husband ID'], indiList)
 				if (check_dateOrder(childBirthday, wifeDeath) == False):
 					print("US09: Child " + childID + " was born on " + childBirthday + ", mother died on " + wifeDeath)
-				monthDifference = diffMonth(husbDeath, childBirthday)
+				if husbDeath is not None and childBirthday is not None:
+					date1 = dateToCompare(husbDeath)
+					date2 = dateToCompare(childBirthday)
+					monthDifference = (date1.year - date2.year) * 12 + date1.month - date2.month		
+				else:
+					monthDifference = None
 				if((monthDifference is not None) and monthDifference < -9):
 					print("US09: Child " + childID + " was born on " + childBirthday + ", father died on " + husbDeath)
 
