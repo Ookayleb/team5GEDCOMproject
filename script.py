@@ -360,37 +360,26 @@ def SiblingSpacing(indiDF, famList, indiList):
 	birthday = ''
 	SiblingSpacing = True
 	for fam in famList:
-		i = 0
 		childrenList = fam['Children']
-		#print('childrenList ' + str(childrenList))
 		birthdays = list()
 		for id in childrenList:
 			birthday = modified_lookup("Birthday", id,indiList)
-		#	print('ID ' + id)
 			birthdays.append(birthday)
-		#	print('birthday ' + str(birthdays))
-		#	print('\n')
 
-			if len(birthdays) < 2:
-				pass
-			elif (len(birthdays) < 3):
-				xYears = birthdays[0][-4:]
-				yYears = birthdays[1][-4:]
-				x = birthdays[0]
-				y = birthdays[1]
-				#print('Birthday 1 ' + xYears)
-				#print('Birthday 2 ' + yYears)
-				xDate = datetime.strptime(x, "%d %b %Y").date()
-				yDate = datetime.strptime(y, "%d %b %Y").date()
-				dayDifference = abs((xDate - yDate).days)
-				if dayDifference > 240:
-					print('INFO: IND: US13: Day difference = ' + str(dayDifference))
-					SiblingSpacing = True
-				else:
-					print('INFO: IND: US13: Day difference = ' + str(dayDifference))
-					SiblingSpacing = False
-			else:
-				pass
+	for index in range(0, len(birthdays) - 1):
+		birthday_1 = birthdays[index]
+		birthday_2 = birthdays[index + 1]
+		date_1 = datetime.strptime(birthday_1, "%d %b %Y").date()
+		date_2 = datetime.strptime(birthday_2, "%d %b %Y").date()
+		dayDifference = abs((date_1 - date_2).days)
+		if dayDifference > 240 or dayDifference < 2:
+			print('INFO: IND: US13: Day difference = ' + str(dayDifference))
+			SiblingSpacing = True
+		else:
+			print('INFO: IND: US13: Day difference = ' + str(dayDifference))
+			SiblingSpacing = False
+	else:
+		pass
 	return SiblingSpacing
 
 
