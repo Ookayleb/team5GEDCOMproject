@@ -43,6 +43,19 @@ THIRD_TOKEN_TAGS =[
 	'FAM'
 ]
 
+Colors = {
+	"red": "\033[91m{}\033[00m",
+	"red bold": "\033[1m\033[91m{}\033[00m",
+	"green": "\033[92m{}\033[00m",
+	"yellow": "\033[93m{}\033[00m",
+	"yellow bold": "\033[1m\033[93m{}\033[00m",
+ 	"light purple":	"\033[94m{}\033[00m",
+	"purple": "\033[95m{}\033[00m",
+	"cyan": "\033[96m{}\033[00m",
+	"cyan bold":"\033[1m\033[96m{}\033[00m",
+	"light gray": "\033[97m{}\033[00m",
+	"black": "\033[98m{}\033[00m"
+}
 indiList 	= []		#will hold all individuals
 famList	= []		#will hold all families
 
@@ -51,17 +64,8 @@ famList	= []		#will hold all families
 
 #---------------------### HELPER FUNCTIONS ###---------------------#
 #Colors!!
-def printRed(str):			print("\033[91m{}\033[00m" .format(str))
-def printRedBold(str):		print("\033[1m\033[91m{}\033[00m" .format(str))
-def printGreen(str):		print("\033[92m{}\033[00m" .format(str))
-def printYellow(str):		print("\033[93m{}\033[00m" .format(str))
-def printYellowBold(str):	print("\033[1m\033[93m{}\033[00m" .format(str))
-def printLightPurple(str):	print("\033[94m{}\033[00m" .format(str))
-def printPurple(str):		print("\033[95m{}\033[00m" .format(str))
-def printCyan(str):			print("\033[96m{}\033[00m" .format(str))
-def printCyanBold(str):		print("\033[1m\033[96m{}\033[00m" .format(str))
-def printLightGray(str):		print("\033[97m{}\033[00m" .format(str))
-def printBlack(str):		print("\033[98m{}\033[00m" .format(str))
+def printColor(color, str):
+	print(Colors[color].format(str))
 
 #Given an id and an attribute of intrest, returns the value of the attribute desired ex lookup("birthday", "I343628")
 def lookup(attr, id):
@@ -174,7 +178,7 @@ def get_parents_not_too_old(famList):
 
 #US29: Deceased list | ND Sprint 1
 def get_deceased_records(indList):
-	printCyan('INFO: IND: US29: Deceased Table')
+	printColor('cyan', 'INFO: IND: US29: Deceased Table')
 	decease_list = {}
 	id_arr = []
 	name_arr = []
@@ -325,9 +329,9 @@ def verifyBirthDeathDateOrder(indiList):
 			warningList.append(i)
 
 	if len(warningList) < 1:		#if warningList is empty
-		printGreen("INFO: GEN: US03: No Deaths before Births")
+		printColor("green", "INFO: GEN: US03: No Deaths before Births")
 	else:
-		printYellowBold("ERRO: IND: US03: Deaths before Births found:")
+		printColor("yellow bold", "ERRO: IND: US03: Deaths before Births found:")
 		# warnDF = pd.DataFrame(warningList)
 		print(pd.DataFrame(warningList))
 
@@ -342,9 +346,9 @@ def verifyMarriageDivorceOrder(famList):
 			warningList.append(f)
 
 	if len(warningList) < 1:		#if warningList is empty
-		printGreen("INFO: GEN: US04: No Divorces before Marriages")
+		printColor("green", "INFO: GEN: US04: No Divorces before Marriages")
 	else:
-		printYellowBold("ERRO: FAM: US04: Divorces before Mariages found:")
+		printColor("yellow bold","ERRO: FAM: US04: Divorces before Mariages found:")
 		# warnDF = pd.DataFrame(warningList)
 		print(pd.DataFrame(warningList), end="\n\n")
 
@@ -538,17 +542,17 @@ def verifyBigamy(indiList, famList, famDF, indiDF):
 
 
 	if(len(maleBigamyDF) > 0):
-		printYellowBold("\n\nMale Bigamy:")
+		printColor("yellow bold","\n\nMale Bigamy:")
 		print(maleBigamyDF)
 		print()
 	else:
-		printGreen("No Males Commiting Bigamy")
+		printColor("green", "No Males Commiting Bigamy")
 	if(len(femaleBigamyDF) > 0):
-		printYellowBold("\n\nFemale Bigamy:")
+		printColor("yellow bold","\n\nFemale Bigamy:")
 		print(femaleBigamyDF)
 		print()
 	else:
-		printGreen("No Females Commiting Bigamy")
+		printColor("green", "No Females Commiting Bigamy")
 
 
 def siblingAgeDiff(famList, individualListName):
@@ -719,7 +723,7 @@ def reset():
 #---------------------### MAIN CODE ###---------------------#
 def main():
 	if(len(sys.argv) != 2):	#if we don't have 2 arguments,
-		printRedBold("ERRO: Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")
+		printColor("red bold","ERRO: Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")
 	else:
 		gedcomStructuredData = generateInitialData(sys.argv[1]) #store the tables and lists into gedcomStructuredData
 
@@ -741,10 +745,10 @@ def main():
 			# print(newTable)
 
 		def printIndi():
-			printCyanBold("Individuals")
+			printColor("cyan bold", "Individuals")
 			print(indiDF, end="\n\n")
 		def printFam():
-			printCyanBold("Families")
+			printColor("cyan bold","Families")
 			print(famDF, end="\n\n")
 		printIndi()
 		printFam()
@@ -787,9 +791,9 @@ def main():
 
 		#US16
 		if(maleLastNames(indiDF, famList)):
-			printGreen('INFO: GEN: US16: All males have same last name')
+			printColor('green', 'INFO: GEN: US16: All males have same last name')
 		else:
-			printYellowBold('WARN: GEN: US16: All males do not have the same last name')
+			printColor("yellow bold", 'WARN: GEN: US16: All males do not have the same last name')
 
 		#US29
 		get_deceased_records(indiList)
