@@ -103,6 +103,8 @@ def calculateAge(born, death=False):
 #Returns true if date1 is before or equals date2,
 def check_dateOrder(date1, date2):
 	if (date1 is None):
+		if(date2 is None):
+			return True
 		return False
 
 	date1 = datetime.strptime(date1, "%d %b %Y")
@@ -327,9 +329,9 @@ def verifyBirthDeathDateOrder(indiList):
 	print("birth " + childBirthday + "")
 
 	warningList = []
-	for i in indiList:		#loop over all individuals
-		if (check_dateOrder(i.get('Birthday', None), i.get('Death', None)) == False):	#using check_dateOrder, if Birthday is after Death append the offender to warningList
-			warningList.append(i)
+	for indi in indiList:		#loop over all individuals
+		if (check_dateOrder(indi.get('Birthday', None), indi.get('Death', None)) == False):	#using check_dateOrder, if Birthday is after Death append the offender to warningList
+			warningList.append(indi)
 
 	if len(warningList) < 1:		#if warningList is empty
 		printColor("green", "INFO: GEN: US03: No Deaths before Births")
@@ -794,4 +796,4 @@ def main():
 
 
 if __name__ == "__main__": 	# execute only if run as a script
-    main()
+	main()
