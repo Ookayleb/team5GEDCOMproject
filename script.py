@@ -358,29 +358,26 @@ def verifyMarriageDivorceOrder(famList):
 #Sibling Spacing birth dates of siblings must be 8 months or more apart from each other or less than 2 days for twins
 def SiblingSpacing(indiDF, famList, indiList):
 	birthday = ''
-	SiblingSpacing = True
 	for fam in famList:
+
 		childrenList = fam['Children']
 		birthdays = list()
 		for id in childrenList:
 			birthday = modified_lookup("Birthday", id,indiList)
 			birthdays.append(birthday)
 
-	for index in range(0, len(birthdays) - 1):
-		birthday_1 = birthdays[index]
-		birthday_2 = birthdays[index + 1]
-		date_1 = datetime.strptime(birthday_1, "%d %b %Y").date()
-		date_2 = datetime.strptime(birthday_2, "%d %b %Y").date()
-		dayDifference = abs((date_1 - date_2).days)
-		if dayDifference > 240 or dayDifference < 2:
-			print('INFO: IND: US13: Day difference = ' + str(dayDifference))
-			SiblingSpacing = True
-		else:
-			print('INFO: IND: US13: Day difference = ' + str(dayDifference))
-			SiblingSpacing = False
-	else:
-		pass
-	return SiblingSpacing
+		for index in range(0, len(birthdays) - 1):
+			birthday_1 = birthdays[index]
+			birthday_2 = birthdays[index + 1]
+			date_1 = datetime.strptime(birthday_1, "%d %b %Y").date()
+			date_2 = datetime.strptime(birthday_2, "%d %b %Y").date()
+			dayDifference = abs((date_1 - date_2).days)
+			if dayDifference > 240 or dayDifference < 2:
+				print('INFO: IND: US13: Day difference = ' + str(dayDifference))
+			else:
+				print('ERR: IND: US13: Siblings must be born at least 8 months apart or less than 2 days for twins')
+				return False
+	return True
 
 
 #US16 | SJ Sprint 1

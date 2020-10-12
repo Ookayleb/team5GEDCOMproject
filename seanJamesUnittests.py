@@ -51,7 +51,27 @@ famDF_maleLastNamesDiffFamsEq = 	gedcomeStructuredData4['famDF']
 indiList_maleLastNamesDiffFamsEq = 	gedcomeStructuredData4['indiList']
 famList_maleLastNamesDiffFamsEq = 	gedcomeStructuredData4['famList']
 
+reset()
 
+#LessThan8Months.ged
+# contains a birthday of siblings less than 8 months apart
+gedcomeStructuredData5 = generateInitialData("gedFiles/lessThan8Months.ged")
+indiDF_lessThan8Months = 	gedcomeStructuredData5['indiDF']
+famDF_lessThan8Months = 	gedcomeStructuredData5['famDF']
+indiList_lessThan8Months = 	gedcomeStructuredData5['indiList']
+famList_lessThan8Months = 	gedcomeStructuredData5['famList']
+
+reset()
+
+#LessThan2Days.ged
+# contains a birthday of siblings less than 2 days apart
+gedcomeStructuredData6 = generateInitialData("gedFiles/lessThan2Days.ged")
+indiDF_lessThan2Days = 	gedcomeStructuredData6['indiDF']
+famDF_lessThan2Days = 	gedcomeStructuredData6['famDF']
+indiList_lessThan2Days = 	gedcomeStructuredData6['indiList']
+famList_lessThan2Days = 	gedcomeStructuredData6['famList']
+
+reset()
 
 class TestMaleLastNames(unittest.TestCase):
 
@@ -83,13 +103,20 @@ class TestSiblingSpacing(unittest.TestCase):
         self.assertIsNot(result, False)
 
     def test_Fail_SameYearLess8Months(self):
-        result = SiblingSpacing(indiDF_allFemaleLastNamesEq, famList_allFemaleLastNamesEq, indiList_allFemaleLastNamesEq)
-        self.assertTrue(result)
+        reset()
+        print(famDF_lessThan8Months)
+        result = SiblingSpacing(indiDF_lessThan8Months, famList_lessThan8Months, indiList_lessThan8Months)
+        self.assertFalse(result)
 
     def test_Pass_SameYearMore8Months(self):
         result = SiblingSpacing(indiDF_maleLastNamesDiffFamsEq, famList_maleLastNamesDiffFamsEq, indiList_maleLastNamesDiffFamsEq)
         self.assertTrue(result)
         self.assertIs(result, True)
+
+    def test_Pass_LessThan2Days(self):
+        result = SiblingSpacing(indiDF_lessThan2Days, famList_lessThan2Days, indiList_lessThan2Days)
+        self.assertTrue(result)
+
 
 
 
