@@ -324,30 +324,45 @@ def SiblingSpacing(indiDF, famList):
 			birthdays.append(birthday)
 		#	print('birthday ' + str(birthdays))
 		#	print('\n')	
-			if len(birthdays) < 2:
-				pass
-			elif (len(birthdays) < 3) :
-				xYears = birthdays[0][-4:]
-				yYears = birthdays[1][-4:]
-				x = birthdays[0]
-				y = birthdays[1]				
-		#		print('Birthday 1 ' + xYears)
-		#		print('Birthday 2 ' + yYears)
-				xDate = datetime.strptime(x, "%d %b %Y").date()
-				yDate = datetime.strptime(y, "%d %b %Y").date()
-				dayDifference = abs((xDate - yDate).days)
-				if dayDifference > 240:
-					print('Day difference = ' + str(dayDifference))
-					SiblingSpacing = True
-				else:
-					print('Day difference = ' + str(dayDifference))
-					SiblingSpacing = False
-				
-					
+		if len(birthdays) < 2:
+			pass
+		elif ((len(birthdays) >= 2) and (len(birthdays) < 3)) :
+			x = birthdays[0]
+			y = birthdays[1]		
+			xDate = datetime.strptime(x, "%d %b %Y").date()
+			yDate = datetime.strptime(y, "%d %b %Y").date()
+			dayDifference = abs((xDate - yDate).days)
+			if dayDifference > 240 or dayDifference < 2:
+				SiblingSpacing = True					
 			else:
-				pass
+				SiblingSpacing = False
+				return False		
+		elif ((len(birthdays) >= 3) and (len(birthdays) <4)) :
+			x = birthdays[0]
+			y = birthdays[1]
+			z = birthdays[2]
+			xDate = datetime.strptime(x, "%d %b %Y").date()
+			yDate = datetime.strptime(y, "%d %b %Y").date()
+			zDate = datetime.strptime(z, "%d %b %Y").date()
+			dayDifference = abs((xDate - yDate - zDate).days)
+			if dayDifference > 240 or dayDifference < 2:
+				SiblingSpacing = True					
+			else:
+				SiblingSpacing = False
+				return False		
+
 	return SiblingSpacing
 
+# Sean James - US22 all IDs must be unique 
+def uniqueID(indiList):
+	id_List = list()
+	for i in range(len(indiList)):
+		id = indiList[i]['ID']
+		id_List.append(id)
+	id_Set = set(id_List)
+	unique_ids = len(id_Set) == len(id_List)
+
+	return unique_ids		
 
 # Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
 def validAge(age):
@@ -590,7 +605,16 @@ def main():
 			print('All males do not have the same last name')
 			print("\n")
 		#US13
-		SiblingSpacing(indiDF, famList)
+		if SiblingSpacing(indiDF, famList) == False:
+			print('Siblings are too close together and they are not twins check birth dates')
+		else:
+			pass
+		
+		#US22
+		if uniqueID(indiList) != True:
+			print('Repeated ID')
+		else:
+			pass
 
 		#verifyBirthDeathDateOrder(indiList)
 	else:
