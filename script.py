@@ -477,7 +477,24 @@ def uniqueID(indiList):
 	id_Set = set(id_List)
 	unique_ids = len(id_Set) == len(id_List)
 
-	return unique_ids		
+	return unique_ids	
+
+# Sean James US23 all names and Birthdates must be different 
+def uniqueNameAndBirthday(indiList):
+	name_List = list()
+	birthdate_List = list()
+	for i in range(len(indiList)):
+		name = indiList[i]['Name']
+		name_List.append(name)
+		birthdate = indiList[i]['Birthday']
+		birthdate_List.append(birthdate)
+	name_Set = set(name_List)
+	birthdate_Set = set(birthdate_List)
+	if (len(name_List) == len(name_Set)) and (len(birthdate_List) == len(birthdate_Set)):
+		unique_NameAndBirthday = True
+	else:
+		unique_NameAndBirthday = False
+	return unique_NameAndBirthday
 
 # Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
 def validAge(age):
@@ -831,8 +848,6 @@ def main():
 		#US12
 		get_parents_not_too_old(famList)
 
-		#US13
-		SiblingSpacing(indiDF, famList, indiList)
 
 		#US16
 		if(maleLastNames(indiDF, famList)):
@@ -842,7 +857,7 @@ def main():
 			print('All males do not have the same last name')
 			print("\n")
 		#US13
-		if SiblingSpacing(indiDF, famList) == False:
+		if SiblingSpacing(indiDF,famList) == False:
 			print('Siblings are too close together and they are not twins check birth dates')
 		else:
 			pass
@@ -850,6 +865,12 @@ def main():
 		#US22
 		if uniqueID(indiList) != True:
 			print('Repeated ID')
+		else:
+			pass
+
+		#US23
+		if uniqueNameAndBirthday(indiList) != True:
+			print('Repeated Name and Birthday')
 		else:
 			pass
 
