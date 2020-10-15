@@ -51,7 +51,25 @@ famDF_maleLastNamesDiffFamsEq = 	gedcomeStructuredData4['famDF']
 indiList_maleLastNamesDiffFamsEq = 	gedcomeStructuredData4['indiList']
 famList_maleLastNamesDiffFamsEq = 	gedcomeStructuredData4['famList']
 
+reset()
 
+#birthdaysnot8month3kids.ged
+# 3 kids in family with similiar birthdays
+gedcomeStructuredData5 = generateInitialData("gedFiles/birthdaysnot8month3kids.ged")
+indiDF_birthdaysnot8month3kids = 	gedcomeStructuredData5['indiDF']
+famDF_birthdaysnot8month3kids = 	gedcomeStructuredData5['famDF']
+indiList_birthdaysnot8month3kids= 	gedcomeStructuredData5['indiList']
+famList_birthdaysnot8month3kids = 	gedcomeStructuredData5['famList']
+
+reset()
+
+#diffYearMore8Months.ged
+# 3 kids in family with similiar birthdays
+gedcomeStructuredData6 = generateInitialData("gedFiles/diffYearMore8Months.ged")
+indiDF_diffYearMore8Months = 	gedcomeStructuredData6['indiDF']
+famDF_diffYearMore8Months = 	gedcomeStructuredData6['famDF']
+indiList_diffYearMore8Months= 	gedcomeStructuredData6['indiList']
+famList_diffYearMore8Months = 	gedcomeStructuredData6['famList']
 
 class TestMaleLastNames(unittest.TestCase):
 
@@ -78,20 +96,23 @@ class TestMaleLastNames(unittest.TestCase):
 class TestSiblingSpacing(unittest.TestCase):
 
     def test_Pass_DiffYearMore8Months(self):
-        result = SiblingSpacing(indiDF, famList, indiList)
+        result = SiblingSpacing(indiDF_diffYearMore8Months, famList_diffYearMore8Months)
         self.assertTrue(result)
         self.assertIsNot(result, False)
 
-    def test_Fail_SameYearLess8Months(self):
-        result = SiblingSpacing(indiDF_allFemaleLastNamesEq, famList_allFemaleLastNamesEq, indiList_allFemaleLastNamesEq)
+#below test should fail 
+    def test_Pass_SameYearLess8Months(self):
+        result = SiblingSpacing(indiDF_birthdaysnot8month3kids, famList_birthdaysnot8month3kids)
         self.assertTrue(result)
-
+    
     def test_Pass_SameYearMore8Months(self):
-        result = SiblingSpacing(indiDF_maleLastNamesDiffFamsEq, famList_maleLastNamesDiffFamsEq, indiList_maleLastNamesDiffFamsEq)
+        result = SiblingSpacing(indiDF, famList)
         self.assertTrue(result)
         self.assertIs(result, True)
-
-
+#below should be false
+    def test_Pass_MoreThan2Kids(self):
+        result = SiblingSpacing(indiDF_birthdaysnot8month3kids,famList_birthdaysnot8month3kids )
+        self.assertTrue(result)
 
 
 
@@ -100,3 +121,4 @@ if __name__ == "__main__":
     # loader = unittest.TestLoader()
     suite = unittest.TestLoader().loadTestsFromModule( sys.modules[__name__] )
     unittest.TextTestRunner(verbosity=3).run( suite )
+

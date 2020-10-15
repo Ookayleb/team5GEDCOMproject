@@ -3,11 +3,11 @@
 import sys
 import re
 import pandas as pd
+import unittest
+import numpy as np
 from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
-import unittest
-import numpy as np
 from prettytable import PrettyTable
 
 pd.set_option('display.max_rows', None)
@@ -15,6 +15,8 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
 
+
+#---------------------### VARIABLES & CONSTANTS ###---------------------#
 #List of valid tags that should have Y for valid
 VALID_TAGS = [
 	'INDI',
@@ -41,16 +43,89 @@ THIRD_TOKEN_TAGS =[
 	'FAM'
 ]
 
+Colors = {
+	"red": "\033[91m{}\033[00m",
+	"red bold": "\033[1m\033[91m{}\033[00m",
+	"green": "\033[92m{}\033[00m",
+	"yellow": "\033[93m{}\033[00m",
+	"yellow bold": "\033[1m\033[93m{}\033[00m",
+ 	"light purple":	"\033[94m{}\033[00m",
+	"purple": "\033[95m{}\033[00m",
+	"cyan": "\033[96m{}\033[00m",
+	"cyan bold":"\033[1m\033[96m{}\033[00m",
+	"light gray": "\033[97m{}\033[00m",
+	"black": "\033[98m{}\033[00m"
+}
 indiList 	= []		#will hold all individuals
 famList	= []		#will hold all families
 
-#US12-Parents not too old(father not 80 yrs older, and mother not 60 yrs older than child)****start
 
-#helper function to calculate age difference fot get_parents_not_too_old() function
+
+
+#---------------------### HELPER FUNCTIONS ###---------------------#
+#Colors!!
+def printColor(color, str):
+	print(Colors[color].format(str))
+
+#Given an id and an attribute of intrest, returns the value of the attribute desired ex lookup("birthday", "I343628")
+def lookup(attr, id):
+	for indi in indiList:			#loop over all individuals
+		if id == indi['ID']:		#if we find id
+			return indi[attr]			#return the individual's data that we desire
+
+#Given an id,an attribute of intrest, and a list returns the value of the attribute desired ex lookup("birthday", "I343628", indiList)
+def modified_lookup(attr, id, inputlist):
+	for indi in inputlist:			#loop over all individuals
+		if id == indi['ID']:		#if we find id
+			return indi.get(attr, None)			#return the individual's data that we desire
+
+#Calculate age difference fot get_parents_not_too_old() function
 def get_age_difference(parent_age, child_age):
 	age = parent_age - child_age
 	return age
 
+#Return the difference of two dates in months
+def diffMonth(d1, d2):
+	if d1 is None or d2 is None:
+		return None
+	date1 = dateToCompare(d1)
+	date2 = dateToCompare(d2)
+	return (date1.year - date2.year) * 12 + date1.month - date2.month
+
+#Calculate age given two dates. If death not supplied assume not dead
+def calculateAge(born, death=False):
+	if born is None:
+		return 0
+	born 	= datetime.strptime(born, "%d %b %Y")
+	endDate 	= datetime.strptime(death, "%d %b %Y") if death else date.today() #if death is set, set end date as death. Otherwise, set end date as today
+	return endDate.year - born.year - ((endDate.month, endDate.day) < (born.month, born.day))
+
+#Returns true if date1 is before or equals date2,
+def check_dateOrder(date1, date2):
+	if (date1 is None):
+		if(date2 is None):
+			return True
+		return False
+
+	date1 = datetime.strptime(date1, "%d %b %Y")
+	date2 = datetime.strptime(date2, "%d %b %Y") if date2 else None
+
+	if date2 is None or date1 <= date2:
+		return True
+	else:
+		return False
+
+#Convert to datetime object
+def dateToCompare(date):
+	return datetime.strptime(date, "%d %b %Y")
+
+
+
+
+
+#---------------------### USER STORY FUNCTIONS ###---------------------#
+#US12: Parents not too old | ND Sprint 1
+#(father not 80 yrs older, and mother not 60 yrs older than child) ****start
 #function to print father, mother and children data and display if parents are too hold to be a child's parent
 def get_parents_not_too_old(famList):
 	family = []
@@ -97,16 +172,15 @@ def get_parents_not_too_old(famList):
 	for n in range(len(table_arr)):
 		x.add_row([table_arr[n][0], table_arr[n][1], table_arr[n][2],
 			table_arr[n][3], table_arr[n][4], table_arr[n][5], table_arr[n][6]])
-	print('\n\n')
-	print('Parents not too old table\n')
+	print('WARN: IND: US12: Parents not too old table\n')
 	print(x)
 
 	#************************************************************************end
 
-#US29-Deceased list
+
+#US29: Deceased list | ND Sprint 1
 def get_deceased_records(indList):
-	print('Deceased list')
-	print('\n')
+	printColor('cyan', 'INFO: IND: US29: Deceased Table')
 	decease_list = {}
 	id_arr = []
 	name_arr = []
@@ -134,15 +208,10 @@ def get_deceased_records(indList):
 	decease_list['Spouse'] = spouse_arr
 
 	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death', 'Spouse'])
-	print(df)
+	print(df, end="\n\n")
 #***************************************************************************end
 
-# def test(indList):
-# 	for i in indList:
-# 		print( "****" + str(i))
 
-
-#**********************************end
 def print_age_qualification(indiList):
 
 	#person = get_person_record()
@@ -167,6 +236,7 @@ def print_age_qualification(indiList):
 				each_person.append([name, birth_day,  isQualified])
 	return each_person
 
+
 def print_data(indiList):
 	person_record = print_age_qualification(indiList)
 	n_arr = []
@@ -187,32 +257,40 @@ def print_data(indiList):
 	return df
 
 
+#Austin Luo
+def marriageAge(indiList, famList):
+	for family in famList:
+		husbandID = family['Husband ID']
+		wifeID = family['Wife ID']
+		husbandBirthday = modified_lookup('Birthday', husbandID, indiList)
+		wifeBirthday = modified_lookup('Birthday', wifeID, indiList)
+		marriageDate = family['Married']
+		husbandMarriageAge = calculateAge(husbandBirthday, marriageDate)
+		wifeMarriageAge = calculateAge(wifeBirthday, marriageDate)
+		if husbandMarriageAge < 14:
+			print("WARN: IND: US10: Husband " + husbandID + " married before 14 years old, married at " + str(husbandMarriageAge) + "yrs old")
+		if wifeMarriageAge < 14:
+			print("WARN: IND: US10: Wife " + wifeID + " married before 14 years old, married at " + str(wifeMarriageAge) + "yrs old")
 
 
-### HELPER FUNCTIONS ###
-#Given an id and an attribute of intrest, returns the value of the attribute desired ex lookup("birthday", "I343628")
-def lookup(attr, id):
-	for indi in indiList:			#loop over all individuals
-		if id == indi['ID']:		#if we find id
-			return indi[attr]			#return the individual's data that we desire
+def realBirthday(indiList, famList):
+	count = 0
+	for family in famList:
+		if 'Children' in family.keys():
+			for childID in family["Children"]:
+				childBirthday 	= modified_lookup("Birthday", childID, indiList)
+				wifeDeath		= modified_lookup("Death", family['Wife ID'], indiList)
+				husbDeath		= modified_lookup("Death", family['Husband ID'], indiList)
+				if (check_dateOrder(childBirthday, wifeDeath) == False):
+					print("ERRO: IND: US09: Child " + childID + " was born on " + childBirthday + ", mother died on " + wifeDeath)
+					count += 1
+				monthDifference = diffMonth(husbDeath, childBirthday)
+				if((monthDifference is not None) and monthDifference < -9):
+					print("WARN: IND: US09: Child " + childID + " was born on " + childBirthday + ", father died on " + husbDeath)
+					count += 1
+	return count
 
-#Given an id,an attribute of intrest, and a list returns the value of the attribute desired ex lookup("birthday", "I343628")
-def modified_lookup(attr, id, inputlist):
-	for indi in inputlist:			#loop over all individuals
-		if id == indi['ID']:		#if we find id
-			return indi[attr]			#return the individual's data that we desire
-
-
-#Calculate age given two dates. If death not supplied assume not dead
-def calculateAge(born, death=False):
-	if born is None:
-		return 0
-	born 	= datetime.strptime(born, "%d %b %Y")
-	endDate 	= datetime.strptime(death, "%d %b %Y") if death else date.today() #if death is set, set end date as death. Otherwise, set end date as today
-	return endDate.year - born.year - ((endDate.month, endDate.day) < (born.month, born.day))
-
-
-# Checks date argument to see if that date is not after today's date
+#Checks date argument to see if that date is not after today's date
 def validDate(arguments):
 	current_date = date.today()
 	try:
@@ -223,21 +301,6 @@ def validDate(arguments):
 	if date_arg > current_date:
 		return False
 	return True
-
-# Returns true if date1 is before or equals date2,
-def check_dateOrder(date1, date2):
-	if (date1 is None):
-		return False
-
-	date1 = datetime.strptime(date1, "%d %b %Y")
-	date2 = datetime.strptime(date2, "%d %b %Y") if date2 else None
-
-	if date2 is None or date1 <= date2:
-		return True
-	else:
-		return False
-
-
 
 #function to find the children data
 def getChildren_and_age(id):
@@ -253,7 +316,7 @@ def replace_id_with_children_data(children_arr):
 		new_arr.append(getChildren_and_age(children_arr[i]))
 	return new_arr
 
-#US03 CC Sprint 1: Birth before death -
+#US03: Birth before death | CC Sprint 1:
 #Verify that all death dates are after birth dates. Returns 0 if no offenders. If offenders detected, returns the number of them
 def verifyBirthDeathDateOrder(indiList):
 	for individual in indiList:
@@ -266,22 +329,20 @@ def verifyBirthDeathDateOrder(indiList):
 	print("birth " + childBirthday + "")
 
 	warningList = []
-	for i in indiList:		#loop over all individuals
-		if (check_dateOrder(i.get('Birthday', None), i.get('Death', None)) == False):	#using check_dateOrder, if Birthday is after Death append the offender to warningList
-			warningList.append(i)
+	for indi in indiList:		#loop over all individuals
+		if (check_dateOrder(indi.get('Birthday', None), indi.get('Death', None)) == False):	#using check_dateOrder, if Birthday is after Death append the offender to warningList
+			warningList.append(indi)
 
 	if len(warningList) < 1:		#if warningList is empty
-		printGreen("No Deaths before Births")
+		printColor("green", "INFO: GEN: US03: No Deaths before Births")
 	else:
-		printYellowBold("WARNING: Deaths before Births found:")
+		printColor("yellow bold", "ERRO: IND: US03: Deaths before Births found:")
 		# warnDF = pd.DataFrame(warningList)
 		print(pd.DataFrame(warningList))
 
 	return len(warningList)
 
-
-
-# US04 CC Sprint 1: Marriage before divorce -
+#US04: Marriage before divorce | CC Sprint 1
 #Verify that all divorce dates are after marriage dates. Returns 0 if no offenders. If offenders detected, returns the number of them
 def verifyMarriageDivorceOrder(famList):
 	warningList = []
@@ -290,17 +351,41 @@ def verifyMarriageDivorceOrder(famList):
 			warningList.append(f)
 
 	if len(warningList) < 1:		#if warningList is empty
-		printGreen("No Divorces before Marriages")
+		printColor("green", "INFO: GEN: US04: No Divorces before Marriages")
 	else:
-		printYellowBold("WARNING: Divorces before Mariages found:")
+		printColor("yellow bold","ERRO: FAM: US04: Divorces before Mariages found:")
 		# warnDF = pd.DataFrame(warningList)
-		print(pd.DataFrame(warningList))
+		print(pd.DataFrame(warningList), end="\n\n")
 
 	return len(warningList)
 
+#US13 | SJ Sprint 1
+#Sibling Spacing birth dates of siblings must be 8 months or more apart from each other or less than 2 days for twins
+def SiblingSpacing(indiDF, famList, indiList):
+	birthday = ''
+	for fam in famList:
+
+		childrenList = fam['Children']
+		birthdays = list()
+		for id in childrenList:
+			birthday = modified_lookup("Birthday", id,indiList)
+			birthdays.append(birthday)
+
+		for index in range(0, len(birthdays) - 1):
+			birthday_1 = birthdays[index]
+			birthday_2 = birthdays[index + 1]
+			date_1 = datetime.strptime(birthday_1, "%d %b %Y").date()
+			date_2 = datetime.strptime(birthday_2, "%d %b %Y").date()
+			dayDifference = abs((date_1 - date_2).days)
+			if dayDifference > 240 or dayDifference < 2:
+				print('INFO: IND: US13: Day difference = ' + str(dayDifference))
+			else:
+				print('ERR: IND: US13: Siblings must be born at least 8 months apart or less than 2 days for twins')
+				return False
+	return True
 
 
-#US16 SJ Sprint 1
+#US16 | SJ Sprint 1
 def maleLastNames(indiDF, famList):
 	lastNamesEqual = False
 	childrenName = ''	#init child / husb name and childrenID
@@ -335,12 +420,12 @@ def maleLastNames(indiDF, famList):
 				lastNamesEqual = True
 
 			else:
-				print( '\n the name that doesnt match is ' + childFirstName + " " + childLastName)
+				print("WARN: IND: US16: All male members of family should have same last name. Last name: {}. Child's name: {} {}".format(lastName, childFirstName, childLastName))
 				return False
 	return lastNamesEqual
 
-#US13 SJ Sibling Spacing birth dates of siblings must be 8 months or more apart from each other or less than 2 days for twins
-def SiblingSpacing(indiDF, famList, indiList):
+#US13 SJ Sibling Spacing birth dates of siblings must be 8 months or more apart from each other or less than 2 days for twins 
+def SiblingSpacing(indiDF, famList):
 	birthday = ''
 	SiblingSpacing = True
 	for fam in famList:
@@ -349,36 +434,67 @@ def SiblingSpacing(indiDF, famList, indiList):
 		#print('childrenList ' + str(childrenList))
 		birthdays = list()
 		for id in childrenList:
-			birthday = modified_lookup("Birthday", id,indiList)
+			birthday = lookup("Birthday", id)
 		#	print('ID ' + id)
 			birthdays.append(birthday)
 		#	print('birthday ' + str(birthdays))
-		#	print('\n')
-
-			if len(birthdays) < 2:
-				pass
-			elif (len(birthdays) < 3):
-				xYears = birthdays[0][-4:]
-				yYears = birthdays[1][-4:]
-				x = birthdays[0]
-				y = birthdays[1]
-				#print('Birthday 1 ' + xYears)
-				#print('Birthday 2 ' + yYears)
-				xDate = datetime.strptime(x, "%d %b %Y").date()
-				yDate = datetime.strptime(y, "%d %b %Y").date()
-				dayDifference = abs((xDate - yDate).days)
-				if dayDifference > 240:
-					print('Day difference = ' + str(dayDifference))
-					SiblingSpacing = True
-				else:
-					print('Day difference = ' + str(dayDifference))
-					SiblingSpacing = False
-
-
+		#	print('\n')	
+		if len(birthdays) < 2:
+			pass
+		elif ((len(birthdays) >= 2) and (len(birthdays) < 3)) :
+			x = birthdays[0]
+			y = birthdays[1]		
+			xDate = datetime.strptime(x, "%d %b %Y").date()
+			yDate = datetime.strptime(y, "%d %b %Y").date()
+			dayDifference = abs((xDate - yDate).days)
+			if dayDifference > 240 or dayDifference < 2:
+				SiblingSpacing = True					
 			else:
-				pass
+				SiblingSpacing = False
+				return False		
+		elif ((len(birthdays) >= 3) and (len(birthdays) <4)) :
+			x = birthdays[0]
+			y = birthdays[1]
+			z = birthdays[2]
+			xDate = datetime.strptime(x, "%d %b %Y").date()
+			yDate = datetime.strptime(y, "%d %b %Y").date()
+			zDate = datetime.strptime(z, "%d %b %Y").date()
+			dayDifference = abs((xDate - yDate - zDate).days)
+			if dayDifference > 240 or dayDifference < 2:
+				SiblingSpacing = True					
+			else:
+				SiblingSpacing = False
+				return False		
+
 	return SiblingSpacing
 
+# Sean James - US22 all IDs must be unique 
+def uniqueID(indiList):
+	id_List = list()
+	for i in range(len(indiList)):
+		id = indiList[i]['ID']
+		id_List.append(id)
+	id_Set = set(id_List)
+	unique_ids = len(id_Set) == len(id_List)
+
+	return unique_ids	
+
+# Sean James US23 all names and Birthdates must be different 
+def uniqueNameAndBirthday(indiList):
+	name_List = list()
+	birthdate_List = list()
+	for i in range(len(indiList)):
+		name = indiList[i]['Name']
+		name_List.append(name)
+		birthdate = indiList[i]['Birthday']
+		birthdate_List.append(birthdate)
+	name_Set = set(name_List)
+	birthdate_Set = set(birthdate_List)
+	if (len(name_List) == len(name_Set)) and (len(birthdate_List) == len(birthdate_Set)):
+		unique_NameAndBirthday = True
+	else:
+		unique_NameAndBirthday = False
+	return unique_NameAndBirthday
 
 # Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
 def validAge(age):
@@ -386,11 +502,8 @@ def validAge(age):
 		return False
 	return True
 
-#convert to datetime object
-def dateToCompare(date):
-	return datetime.strptime(date, "%d %b %Y")
 
-#US2
+#US02 | JT Sprint 1
 def birthBeforeMarriage(famList):
 	for family in famList:
 		for childId in family["Children"]:
@@ -400,7 +513,9 @@ def birthBeforeMarriage(famList):
 				if marriageDate > birthday:
 					return False
 	return True
-#US8
+
+
+#US8 | JW Sprint 1
 def birthBeforeMarriage2(famList, individualListName):
 	for family in famList:
 		for childId in family["Children"]:
@@ -467,7 +582,6 @@ def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
 
 	return anomalyBigamyDF
 
-
 def verifyBigamy(indiList, famList, famDF, indiDF):
 	husbID_list 		= famDF["Husband ID"].to_list()	#list of all husband IDs, duplicates included
 	wifeID_list 		= famDF["Wife ID"].to_list()
@@ -490,30 +604,17 @@ def verifyBigamy(indiList, famList, famDF, indiDF):
 
 
 	if(len(maleBigamyDF) > 0):
-		printYellowBold("\n\nMale Bigamy:")
+		printColor("yellow bold","\n\nMale Bigamy:")
 		print(maleBigamyDF)
 		print()
 	else:
-		printGreen("No Males Commiting Bigamy")
+		printColor("green", "No Males Commiting Bigamy")
 	if(len(femaleBigamyDF) > 0):
-		printYellowBold("\n\nFemale Bigamy:")
+		printColor("yellow bold","\n\nFemale Bigamy:")
 		print(femaleBigamyDF)
 		print()
 	else:
-		printGreen("No Females Commiting Bigamy")
-
-#Colors!!
-def printRed(str):			print("\033[91m{}\033[00m" .format(str))
-def printRedBold(str):		print("\033[1m\033[91m{}\033[00m" .format(str))
-def printGreen(str):		print("\033[92m{}\033[00m" .format(str))
-def printYellow(str):		print("\033[93m{}\033[00m" .format(str))
-def printYellowBold(str):	print("\033[1m\033[93m{}\033[00m" .format(str))
-def printLightPurple(str):	print("\033[94m{}\033[00m" .format(str))
-def printPurple(str):		print("\033[95m{}\033[00m" .format(str))
-def printCyan(str):			print("\033[96m{}\033[00m" .format(str))
-def printCyanBold(str):		print("\033[1m\033[96m{}\033[00m" .format(str))
-def printLightGray(str):		print("\033[97m{}\033[00m" .format(str))
-def printBlack(str):		print("\033[98m{}\033[00m" .format(str))
+		printColor("green", "No Females Commiting Bigamy")
 
 
 def siblingAgeDiff(famList, individualListName):
@@ -533,20 +634,24 @@ def siblingAgeDiff(famList, individualListName):
 	return True
 
 
+
+
+
+#---------------------### CORE FUNCTIONS ###---------------------#
 #Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
 def generateInitialData(fileName):
 	# global indiDF, indiList, famDF, famList
 	with open(fileName, "r", encoding="utf-8") as inFile:		#open the file provided in the argument
-		line_num=-1
+		line_num =- 1
 		for line in inFile:
 			line_num		+= 1
 			level		= ""
 			tag			= ""
 			valid		= ""
-			arguments 	= ""
-			tokenizedStr 	= re.search("(\d) (\S*) ?(.*)", line).groups()			#Use regex to store each token into a var. "1 NAME Bob /Smith/" becomes ["1", "NAME", "Bob /Smith/"]
+			arguments		= ""
+			tokenizedStr	= re.search("(\d) (\S*) ?(.*)", line).groups()			#Use regex to store each token into a var. "1 NAME Bob /Smith/" becomes ["1", "NAME", "Bob /Smith/"]
 
-			level	= tokenizedStr[0]
+			level		= tokenizedStr[0]
 
 			#Check if third token is in the special list
 			if tokenizedStr[2] in THIRD_TOKEN_TAGS:
@@ -564,7 +669,8 @@ def generateInitialData(fileName):
 				valid = 'N'
 			if(tag == 'DATE'):
 				if not validDate(arguments):
-					raise Exception("No dates should be after the current date")
+					print("ERRO: GEN: US01: No dates should be after the current date. Recieved: "+ arguments)
+					# raise Exception("No dates should be after the current date")
 
 
 			if level == '0':
@@ -645,7 +751,7 @@ def generateInitialData(fileName):
 		#Check age of all individuals
 		for i in range(len(indiList)):
 			if not validAge(indiList[i]["Age"]):
-				print(indiList[i]["Name"]+": Individuals must be less than 150 years old")
+				print("WARN: IND: US07: Individuals should be less than 150 years old. "+ indiList[i]["Name"] +" is "+ str(indiList[i]["Age"]))
 
 		#Populate the families DataFrame
 		for i in range(len(famList)):		#Loop through the list of families
@@ -664,6 +770,7 @@ def generateInitialData(fileName):
 			"famList":	famList
 		}
 
+#Reset global variables
 def reset():
 	global indiList, famList
 	indiDF = []
@@ -675,11 +782,11 @@ def reset():
 
 
 
-
-
-### MAIN CODE ###
+#---------------------### MAIN CODE ###---------------------#
 def main():
-	if(len(sys.argv) == 2):	#Check that we have 2 arguments
+	if(len(sys.argv) != 2):	#if we don't have 2 arguments,
+		printColor("red bold","ERRO: Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")
+	else:
 		gedcomStructuredData = generateInitialData(sys.argv[1]) #store the tables and lists into gedcomStructuredData
 
 		indiDF = 		gedcomStructuredData['indiDF']
@@ -699,57 +806,74 @@ def main():
 			# ]
 			# print(newTable)
 
-		# CODE HERE
-
-
 		def printIndi():
-			printCyanBold("Individuals")
-			print(indiDF)
-
+			printColor("cyan bold", "Individuals")
+			print(indiDF, end="\n\n")
 		def printFam():
-			printCyanBold("Families")
-			print(famDF)
-
+			printColor("cyan bold","Families")
+			print(famDF, end="\n\n")
+		printIndi()
+		printFam()
 		indiDF.to_csv('indi.csv')
 		famDF.to_csv('fam.csv')
 
-		# if not birthBeforeMarriage(famList):
-		# 	print("All children must be born after marriage")
-		# indiDF.to_csv("indiDF.csv", index=False)
+		# vvv BEGIN USER STORY CALLS BELOW vvv
 
-		if not siblingAgeDiff(famList, indiList):
-			print("ERROR: Sibling age difference must be less than 35 years")
+		#US02
+		if not birthBeforeMarriage(famList):
+			print("WARN: IND: US02: All children must be born after marriage")
 
+		#US03
+		verifyBirthDeathDateOrder(indiList)
+
+		#US04
+		verifyMarriageDivorceOrder(famList)
+
+		#US08
 		if not birthBeforeMarriage2(famList, indiList):
-			print("ERROR: All children must be born after marriage and within 9 months of divorce")
-		# indiDF.to_csv("indiDF.csv", index=False)
+			print("WARN: FAM: US08: All children must be born after marriage and within 9 months of divorce")
 
-		printIndi()
-		print("\n\n")
-		printFam()
-		#test(indiList)
-		get_deceased_records(indiList)
+		#Qualified
 		print(print_data(indiList))
+
+		#US09
+		realBirthday(indiList, famList)
+
+		#US10
+		marriageAge(indiList, famList)
+
+		#US11
+		# verifyBigamy(indiList, famList, famDF, indiDF)
+
+		#US12
 		get_parents_not_too_old(famList)
+
 
 		#US16
 		if(maleLastNames(indiDF, famList)):
-			print("\n")
-			printGreen('All males have same last name')
-			print("\n")
+			printColor('green', 'INFO: GEN: US16: All males have same last name')
 		else:
 			print("\n")
-			printYellowBold('All males do not have the same last name')
+			print('All males do not have the same last name')
 			print("\n")
 		#US13
-		SiblingSpacing(indiDF, famList, indiList)
+		if SiblingSpacing(indiDF,famList) == False:
+			print('Siblings are too close together and they are not twins check birth dates')
+		else:
+			pass
+		
+		#US22
+		if uniqueID(indiList) != True:
+			print('Repeated ID')
+		else:
+			pass
 
-		# verifyBigamy(indiList, famList, famDF, indiDF)
-		verifyBirthDeathDateOrder(indiList)
-		verifyMarriageDivorceOrder(famList)
-	else:
-		printRedBold("Please provide a GEDCOM file.\nUSAGE: python3 script.py path/to/file.ged")
+		#US23
+		if uniqueNameAndBirthday(indiList) != True:
+			print('Repeated Name and Birthday')
+		else:
+			pass
 
-if __name__ == "__main__":
-    # execute only if run as a script
-    main()
+
+if __name__ == "__main__": 	# execute only if run as a script
+	main()
