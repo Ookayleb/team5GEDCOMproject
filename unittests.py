@@ -26,7 +26,7 @@ class TestBirthBeforeMarriage(unittest.TestCase):
         famList_0warnings		= gedcomStructuredData['famList']
         result = birthBeforeMarriage(famList_0warnings)
         self.assertTrue(result)
-        
+
     def test_fail(self):
         reset()
         gedcomStructuredData    = generateInitialData("gedFiles/2BirthAfterMarriage.ged") #store the tables and lists into gedcomStructuredData

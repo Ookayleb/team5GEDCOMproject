@@ -1,0 +1,33 @@
+test_birthBeforeMarriage2 (jared_unnitest.TestAge) ... ok
+test_siblingAgeDiff (jared_unnitest.TestAge) ... ok
+test_validAge (jared_unnitest.TestAge) ... ok
+test_fail (unittests.TestBirthBeforeMarriage) ... ok
+test_success (unittests.TestBirthBeforeMarriage) ... ok
+test_birthBeforeDeath (caleb_unittest.TestDateOrder) ... ok
+test_birthEqualsDeath (caleb_unittest.TestDateOrder) ... ok
+test_birthWithNoDeath (caleb_unittest.TestDateOrder) ... ok
+test_deathBeforeBirth (caleb_unittest.TestDateOrder) ... ok
+test_deathWithNoBirth (caleb_unittest.TestDateOrder) ... ok
+test_fail (unittests.TestDates) ... ok
+test_input_fail (unittests.TestDates) ... ok
+test_success (unittests.TestDates) ... ok
+test_fail (william_tests.TestDeathAfterMarriageorDiv) ... ok
+test_input_fail (william_tests.TestDeathAfterMarriageorDiv) ... ok
+test_success (william_tests.TestDeathAfterMarriageorDiv) ... ok
+test_Fail_MaleLastNameDiff (seanJamesUnittests.TestMaleLastNames) ... ok
+test_Pass_DiffFamNameEq (seanJamesUnittests.TestMaleLastNames) ... ok
+test_Pass_MaleLastNameEq (seanJamesUnittests.TestMaleLastNames) ... ok
+test_Pass_femaleLastNameDiff (seanJamesUnittests.TestMaleLastNames) ... ok
+test_Pass_femaleLastNameEq (seanJamesUnittests.TestMaleLastNames) ... ok
+test_Fail_SameYearLess8Months (seanJamesUnittests.TestSiblingSpacing) ... ok
+test_Pass_DiffYearMore8Months (seanJamesUnittests.TestSiblingSpacing) ... ok
+test_Pass_SameYearMore8Months (seanJamesUnittests.TestSiblingSpacing) ... ok
+test_0BirthAfterDeath (caleb_unittest.TestVerifyBirthDeathDateOrder) ... ok
+test_2BirthAfterDeath (caleb_unittest.TestVerifyBirthDeathDateOrder) ... ok
+test_0MarriageAfterDivorce (caleb_unittest.TestVerifyMarriageDivorceDateOrder) ... ok
+test_2MarriageAfterDivorce (caleb_unittest.TestVerifyMarriageDivorceDateOrder) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 0.185s
+
+OK

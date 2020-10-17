@@ -43,6 +43,7 @@ class noe_unit_test(unittest.TestCase):
 
 # class GedcomTest(unittest.TestCase):
 
+<<<<<<< HEAD
 # 	def test_print_age_qualificationh(self):
 # 		self.assertTrue(print_age_qualification(indiList1),
 # 			[['Bobby Smith ', '1890-9-26', 'No'], ['Kate Smith ', '2012-7-05', 'Yes'], ['John Smith ', '2016-10-31', 'Yes']])
@@ -60,6 +61,25 @@ class noe_unit_test(unittest.TestCase):
 
     # def test_get_deceased_records(self):
 	# 	self.assertTrue(get_deceased_records(indiList))
+=======
+	def test_print_age_qualificationh(self):
+		self.assertTrue(print_age_qualification(indiList1),
+			[['Bobby Smith ', '1890-9-26', 'No'], ['Kate Smith ', '2012-7-05', 'Yes'], ['John Smith ', '2016-10-31', 'Yes']])
+
+	def test_print_age_qualificationh(self):
+		self.assertTrue(print_age_qualification(indiList),
+			[['Bobby Smith ', '1890-9-26', 'No'], ['Kate Smith ', '2012-7-05', 'Yes'], ['John Smith ', '2016-10-31', 'Yes']])
+
+	def test_print_age_qualificationh(self):
+		self.assertTrue(print_age_qualification(indiList),
+			[['Bobby Smith ', '1890-9-26', 'No'], ['Kate Smith ', '2012-7-05', 'Yes'], ['John Smith ', '2016-10-31', 'Yes']])
+
+	def test_print_age_qualificationh(self):
+		self.assertTrue(print_age_qualification(indiList),
+			[['Bobby Smith ', '1890-9-26', 'No'], ['Kate Smith ', '2012-7-05', 'Yes'], ['John Smith ', '2016-10-31', 'Yes']])
+
+
+>>>>>>> df691d727e7ee744fe6ceb2b7476f16a2cc6166f
 
 
 if __name__ == '__main__':
