@@ -119,7 +119,20 @@ def check_dateOrder(date1, date2):
 def dateToCompare(date):
 	return datetime.strptime(date, "%d %b %Y")
 
+#check age difference for a parent and a child
+def get_age_difference(parent_age, child_age):
+	try:
+		return parent_age - child_age
+	except:
+		pass
 
+
+#function to replace the children id(s) with their actual data
+def replace_id_with_children_data(children_arr):
+	new_arr = []
+	for i in range(len(children_arr)):
+		new_arr.append(look_for_child_by(children_arr[i]))
+	return new_arr
 
 
 
@@ -129,51 +142,48 @@ def dateToCompare(date):
 #function to print father, mother and children data and display if parents are too hold to be a child's parent
 def get_parents_not_too_old(famList):
 	family = []
+	table_arr = []
 	father_age_limit = 80
 	mother_age_limit = 60
-	father_too_old = ""
-	mother_too_old = ""
+
 
 	#loop to retrieve father, mother and children data from family record
 	for i in range(len(famList)):
-		try:
-			family.append({'Husband_ID':famList[i]['Husband ID'], 'Wife_ID':famList[i]['Wife ID'],
-				'Husband Name':famList[i]['Husband Name'], 'Wife Name':famList[i]['Wife Name'],
-				'Husband Age': lookup('Age', famList[i]['Husband ID']), 'Wife Age': lookup('Age', famList[i]['Wife ID']),
-				'Children': replace_id_with_children_data(famList[i]['Children'])})
-		except:
-			famList[i]['N/A'] = 'N/A'
-			family.append({famList[i]['N/A']})
-
-	table_arr = []
+		#append specific data from famList to the family list
+		family.append({'Husband_ID':famList[i]['Husband ID'], 'Wife_ID':famList[i]['Wife ID'],
+			'Husband Name':famList[i]['Husband Name'], 'Wife Name':famList[i]['Wife Name'], 
+			'Husband Age': lookup('Age', famList[i]['Husband ID']), 'Wife Age': lookup('Age', famList[i]['Wife ID']), 
+			'Children': replace_id_with_children_data(famList[i]['Children'])})
 
 	# loop to build list to hold father, mother and children data
 	for j in range(len(family)):
 		for k in range(len(family[j]['Children'])):
-			if(get_age_difference(family[j]['Husband Age'], family[j]['Children'][k]['Age']) > father_age_limit):
-				father_too_old = "Yes"
-			else:
-				father_too_old = "No"
+			#check to see if father is not 80 yrs older than children or if mother is not 60 yrs older than children
+			father = 0 if family[j]['Husband Age'] is None else family[j]['Husband Age']
+			mother = 0 if family[j]['Wife Age'] is None else family[j]['Wife Age']
+			child = 0 if family[j]['Children'][k]['Age'] is None else family[j]['Children'][k]['Age']
 
-			if(get_age_difference(family[j]['Wife Age'], family[j]['Children'][k]['Age']) > mother_age_limit):
-				mother_too_old = "Yes"
-			else:
-				mother_too_old = "No"
+			father_too_old = 'Yes' if get_age_difference(father, child) > father_age_limit else "No"
+			mother_too_old = 'Yes' if get_age_difference(mother, child) > mother_age_limit else "No"
 
-			table_arr.append([family[j]['Husband Name'],"Father", family[j]['Husband Age'],
-				family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], father_too_old])
-			table_arr.append([family[j]['Wife Name'], "Mother", family[j]['Wife Age'],
-				family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], mother_too_old])
-
+			#check to see if parents are older than children then if so append to table_arr
+			if(father > child):
+				table_arr.append([family[j]['Husband Name'],"Father", family[j]['Husband Age'],
+					family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], father_too_old])
+			if(mother > child):
+				table_arr.append([family[j]['Wife Name'], "Mother", family[j]['Wife Age'],
+					family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], mother_too_old])
 
 	#bring list to a prettytable structure
 	x = PrettyTable()
-	x.field_names = ['Parent Name', 'Relationship', 'Parent Age', 'Child Name', 'Sex', 'Child Age', 'Too old']
+	x.field_names = ['Parent Name', 'Relationship', 'Parent Age', 'Child Name', 'Sex', 'Child Age', 'Parents too old']
 	for n in range(len(table_arr)):
-		x.add_row([table_arr[n][0], table_arr[n][1], table_arr[n][2],
+		x.add_row([table_arr[n][0], table_arr[n][1], table_arr[n][2], 
 			table_arr[n][3], table_arr[n][4], table_arr[n][5], table_arr[n][6]])
-	print('WARN: IND: US12: Parents not too old table\n')
+	
+	
 	print(x)
+	return 1, x
 
 	#************************************************************************end
 
@@ -855,6 +865,9 @@ def main():
 			print('Repeated Name and Birthday')
 		else:
 			pass
+
+		#US29
+		print(get_deceased_records(indiList))
 
 
 if __name__ == "__main__": 	# execute only if run as a script
