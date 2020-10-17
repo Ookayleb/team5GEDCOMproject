@@ -180,35 +180,17 @@ def get_parents_not_too_old(famList):
 
 #US29: Deceased list | ND Sprint 1
 def get_deceased_records(indList):
-	printColor('cyan', 'INFO: IND: US29: Deceased Table')
-	decease_list = {}
-	id_arr = []
-	name_arr = []
-	gender_arr = []
-	birth_arr = []
-	age_arr = []
-	death_arr = []
-	spouse_arr = []
+	decease_list = []
+	records = ""
 	for record in indList:
 		if (record['Alive'] == False):
-			id_arr.append(record['ID'])
-			name_arr.append(record['Name'])
-			gender_arr.append(record['Gender'])
-			birth_arr.append(record['Birthday'])
-			age_arr.append(record['Age'])
-			death_arr.append(record['Death'])
-			spouse_arr.append(record['Spouse'])
+			records = [record['ID'],record['Name'], record['Gender'], record['Birthday'], record['Age'],
+			record['Death']]
+			decease_list.append(records)
 
-	decease_list['ID'] = id_arr
-	decease_list['Name'] = name_arr
-	decease_list['Gender'] = gender_arr
-	decease_list['Birthday'] = birth_arr
-	decease_list['Age'] = age_arr
-	decease_list['Death'] = death_arr
-	decease_list['Spouse'] = spouse_arr
-
-	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death', 'Spouse'])
-	print(df, end="\n\n")
+	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death'])
+	#print(df)
+	return 1, decease_list
 #***************************************************************************end
 
 
