@@ -644,6 +644,13 @@ def siblingAgeDiff(famList, individualListName):
 				return False
 	return True
 
+#US27- Include individual ages
+def get_individual_age(indList):
+	records = []
+	for person in indList:
+		records.append([person['Name'], person['Age']])
+	return records
+
 #US30 List living married
 def get_living_married(ind_list, famList):
 	living_marriage = []
@@ -903,6 +910,9 @@ def main():
 			print('Repeated Name and Birthday')
 		else:
 			pass
+
+		#US27
+		print(get_individual_age(indiList))
 
 		#US29
 		print(get_deceased_records(indiList))
