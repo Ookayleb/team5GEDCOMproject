@@ -134,6 +134,25 @@ def replace_id_with_children_data(children_arr):
 		new_arr.append(look_for_child_by(children_arr[i]))
 	return new_arr
 
+# return all family ids to a record
+def find_family_ids(fam_list):
+	records = []
+	for record in fam_list:
+		records.append(record['ID'])
+	return records
+
+#return all married people to a record
+def get_married_list(famList):
+	fam_records = []
+	fam_id_records = find_family_ids(famList)
+	for id in fam_id_records:
+		husband_name = modified_lookup('Husband Name', id, famList)
+		wife_name = modified_lookup('Wife Name', id, famList)
+		divorce_date = modified_lookup('Divorced', id, famList)
+		if (divorce_date is None):
+			fam_records.append([husband_name,wife_name])
+
+	return fam_records
 
 
 #---------------------### USER STORY FUNCTIONS ###---------------------#
@@ -625,6 +644,25 @@ def siblingAgeDiff(famList, individualListName):
 				return False
 	return True
 
+#US30 List living married
+def get_living_married(ind_list, famList):
+	living_marriage = []
+	all_deceased_names = []
+	marriage_records = get_married_list(famList)
+	deceased = get_deceased_records(ind_list)[1]
+	for j in range(len(deceased)):
+		all_deceased_names.append(deceased[j][1])
+
+	for k in range(len(marriage_records)):
+		ind_record = marriage_records[k]
+		result = any(elem in ind_record  for elem in all_deceased_names)
+		if result:
+			k += 1
+		else:
+			living_marriage.append(ind_record)
+
+	return living_marriage
+
 
 
 
@@ -868,6 +906,9 @@ def main():
 
 		#US29
 		print(get_deceased_records(indiList))
+
+		#US30
+		print(get_living_married(indiList, famList))
 
 
 if __name__ == "__main__": 	# execute only if run as a script
