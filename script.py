@@ -424,7 +424,7 @@ def maleLastNames(indiDF, famList):
 				return False
 	return lastNamesEqual
 
-#US13 SJ Sibling Spacing birth dates of siblings must be 8 months or more apart from each other or less than 2 days for twins 
+#US13 SJ Sibling Spacing birth dates of siblings must be 8 months or more apart from each other or less than 2 days for twins
 def SiblingSpacing(indiDF, famList):
 	birthday = ''
 	SiblingSpacing = True
@@ -438,20 +438,20 @@ def SiblingSpacing(indiDF, famList):
 		#	print('ID ' + id)
 			birthdays.append(birthday)
 		#	print('birthday ' + str(birthdays))
-		#	print('\n')	
+		#	print('\n')
 		if len(birthdays) < 2:
 			pass
 		elif ((len(birthdays) >= 2) and (len(birthdays) < 3)) :
 			x = birthdays[0]
-			y = birthdays[1]		
+			y = birthdays[1]
 			xDate = datetime.strptime(x, "%d %b %Y").date()
 			yDate = datetime.strptime(y, "%d %b %Y").date()
 			dayDifference = abs((xDate - yDate).days)
 			if dayDifference > 240 or dayDifference < 2:
-				SiblingSpacing = True					
+				SiblingSpacing = True
 			else:
 				SiblingSpacing = False
-				return False		
+				return False
 		elif ((len(birthdays) >= 3) and (len(birthdays) <4)) :
 			x = birthdays[0]
 			y = birthdays[1]
@@ -461,14 +461,57 @@ def SiblingSpacing(indiDF, famList):
 			zDate = datetime.strptime(z, "%d %b %Y").date()
 			dayDifference = abs((xDate - yDate - zDate).days)
 			if dayDifference > 240 or dayDifference < 2:
-				SiblingSpacing = True					
+				SiblingSpacing = True
 			else:
 				SiblingSpacing = False
-				return False		
+				return False
 
 	return SiblingSpacing
 
-# Sean James - US22 all IDs must be unique 
+#US19: First cousins should not marry | CC Sprint 2
+#First cousins should not marry one another
+def getGrandparents(indiID, indiList, famList):
+	familyID = modified_lookup("Child", indiID, indiList)
+
+	fatherID = modified_lookup("Husband ID", familyID, famList)
+	motherID = modified_lookup("Wife ID", familyID, famList)
+
+	fatherFamilyID = modified_lookup("Child", fatherID, indiList)
+	motherFamilyID = modified_lookup("Child", motherID, indiList)
+
+	fatherFatherID = modified_lookup("Husband ID", fatherFamilyID, famList)
+	fatherMotherID = modified_lookup("Wife ID", fatherFamilyID, famList)
+	motherFatherID = modified_lookup("Husband ID", motherFamilyID, famList)
+	motherMotherID = modified_lookup("Wife ID", motherFamilyID, famList)
+
+	return [fatherFatherID, fatherMotherID, motherFatherID, motherMotherID]
+	# print(lookup("Name", fatherFatherID))
+	# print(lookup("Name", fatherMotherID))
+	# print(lookup("Name", motherFatherID))
+	# print(lookup("Name", motherMotherID))
+
+def verifyNoFirstCousinMarr(indiList, famList):
+	warningList = []
+	for family in famList:
+		husbID = family["Husband ID"]
+		wifeID = family["Wife ID"]
+		husbGParents = getGrandparents(husbID, indiList, famList)
+		wifeGParents = getGrandparents(wifeID, indiList, famList)
+
+		for i in husbGParents:
+			if i is not None and i in wifeGParents:
+				warningList.append(family)
+				break
+
+	if len(warningList) < 1:
+		printColor("green", "INFO: GEN: US19: No First Cousins married")
+	else:
+		printColor("yellow bold", "ERRO: FAM: US019: First Cousins Marriages found:")
+		print(pd.DataFrame(warningList), end="\n\n")
+
+	return len(warningList)
+
+# Sean James - US22 all IDs must be unique
 def uniqueID(indiList):
 	id_List = list()
 	for i in range(len(indiList)):
@@ -477,9 +520,9 @@ def uniqueID(indiList):
 	id_Set = set(id_List)
 	unique_ids = len(id_Set) == len(id_List)
 
-	return unique_ids	
+	return unique_ids
 
-# Sean James US23 all names and Birthdates must be different 
+# Sean James US23 all names and Birthdates must be different
 def uniqueNameAndBirthday(indiList):
 	name_List = list()
 	birthdate_List = list()
@@ -819,60 +862,68 @@ def main():
 
 		# vvv BEGIN USER STORY CALLS BELOW vvv
 
-		#US02
-		if not birthBeforeMarriage(famList):
-			print("WARN: IND: US02: All children must be born after marriage")
+		# #US02
+		# if not birthBeforeMarriage(famList):
+		# 	print("WARN: IND: US02: All children must be born after marriage")
 
-		#US03
-		verifyBirthDeathDateOrder(indiList)
+		# #US03
+		# verifyBirthDeathDateOrder(indiList)
 
-		#US04
-		verifyMarriageDivorceOrder(famList)
+		# #US04
+		# verifyMarriageDivorceOrder(famList)
 
-		#US08
-		if not birthBeforeMarriage2(famList, indiList):
-			print("WARN: FAM: US08: All children must be born after marriage and within 9 months of divorce")
+		# #US08
+		# if not birthBeforeMarriage2(famList, indiList):
+		# 	print("WARN: FAM: US08: All children must be born after marriage and within 9 months of divorce")
 
-		#Qualified
-		print(print_data(indiList))
+		# #Qualified
+		# print(print_data(indiList))
 
-		#US09
-		realBirthday(indiList, famList)
+		# #US09
+		# realBirthday(indiList, famList)
 
-		#US10
-		marriageAge(indiList, famList)
+		# #US10
+		# marriageAge(indiList, famList)
 
-		#US11
-		# verifyBigamy(indiList, famList, famDF, indiDF)
+		# #US11
+		# # verifyBigamy(indiList, famList, famDF, indiDF)
 
-		#US12
-		get_parents_not_too_old(famList)
+		# #US12
+		# get_parents_not_too_old(famList)
 
 
-		#US16
-		if(maleLastNames(indiDF, famList)):
-			printColor('green', 'INFO: GEN: US16: All males have same last name')
-		else:
-			print("\n")
-			print('All males do not have the same last name')
-			print("\n")
-		#US13
-		if SiblingSpacing(indiDF,famList) == False:
-			print('Siblings are too close together and they are not twins check birth dates')
-		else:
-			pass
-		
-		#US22
-		if uniqueID(indiList) != True:
-			print('Repeated ID')
-		else:
-			pass
+		# #US16
+		# if(maleLastNames(indiDF, famList)):
+		# 	printColor('green', 'INFO: GEN: US16: All males have same last name')
+		# else:
+		# 	print("\n")
+		# 	print('All males do not have the same last name')
+		# 	print("\n")
+		# #US13
+		# if SiblingSpacing(indiDF,famList) == False:
+		# 	print('Siblings are too close together and they are not twins check birth dates')
+		# else:
+		# 	pass
 
-		#US23
-		if uniqueNameAndBirthday(indiList) != True:
-			print('Repeated Name and Birthday')
-		else:
-			pass
+		#US19
+		# for i in indiList:
+		# 	getGrandparents(i["ID"], indiList, famList)
+		# getGrandparents("7163813870", indiList, famList)
+		# print(getGrandparents("7163813870", indiList, famList))
+		# print(getGrandparents("7166101834", indiList, famList))
+		verifyNoFirstCousinMarr(indiList, famList)
+
+		# #US22
+		# if uniqueID(indiList) != True:
+		# 	print('Repeated ID')
+		# else:
+		# 	pass
+
+		# #US23
+		# if uniqueNameAndBirthday(indiList) != True:
+		# 	print('Repeated Name and Birthday')
+		# else:
+		# 	pass
 
 
 if __name__ == "__main__": 	# execute only if run as a script
