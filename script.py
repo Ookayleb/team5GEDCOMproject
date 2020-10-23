@@ -206,6 +206,19 @@ def get_parents_not_too_old(famList):
 
 	#************************************************************************end
 
+# Checks the family list to ensure that all wives are female and all husbands are male
+def check_gender_roles(famList):
+	for family in famList:
+		husbandGender = lookup("Gender" ,family["Husband ID"])
+		wifeGender = lookup("Gender" ,family["Wife ID"])
+		if husbandGender != "M":
+			print("All husbands must be males")
+			return False
+		if wifeGender != "F":
+			print("All wives must be female")
+			return False
+	print("Gender roles are OK")
+	return True
 
 #US29: Deceased list | ND Sprint 1
 def get_deceased_records(indList):
@@ -919,6 +932,10 @@ def main():
 
 		#US30
 		print(get_living_married(indiList, famList))
+		print("Debug")
+		print(famList)
+		check_gender_roles(famList)
+		check_unique_child(famList)
 
 
 if __name__ == "__main__": 	# execute only if run as a script
