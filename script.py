@@ -219,6 +219,21 @@ def check_gender_roles(famList):
 			return False
 	print("Gender roles are OK")
 	return True
+	
+# Checks the family list to ensure that each family only has one child with the same name and birthday
+def check_unique_child(famList):
+	for family in famList:
+		childrenList = {}
+		for child in family["Children"]:
+			name = lookup("Name", child)
+			birthday = lookup("Birthday", child)
+			if name in childrenList and birthday == childrenList[name]:
+				print("No more than one child with the same name and birth date should appear in a family")
+				return False
+			else:
+				childrenList[name] = birthday
+	print("All Unique first names in families")
+	return True
 
 #US29: Deceased list | ND Sprint 1
 def get_deceased_records(indList):
