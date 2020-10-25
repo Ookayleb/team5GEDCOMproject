@@ -536,11 +536,12 @@ def uniqueNameAndBirthday(indiList):
 	return unique_NameAndBirthday
 
 # Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
-def validAge(age):
-	if age >= 150:
-		return False
+def validAge(indiList):
+	for person in indiList:
+		age=person["Age"]
+		if age >= 150:
+			return False
 	return True
-
 
 #US02 | JT Sprint 1
 def birthBeforeMarriage(famList):
@@ -655,7 +656,7 @@ def verifyBigamy(indiList, famList, famDF, indiDF):
 	else:
 		printColor("green", "No Females Commiting Bigamy")
 
-
+#US45 JW - Siblings < 35 year age difference
 def siblingAgeDiff(famList, individualListName):
 	for family in famList:
 		if len(family["Children"]) > 1:
@@ -671,6 +672,33 @@ def siblingAgeDiff(famList, individualListName):
 			if ageDiff >= 35:
 				return False
 	return True
+
+#US46 JW - Children>15 yr age difference parents
+def childParentAgeDiff(famList, individualListName):
+	for family in famList:
+		dhus = dateToCompare(modified_lookup("Birthday", family["Husband ID"],individualListName))
+		dwife = dateToCompare(modified_lookup("Birthday", family["Wife ID"], individualListName))
+		dlow = dhus
+		if dwife < dhus:
+			dlow = dwife
+		for childId in family["Children"]:
+			birthday = dateToCompare(modified_lookup("Birthday", childId, individualListName))
+			ageDiff = birthday.year - dlow.year - ((birthday.month, birthday.day) < (dlow.month, dlow.day))
+			if ageDiff <= 15:
+				return False
+	return True
+
+#US51 JW - List family with most members
+def largestFamily(famList, individualListName):
+	if(len(famList)==0): return "N/A"
+	largest_size = 0
+	largest_id = ""
+	for family in famList:
+		size=2+len(family["Children"])
+		if(size>largest_size):
+			largest_size=size
+			largest_id = family["ID"]
+	return largest_id
 
 #US27- Include individual ages
 def get_individual_age(indList):
@@ -813,11 +841,6 @@ def generateInitialData(fileName):
 		indiDF.sort_values(by=['ID'], inplace=True)
 		indiDF.reset_index(inplace=True, drop=True)
 
-		#Check age of all individuals
-		for i in range(len(indiList)):
-			if not validAge(indiList[i]["Age"]):
-				print("WARN: IND: US07: Individuals should be less than 150 years old. "+ indiList[i]["Name"] +" is "+ str(indiList[i]["Age"]))
-
 		#Populate the families DataFrame
 		for i in range(len(famList)):		#Loop through the list of families
 			famList[i]['Husband Name'] 	= lookup('Name', famList[i]['Husband ID']) #lookup husband name from id
@@ -894,6 +917,12 @@ def main():
 		#US04
 		verifyMarriageDivorceOrder(famList)
 
+		#US07
+		if validAge(indiList) == False:
+			print('Invalid age detected. All individuals must be <150 years old')
+		else:
+			pass
+
 		#US08
 		if not birthBeforeMarriage2(famList, indiList):
 			print("WARN: FAM: US08: All children must be born after marriage and within 9 months of divorce")
@@ -951,6 +980,22 @@ def main():
 		print(famList)
 		check_gender_roles(famList)
 		check_unique_child(famList)
+ 
+		#US45
+		if siblingAgeDiff(famList, indiList) != True:
+			print('sibling age difference>35 years detected')
+		else:
+			pass
+            
+		#US46
+		if childParentAgeDiff(famList, indiList) != True:
+			print('parent-child age difference<15 years detected')
+		else:
+			pass
+
+		#US51
+		largest_family = largestFamily(famList, indiList)
+		print('The largest family is', largest_family)
 
 
 if __name__ == "__main__": 	# execute only if run as a script
