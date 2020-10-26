@@ -1,6 +1,6 @@
 import unittest
 import sys
-from script import validDate, check_dateOrder, reset, generateInitialData, verifyBirthDeathDateOrder, verifyMarriageDivorceOrder
+from script import validDate, check_dateOrder, reset, generateInitialData, verifyBirthDeathDateOrder, verifyMarriageDivorceOrder, verifyBigamy, verifyNoFirstCousinMarr
 
 
 class TestDateOrder(unittest.TestCase):
@@ -61,6 +61,45 @@ class TestVerifyMarriageDivorceDateOrder(unittest.TestCase):
 		famList				= gedcomStructuredData['famList']
 		result 				= verifyMarriageDivorceOrder(famList)
 		self.assertEqual(result, 2)
+
+
+class TestVerifyBigamy(unittest.TestCase):
+	def test_4Bigamy(self):
+		reset()
+		gedcomStructuredData	= generateInitialData("gedFiles/allTest.ged") #store the tables and lists into gedcomStructuredData
+		famList				= gedcomStructuredData['famList']
+		famDF				= gedcomStructuredData['famDF']
+		indiDF				= gedcomStructuredData['indiDF']
+		result 				= verifyBigamy(famList, famDF, indiDF)
+		self.assertEqual(result, 4)
+
+	def test_0Bigamy(self):
+		reset()
+		gedcomStructuredData	= generateInitialData("gedFiles/Choy_familyTree.ged") #store the tables and lists into gedcomStructuredData
+		famList				= gedcomStructuredData['famList']
+		famDF				= gedcomStructuredData['famDF']
+		indiDF				= gedcomStructuredData['indiDF']
+		result 				= verifyBigamy(famList, famDF, indiDF)
+		self.assertEqual(result, 0)
+
+
+class TestVerifyNoFirstCousinMarr(unittest.TestCase):
+	def test_FirstCousinMarriage(self):
+		reset()
+		gedcomStructuredData	= generateInitialData("gedFiles/cousinMarriage.ged") #store the tables and lists into gedcomStructuredData
+		indiList				= gedcomStructuredData['indiList']
+		famList				= gedcomStructuredData['famList']
+		result 				= verifyNoFirstCousinMarr(indiList, famList)
+		self.assertEqual(result, 1)
+
+	def test_NoFirstCousinMarriage(self):
+		reset()
+		gedcomStructuredData	= generateInitialData("gedFiles/Choy_familyTree.ged") #store the tables and lists into gedcomStructuredData
+		indiList				= gedcomStructuredData['indiList']
+		famList				= gedcomStructuredData['famList']
+		result 				= verifyNoFirstCousinMarr(indiList, famList)
+		self.assertEqual(result, 0)
+
 
 if __name__ == "__main__":
 	suite = unittest.TestLoader().loadTestsFromModule( sys.modules[__name__] )
