@@ -218,7 +218,7 @@ def get_deceased_records(indList):
 			decease_list.append(records)
 
 	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death'])
-	#print(df)
+	print(df)
 	return 1, decease_list
 #***************************************************************************end
 
@@ -915,7 +915,7 @@ def main():
 		print(get_individual_age(indiList))
 
 		#US29
-		print(get_deceased_records(indiList))
+		get_deceased_records(indiList)
 
 		#US30
 		print(get_living_married(indiList, famList))
