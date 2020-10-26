@@ -6,31 +6,24 @@ import numpy as np
 
 indi = pd.read_csv('indi.csv')
 fam = pd.read_csv('fam.csv')
-
-print(fam)
-print(indi)
-
 orderedP = []
 datesM = []
 datesD = []
 datesDea = []
 
-for person in fam['Husband Name'].tolist():
-    orderedP.append(person)
-    datesM.append(fam.loc[fam['Husband Name'] == person]['Married'].tolist())
-    datesD.append(fam.loc[fam['Husband Name'] == person]['Divorced'].tolist())
-    datesDea.append(indi.loc[indi['Name'] == person]['Death'].tolist())
+def to_format(lis, hus):
+    if hus == True:
+        name = 'Husband Name'
+    else:
+        name = 'Wife Name'
+    for person in lis:
+        orderedP.append(person)
+        datesM.append(fam.loc[fam[name] == person]['Married'].tolist())
+        datesD.append(fam.loc[fam[name] == person]['Divorced'].tolist())
+        datesDea.append(indi.loc[indi['Name'] == person]['Death'].tolist())
 
-for person in fam['Wife Name'].tolist():
-    orderedP.append(person)
-    datesM.append(fam.loc[fam['Wife Name'] == person]['Married'].tolist())
-    datesD.append(fam.loc[fam['Wife Name'] == person]['Divorced'].tolist())
-    datesDea.append(indi.loc[indi['Name'] == person]['Death'].tolist())
-
-print(orderedP)
-print(datesM)
-print(datesD)
-print(datesDea[0][0])
+to_format(fam['Husband Name'].tolist(), True)
+to_format(fam['Wife Name'].tolist(), False)
 
 def dateBefore(mordd, deat_s):
     try:
