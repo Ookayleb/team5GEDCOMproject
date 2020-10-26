@@ -170,8 +170,8 @@ def get_parents_not_too_old(famList):
 	for i in range(len(famList)):
 		#append specific data from famList to the family list
 		family.append({'Husband_ID':famList[i]['Husband ID'], 'Wife_ID':famList[i]['Wife ID'],
-			'Husband Name':famList[i]['Husband Name'], 'Wife Name':famList[i]['Wife Name'], 
-			'Husband Age': lookup('Age', famList[i]['Husband ID']), 'Wife Age': lookup('Age', famList[i]['Wife ID']), 
+			'Husband Name':famList[i]['Husband Name'], 'Wife Name':famList[i]['Wife Name'],
+			'Husband Age': lookup('Age', famList[i]['Husband ID']), 'Wife Age': lookup('Age', famList[i]['Wife ID']),
 			'Children': replace_id_with_children_data(famList[i]['Children'])})
 
 	# loop to build list to hold father, mother and children data
@@ -197,10 +197,10 @@ def get_parents_not_too_old(famList):
 	x = PrettyTable()
 	x.field_names = ['Parent Name', 'Relationship', 'Parent Age', 'Child Name', 'Sex', 'Child Age', 'Parents too old']
 	for n in range(len(table_arr)):
-		x.add_row([table_arr[n][0], table_arr[n][1], table_arr[n][2], 
+		x.add_row([table_arr[n][0], table_arr[n][1], table_arr[n][2],
 			table_arr[n][3], table_arr[n][4], table_arr[n][5], table_arr[n][6]])
-	
-	
+
+
 	print(x)
 	return 1, x
 
@@ -219,7 +219,7 @@ def check_gender_roles(famList):
 			return False
 	print("Gender roles are OK")
 	return True
-	
+
 # Checks the family list to ensure that each family only has one child with the same name and birthday
 def check_unique_child(famList):
 	for family in famList:
@@ -307,9 +307,9 @@ def marriageAge(indiList, famList):
 		husbandMarriageAge = calculateAge(husbandBirthday, marriageDate)
 		wifeMarriageAge = calculateAge(wifeBirthday, marriageDate)
 		if husbandMarriageAge < 14:
-			print("WARN: IND: US10: Husband " + husbandID + " married before 14 years old, married at " + str(husbandMarriageAge) + "yrs old")
+			print("WARN: IND: US10: " + husbandID + ": Husband married before 14 years old, married at " + str(husbandMarriageAge) + "yrs old")
 		if wifeMarriageAge < 14:
-			print("WARN: IND: US10: Wife " + wifeID + " married before 14 years old, married at " + str(wifeMarriageAge) + "yrs old")
+			print("WARN: IND: US10: " + wifeID + ": Wife married before 14 years old, married at " + str(wifeMarriageAge) + "yrs old")
 
 
 def realBirthday(indiList, famList):
@@ -321,11 +321,11 @@ def realBirthday(indiList, famList):
 				wifeDeath		= modified_lookup("Death", family['Wife ID'], indiList)
 				husbDeath		= modified_lookup("Death", family['Husband ID'], indiList)
 				if (check_dateOrder(childBirthday, wifeDeath) == False):
-					print("ERRO: IND: US09: Child " + childID + " was born on " + childBirthday + ", mother died on " + wifeDeath)
+					print("ERRO: IND: US09: " + childID + ": Child was born on " + childBirthday + ", mother died on " + wifeDeath)
 					count += 1
 				monthDifference = diffMonth(husbDeath, childBirthday)
 				if((monthDifference is not None) and monthDifference < -9):
-					print("WARN: IND: US09: Child " + childID + " was born on " + childBirthday + ", father died on " + husbDeath)
+					print("WARN: IND: US09: " + childID + ": Child was born on " + childBirthday + ", father died on " + husbDeath)
 					count += 1
 	return count
 
@@ -365,8 +365,6 @@ def verifyBirthDeathDateOrder(indiList):
 			childBirthday = lookup("Birthday", indiID)
 			childFamilyID = lookup("Child", indiID)
 
-	print("birth " + childBirthday + "")
-
 	warningList = []
 	for indi in indiList:		#loop over all individuals
 		if (check_dateOrder(indi.get('Birthday', None), indi.get('Death', None)) == False):	#using check_dateOrder, if Birthday is after Death append the offender to warningList
@@ -375,9 +373,10 @@ def verifyBirthDeathDateOrder(indiList):
 	if len(warningList) < 1:		#if warningList is empty
 		printColor("green", "INFO: GEN: US03: No Deaths before Births")
 	else:
-		printColor("yellow bold", "ERRO: IND: US03: Deaths before Births found:")
-		# warnDF = pd.DataFrame(warningList)
-		print(pd.DataFrame(warningList))
+		def verifyBirthDeathDateOrderPrint(x):
+			printColor("yellow bold", "ERRO: IND: US03: {}: {} died on {}, before their birthday of {}"\
+				.format(x['ID'], x['Name'], x['Death'], x['Birthday']))
+		pd.DataFrame(warningList).apply(lambda x: verifyBirthDeathDateOrderPrint(x), axis=1)
 
 	return len(warningList)
 
@@ -392,9 +391,10 @@ def verifyMarriageDivorceOrder(famList):
 	if len(warningList) < 1:		#if warningList is empty
 		printColor("green", "INFO: GEN: US04: No Divorces before Marriages")
 	else:
-		printColor("yellow bold","ERRO: FAM: US04: Divorces before Mariages found:")
-		# warnDF = pd.DataFrame(warningList)
-		print(pd.DataFrame(warningList), end="\n\n")
+		def verifyMarriageDivorceOrderPrint(x):
+			printColor("yellow bold", "ERRO: FAM: US04: {}: {} and {} divorced on {}, before their marriage on {}"\
+				.format(x['ID'], x['Husband Name'], x['Wife Name'], x['Divorced'], x['Married']))
+		pd.DataFrame(warningList).apply(lambda x: verifyMarriageDivorceOrderPrint(x), axis=1)
 
 	return len(warningList)
 
@@ -628,13 +628,13 @@ def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
 	for personID in remarriedSet:
 		marrInfoDF = famDF.loc[		#Make a dataframe based on the famDF, but here all rows are related to personID
 			(famDF[maritalPositionID] == personID),									#This line specifies the query
-			['Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Married', 'Divorced']	#This line specifies what columns our output contains. Is independent from the above line
+			['ID', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Married', 'Divorced']	#This line specifies what columns our output contains. Is independent from the above line
 		]
 
 		#Merge data from indiDF into our newly created marrInfoDF table. We are intrested in getting Death dates from indiDF
 		marrInfoDF = marrInfoDF.merge(indiDF[["ID", "Death"]], how="left", left_on=spousePositionID, right_on="ID")
-		marrInfoDF.rename(columns={"Death": "Spouse Death"}, inplace=True)		#Rename death to spouse death just to be more descriptive
-		marrInfoDF.drop('ID', axis=1, inplace=True)							#drop the ID column as we dont need it
+		marrInfoDF.drop('ID_y', axis=1, inplace=True)							#drop the ID column as we dont need it
+		marrInfoDF.rename(columns={"Death": "Spouse Death", "ID_x": "ID"}, inplace=True)		#Rename death to spouse death just to be more descriptive
 
 		#Convert all dates to datetime so we can easily compare dates
 		marrInfoDF['Married'] 		= pd.to_datetime(marrInfoDF['Married'], format='%d %b %Y', errors='coerce')
@@ -687,16 +687,16 @@ def verifyBigamy(famList, famDF, indiDF):
 	numOffenders = len(maleBigamyDF) + len(femaleBigamyDF)
 	if numOffenders > 0:	#Print offending entries if either dataframe has entries
 		def maleBigamyPrint(x):
-			printColor("yellow bold", "WARN: IND: US11: Husband {} married {} on {}, but he was still married to {}"\
-				.format(x["Husband Name"], x["Wife Name"], x["Married"].date(), x["prev_spouseName"]), end="")
+			printColor("yellow bold", "WARN: FAM: US11: {}: Husband {} married {} on {}, but he was still married to {}"\
+				.format(x["ID"], x["Husband Name"], x["Wife Name"], x["Married"].date(), x["prev_spouseName"]), end="")
 			if pd.isnull(x['prev_marriageEndDate']):
 				printColor("yellow bold", ".")
 			else:
 				printColor("yellow bold", " until {}.".format(x["prev_marriageEndDate"].date()))
 
 		def femaleBigamyPrint(x):
-			printColor("yellow bold", "WARN: IND: US11: Wife {} married {} on {}, but she was still married to {}"\
-				.format(x["Wife Name"], x["Husband Name"], x["Married"].date(), x["prev_spouseName"]), end="")
+			printColor("yellow bold", "WARN: FAM: US11: {}: Wife {} married {} on {}, but she was still married to {}"\
+				.format(x["ID"], x["Wife Name"], x["Husband Name"], x["Married"].date(), x["prev_spouseName"]), end="")
 			if pd.isnull(x['prev_marriageEndDate']):
 				printColor("yellow bold", ".")
 			else:
