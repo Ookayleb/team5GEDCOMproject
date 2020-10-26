@@ -879,68 +879,63 @@ def main():
 
 		# vvv BEGIN USER STORY CALLS BELOW vvv
 
-		# #US02
-		# if not birthBeforeMarriage(famList):
-		# 	print("WARN: IND: US02: All children must be born after marriage")
+		#US02
+		if not birthBeforeMarriage(famList):
+			print("WARN: IND: US02: All children must be born after marriage")
 
-		# #US03
-		# verifyBirthDeathDateOrder(indiList)
+		#US03
+		verifyBirthDeathDateOrder(indiList)
 
-		# #US04
-		# verifyMarriageDivorceOrder(famList)
+		#US04
+		verifyMarriageDivorceOrder(famList)
 
-		# #US08
-		# if not birthBeforeMarriage2(famList, indiList):
-		# 	print("WARN: FAM: US08: All children must be born after marriage and within 9 months of divorce")
+		#US08
+		if not birthBeforeMarriage2(famList, indiList):
+			print("WARN: FAM: US08: All children must be born after marriage and within 9 months of divorce")
 
-		# #Qualified
-		# print(print_data(indiList))
+		#Qualified
+		print(print_data(indiList))
 
-		# #US09
-		# realBirthday(indiList, famList)
+		#US09
+		realBirthday(indiList, famList)
 
-		# #US10
-		# marriageAge(indiList, famList)
+		#US10
+		marriageAge(indiList, famList)
 
-		# #US11
+		#US11
 		verifyBigamy(famList, famDF, indiDF)
 
-		# #US12
-		# get_parents_not_too_old(famList)
+		#US12
+		get_parents_not_too_old(famList)
 
 
-		# #US16
-		# if(maleLastNames(indiDF, famList)):
-		# 	printColor('green', 'INFO: GEN: US16: All males have same last name')
-		# else:
-		# 	print("\n")
-		# 	print('All males do not have the same last name')
-		# 	print("\n")
-		# #US13
-		# if SiblingSpacing(indiDF,famList) == False:
-		# 	print('Siblings are too close together and they are not twins check birth dates')
-		# else:
-		# 	pass
+		#US16
+		if(maleLastNames(indiDF, famList)):
+			printColor('green', 'INFO: GEN: US16: All males have same last name')
+		else:
+			print("\n")
+			print('All males do not have the same last name')
+			print("\n")
+		#US13
+		if SiblingSpacing(indiDF,famList) == False:
+			print('Siblings are too close together and they are not twins check birth dates')
+		else:
+			pass
 
 		#US19
-		# for i in indiList:
-		# 	getGrandparents(i["ID"], indiList, famList)
-		# getGrandparents("7163813870", indiList, famList)
-		# print(getGrandparents("7163813870", indiList, famList))
-		# print(getGrandparents("7166101834", indiList, famList))
 		verifyNoFirstCousinMarr(indiList, famList)
 
-		# #US22
-		# if uniqueID(indiList) != True:
-		# 	print('Repeated ID')
-		# else:
-		# 	pass
+		#US22
+		if uniqueID(indiList) != True:
+			print('Repeated ID')
+		else:
+			pass
 
-		# #US23
-		# if uniqueNameAndBirthday(indiList) != True:
-		# 	print('Repeated Name and Birthday')
-		# else:
-		# 	pass
+		#US23
+		if uniqueNameAndBirthday(indiList) != True:
+			print('Repeated Name and Birthday')
+		else:
+			pass
 
 
 if __name__ == "__main__": 	# execute only if run as a script
