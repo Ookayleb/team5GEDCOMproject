@@ -600,9 +600,9 @@ def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
 		marrInfoDF.drop('ID', axis=1, inplace=True)							#drop the ID column as we dont need it
 
 		#Convert all dates to datetime so we can easily compare dates
-		marrInfoDF['Married'] 		= pd.to_datetime(marrInfoDF['Married'], format='%d %b %Y')
-		marrInfoDF['Divorced'] 		= pd.to_datetime(marrInfoDF['Divorced'], format='%d %b %Y')
-		marrInfoDF['Spouse Death'] 	= pd.to_datetime(marrInfoDF['Spouse Death'], format='%d %b %Y')
+		marrInfoDF['Married'] 		= pd.to_datetime(marrInfoDF['Married'], format='%d %b %Y', errors='coerce')
+		marrInfoDF['Divorced'] 		= pd.to_datetime(marrInfoDF['Divorced'], format='%d %b %Y', errors='coerce')
+		marrInfoDF['Spouse Death'] 	= pd.to_datetime(marrInfoDF['Spouse Death'], format='%d %b %Y', errors='coerce')
 
 		#sort the table by Married, so we get the earliest marriage first
 		marrInfoDF.sort_values(by=['Married'], inplace=True)
@@ -886,7 +886,7 @@ def main():
 		# marriageAge(indiList, famList)
 
 		# #US11
-		# # verifyBigamy(indiList, famList, famDF, indiDF)
+		verifyBigamy(indiList, famList, famDF, indiDF)
 
 		# #US12
 		# get_parents_not_too_old(famList)
