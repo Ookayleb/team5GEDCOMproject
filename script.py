@@ -64,8 +64,8 @@ famList	= []		#will hold all families
 
 #---------------------### HELPER FUNCTIONS ###---------------------#
 #Colors!!
-def printColor(color, str):
-	print(Colors[color].format(str))
+def printColor(color, str, end="\n"):
+	print(Colors[color].format(str), end=end)
 
 #Given an id and an attribute of intrest, returns the value of the attribute desired ex lookup("birthday", "I343628")
 def lookup(attr, id):
@@ -119,8 +119,40 @@ def check_dateOrder(date1, date2):
 def dateToCompare(date):
 	return datetime.strptime(date, "%d %b %Y")
 
+#check age difference for a parent and a child
+def get_age_difference(parent_age, child_age):
+	try:
+		return parent_age - child_age
+	except:
+		pass
 
 
+#function to replace the children id(s) with their actual data
+def replace_id_with_children_data(children_arr):
+	new_arr = []
+	for i in range(len(children_arr)):
+		new_arr.append(look_for_child_by(children_arr[i]))
+	return new_arr
+
+# return all family ids to a record
+def find_family_ids(fam_list):
+	records = []
+	for record in fam_list:
+		records.append(record['ID'])
+	return records
+
+#return all married people to a record
+def get_married_list(famList):
+	fam_records = []
+	fam_id_records = find_family_ids(famList)
+	for id in fam_id_records:
+		husband_name = modified_lookup('Husband Name', id, famList)
+		wife_name = modified_lookup('Wife Name', id, famList)
+		divorce_date = modified_lookup('Divorced', id, famList)
+		if (divorce_date is None):
+			fam_records.append([husband_name,wife_name])
+
+	return fam_records
 
 
 #---------------------### USER STORY FUNCTIONS ###---------------------#
@@ -129,86 +161,93 @@ def dateToCompare(date):
 #function to print father, mother and children data and display if parents are too hold to be a child's parent
 def get_parents_not_too_old(famList):
 	family = []
+	table_arr = []
 	father_age_limit = 80
 	mother_age_limit = 60
-	father_too_old = ""
-	mother_too_old = ""
+
 
 	#loop to retrieve father, mother and children data from family record
 	for i in range(len(famList)):
-		try:
-			family.append({'Husband_ID':famList[i]['Husband ID'], 'Wife_ID':famList[i]['Wife ID'],
-				'Husband Name':famList[i]['Husband Name'], 'Wife Name':famList[i]['Wife Name'],
-				'Husband Age': lookup('Age', famList[i]['Husband ID']), 'Wife Age': lookup('Age', famList[i]['Wife ID']),
-				'Children': replace_id_with_children_data(famList[i]['Children'])})
-		except:
-			famList[i]['N/A'] = 'N/A'
-			family.append({famList[i]['N/A']})
-
-	table_arr = []
+		#append specific data from famList to the family list
+		family.append({'Husband_ID':famList[i]['Husband ID'], 'Wife_ID':famList[i]['Wife ID'],
+			'Husband Name':famList[i]['Husband Name'], 'Wife Name':famList[i]['Wife Name'],
+			'Husband Age': lookup('Age', famList[i]['Husband ID']), 'Wife Age': lookup('Age', famList[i]['Wife ID']),
+			'Children': replace_id_with_children_data(famList[i]['Children'])})
 
 	# loop to build list to hold father, mother and children data
 	for j in range(len(family)):
 		for k in range(len(family[j]['Children'])):
-			if(get_age_difference(family[j]['Husband Age'], family[j]['Children'][k]['Age']) > father_age_limit):
-				father_too_old = "Yes"
-			else:
-				father_too_old = "No"
+			#check to see if father is not 80 yrs older than children or if mother is not 60 yrs older than children
+			father = 0 if family[j]['Husband Age'] is None else family[j]['Husband Age']
+			mother = 0 if family[j]['Wife Age'] is None else family[j]['Wife Age']
+			child = 0 if family[j]['Children'][k]['Age'] is None else family[j]['Children'][k]['Age']
 
-			if(get_age_difference(family[j]['Wife Age'], family[j]['Children'][k]['Age']) > mother_age_limit):
-				mother_too_old = "Yes"
-			else:
-				mother_too_old = "No"
+			father_too_old = 'Yes' if get_age_difference(father, child) > father_age_limit else "No"
+			mother_too_old = 'Yes' if get_age_difference(mother, child) > mother_age_limit else "No"
 
-			table_arr.append([family[j]['Husband Name'],"Father", family[j]['Husband Age'],
-				family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], father_too_old])
-			table_arr.append([family[j]['Wife Name'], "Mother", family[j]['Wife Age'],
-				family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], mother_too_old])
-
+			#check to see if parents are older than children then if so append to table_arr
+			if(father > child):
+				table_arr.append([family[j]['Husband Name'],"Father", family[j]['Husband Age'],
+					family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], father_too_old])
+			if(mother > child):
+				table_arr.append([family[j]['Wife Name'], "Mother", family[j]['Wife Age'],
+					family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], mother_too_old])
 
 	#bring list to a prettytable structure
 	x = PrettyTable()
-	x.field_names = ['Parent Name', 'Relationship', 'Parent Age', 'Child Name', 'Sex', 'Child Age', 'Too old']
+	x.field_names = ['Parent Name', 'Relationship', 'Parent Age', 'Child Name', 'Sex', 'Child Age', 'Parents too old']
 	for n in range(len(table_arr)):
 		x.add_row([table_arr[n][0], table_arr[n][1], table_arr[n][2],
 			table_arr[n][3], table_arr[n][4], table_arr[n][5], table_arr[n][6]])
-	print('WARN: IND: US12: Parents not too old table\n')
+
+
 	print(x)
+	return 1, x
 
 	#************************************************************************end
 
+# Checks the family list to ensure that all wives are female and all husbands are male
+def check_gender_roles(famList):
+	for family in famList:
+		husbandGender = lookup("Gender" ,family["Husband ID"])
+		wifeGender = lookup("Gender" ,family["Wife ID"])
+		if husbandGender != "M":
+			print("All husbands must be males")
+			return False
+		if wifeGender != "F":
+			print("All wives must be female")
+			return False
+	print("Gender roles are OK")
+	return True
+
+# Checks the family list to ensure that each family only has one child with the same name and birthday
+def check_unique_child(famList):
+	for family in famList:
+		childrenList = {}
+		for child in family["Children"]:
+			name = lookup("Name", child)
+			birthday = lookup("Birthday", child)
+			if name in childrenList and birthday == childrenList[name]:
+				print("No more than one child with the same name and birth date should appear in a family")
+				return False
+			else:
+				childrenList[name] = birthday
+	print("All Unique first names in families")
+	return True
 
 #US29: Deceased list | ND Sprint 1
 def get_deceased_records(indList):
-	printColor('cyan', 'INFO: IND: US29: Deceased Table')
-	decease_list = {}
-	id_arr = []
-	name_arr = []
-	gender_arr = []
-	birth_arr = []
-	age_arr = []
-	death_arr = []
-	spouse_arr = []
+	decease_list = []
+	records = ""
 	for record in indList:
 		if (record['Alive'] == False):
-			id_arr.append(record['ID'])
-			name_arr.append(record['Name'])
-			gender_arr.append(record['Gender'])
-			birth_arr.append(record['Birthday'])
-			age_arr.append(record['Age'])
-			death_arr.append(record['Death'])
-			spouse_arr.append(record['Spouse'])
+			records = [record['ID'],record['Name'], record['Gender'], record['Birthday'], record['Age'],
+			record['Death']]
+			decease_list.append(records)
 
-	decease_list['ID'] = id_arr
-	decease_list['Name'] = name_arr
-	decease_list['Gender'] = gender_arr
-	decease_list['Birthday'] = birth_arr
-	decease_list['Age'] = age_arr
-	decease_list['Death'] = death_arr
-	decease_list['Spouse'] = spouse_arr
-
-	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death', 'Spouse'])
-	print(df, end="\n\n")
+	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death'])
+	print(df)
+	return 1, decease_list
 #***************************************************************************end
 
 
@@ -268,9 +307,9 @@ def marriageAge(indiList, famList):
 		husbandMarriageAge = calculateAge(husbandBirthday, marriageDate)
 		wifeMarriageAge = calculateAge(wifeBirthday, marriageDate)
 		if husbandMarriageAge < 14:
-			print("WARN: IND: US10: Husband " + husbandID + " married before 14 years old, married at " + str(husbandMarriageAge) + "yrs old")
+			print("WARN: IND: US10: " + husbandID + ": Husband married before 14 years old, married at " + str(husbandMarriageAge) + "yrs old")
 		if wifeMarriageAge < 14:
-			print("WARN: IND: US10: Wife " + wifeID + " married before 14 years old, married at " + str(wifeMarriageAge) + "yrs old")
+			print("WARN: IND: US10: " + wifeID + ": Wife married before 14 years old, married at " + str(wifeMarriageAge) + "yrs old")
 
 
 def realBirthday(indiList, famList):
@@ -282,11 +321,11 @@ def realBirthday(indiList, famList):
 				wifeDeath		= modified_lookup("Death", family['Wife ID'], indiList)
 				husbDeath		= modified_lookup("Death", family['Husband ID'], indiList)
 				if (check_dateOrder(childBirthday, wifeDeath) == False):
-					print("ERRO: IND: US09: Child " + childID + " was born on " + childBirthday + ", mother died on " + wifeDeath)
+					print("ERRO: IND: US09: " + childID + ": Child was born on " + childBirthday + ", mother died on " + wifeDeath)
 					count += 1
 				monthDifference = diffMonth(husbDeath, childBirthday)
 				if((monthDifference is not None) and monthDifference < -9):
-					print("WARN: IND: US09: Child " + childID + " was born on " + childBirthday + ", father died on " + husbDeath)
+					print("WARN: IND: US09: " + childID + ": Child was born on " + childBirthday + ", father died on " + husbDeath)
 					count += 1
 	return count
 
@@ -326,8 +365,6 @@ def verifyBirthDeathDateOrder(indiList):
 			childBirthday = lookup("Birthday", indiID)
 			childFamilyID = lookup("Child", indiID)
 
-	print("birth " + childBirthday + "")
-
 	warningList = []
 	for indi in indiList:		#loop over all individuals
 		if (check_dateOrder(indi.get('Birthday', None), indi.get('Death', None)) == False):	#using check_dateOrder, if Birthday is after Death append the offender to warningList
@@ -336,9 +373,10 @@ def verifyBirthDeathDateOrder(indiList):
 	if len(warningList) < 1:		#if warningList is empty
 		printColor("green", "INFO: GEN: US03: No Deaths before Births")
 	else:
-		printColor("yellow bold", "ERRO: IND: US03: Deaths before Births found:")
-		# warnDF = pd.DataFrame(warningList)
-		print(pd.DataFrame(warningList))
+		def verifyBirthDeathDateOrderPrint(x):
+			printColor("yellow bold", "ERRO: IND: US03: {}: {} died on {}, before their birthday of {}"\
+				.format(x['ID'], x['Name'], x['Death'], x['Birthday']))
+		pd.DataFrame(warningList).apply(lambda x: verifyBirthDeathDateOrderPrint(x), axis=1)
 
 	return len(warningList)
 
@@ -353,9 +391,10 @@ def verifyMarriageDivorceOrder(famList):
 	if len(warningList) < 1:		#if warningList is empty
 		printColor("green", "INFO: GEN: US04: No Divorces before Marriages")
 	else:
-		printColor("yellow bold","ERRO: FAM: US04: Divorces before Mariages found:")
-		# warnDF = pd.DataFrame(warningList)
-		print(pd.DataFrame(warningList), end="\n\n")
+		def verifyMarriageDivorceOrderPrint(x):
+			printColor("yellow bold", "ERRO: FAM: US04: {}: {} and {} divorced on {}, before their marriage on {}"\
+				.format(x['ID'], x['Husband Name'], x['Wife Name'], x['Divorced'], x['Married']))
+		pd.DataFrame(warningList).apply(lambda x: verifyMarriageDivorceOrderPrint(x), axis=1)
 
 	return len(warningList)
 
@@ -424,7 +463,7 @@ def maleLastNames(indiDF, famList):
 				return False
 	return lastNamesEqual
 
-#US13 SJ Sibling Spacing birth dates of siblings must be 8 months or more apart from each other or less than 2 days for twins 
+#US13 SJ Sibling Spacing birth dates of siblings must be 8 months or more apart from each other or less than 2 days for twins
 def SiblingSpacing(indiDF, famList):
 	birthday = ''
 	SiblingSpacing = True
@@ -438,20 +477,20 @@ def SiblingSpacing(indiDF, famList):
 		#	print('ID ' + id)
 			birthdays.append(birthday)
 		#	print('birthday ' + str(birthdays))
-		#	print('\n')	
+		#	print('\n')
 		if len(birthdays) < 2:
 			pass
 		elif ((len(birthdays) >= 2) and (len(birthdays) < 3)) :
 			x = birthdays[0]
-			y = birthdays[1]		
+			y = birthdays[1]
 			xDate = datetime.strptime(x, "%d %b %Y").date()
 			yDate = datetime.strptime(y, "%d %b %Y").date()
 			dayDifference = abs((xDate - yDate).days)
 			if dayDifference > 240 or dayDifference < 2:
-				SiblingSpacing = True					
+				SiblingSpacing = True
 			else:
 				SiblingSpacing = False
-				return False		
+				return False
 		elif ((len(birthdays) >= 3) and (len(birthdays) <4)) :
 			x = birthdays[0]
 			y = birthdays[1]
@@ -461,14 +500,53 @@ def SiblingSpacing(indiDF, famList):
 			zDate = datetime.strptime(z, "%d %b %Y").date()
 			dayDifference = abs((xDate - yDate - zDate).days)
 			if dayDifference > 240 or dayDifference < 2:
-				SiblingSpacing = True					
+				SiblingSpacing = True
 			else:
 				SiblingSpacing = False
-				return False		
+				return False
 
 	return SiblingSpacing
 
-# Sean James - US22 all IDs must be unique 
+#US19: First cousins should not marry | CC Sprint 2
+#First cousins should not marry one another
+def getGrandparents(indiID, indiList, famList):
+	familyID = modified_lookup("Child", indiID, indiList)
+
+	fatherID = modified_lookup("Husband ID", familyID, famList)
+	motherID = modified_lookup("Wife ID", familyID, famList)
+
+	fatherFamilyID = modified_lookup("Child", fatherID, indiList)
+	motherFamilyID = modified_lookup("Child", motherID, indiList)
+
+	fatherFatherID = modified_lookup("Husband ID", fatherFamilyID, famList)
+	fatherMotherID = modified_lookup("Wife ID", fatherFamilyID, famList)
+	motherFatherID = modified_lookup("Husband ID", motherFamilyID, famList)
+	motherMotherID = modified_lookup("Wife ID", motherFamilyID, famList)
+
+	return [fatherFatherID, fatherMotherID, motherFatherID, motherMotherID]
+
+def verifyNoFirstCousinMarr(indiList, famList):
+	warningList = []
+	for family in famList:
+		husbID = family["Husband ID"]
+		wifeID = family["Wife ID"]
+		husbGParents = getGrandparents(husbID, indiList, famList)
+		wifeGParents = getGrandparents(wifeID, indiList, famList)
+
+		for i in husbGParents:
+			if i is not None and i in wifeGParents:
+				warningList.append(family)
+				break
+
+	if len(warningList) < 1:
+		printColor("green", "INFO: GEN: US19: No First Cousins married")
+	else:
+		printColor("yellow bold", "WARN: FAM: US19: First Cousins Marriages found:")
+		print(pd.DataFrame(warningList), end="\n\n")
+
+	return len(warningList)
+
+# Sean James - US22 all IDs must be unique
 def uniqueID(indiList):
 	id_List = list()
 	for i in range(len(indiList)):
@@ -477,9 +555,9 @@ def uniqueID(indiList):
 	id_Set = set(id_List)
 	unique_ids = len(id_Set) == len(id_List)
 
-	return unique_ids	
+	return unique_ids
 
-# Sean James US23 all names and Birthdates must be different 
+# Sean James US23 all names and Birthdates must be different
 def uniqueNameAndBirthday(indiList):
 	name_List = list()
 	birthdate_List = list()
@@ -497,11 +575,12 @@ def uniqueNameAndBirthday(indiList):
 	return unique_NameAndBirthday
 
 # Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
-def validAge(age):
-	if age >= 150:
-		return False
+def validAge(indiList):
+	for person in indiList:
+		age=person["Age"]
+		if age >= 150:
+			return False
 	return True
-
 
 #US02 | JT Sprint 1
 def birthBeforeMarriage(famList):
@@ -532,6 +611,8 @@ def birthBeforeMarriage2(famList, individualListName):
 	return True
 
 
+#US11: No bigamy | CC Sprint 2:
+#Marriage should not occur during marriage to another spouse
 def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
 	#Set up variables
 	anomalyBigamyDF = pd.DataFrame()
@@ -548,21 +629,22 @@ def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
 	for personID in remarriedSet:
 		marrInfoDF = famDF.loc[		#Make a dataframe based on the famDF, but here all rows are related to personID
 			(famDF[maritalPositionID] == personID),									#This line specifies the query
-			['Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Married', 'Divorced']	#This line specifies what columns our output contains. Is independent from the above line
+			['ID', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Married', 'Divorced']	#This line specifies what columns our output contains. Is independent from the above line
 		]
 
 		#Merge data from indiDF into our newly created marrInfoDF table. We are intrested in getting Death dates from indiDF
 		marrInfoDF = marrInfoDF.merge(indiDF[["ID", "Death"]], how="left", left_on=spousePositionID, right_on="ID")
-		marrInfoDF.rename(columns={"Death": "Spouse Death"}, inplace=True)		#Rename death to spouse death just to be more descriptive
-		marrInfoDF.drop('ID', axis=1, inplace=True)							#drop the ID column as we dont need it
+		marrInfoDF.drop('ID_y', axis=1, inplace=True)							#drop the ID column as we dont need it
+		marrInfoDF.rename(columns={"Death": "Spouse Death", "ID_x": "ID"}, inplace=True)		#Rename death to spouse death just to be more descriptive
 
 		#Convert all dates to datetime so we can easily compare dates
-		marrInfoDF['Married'] 		= pd.to_datetime(marrInfoDF['Married'], format='%d %b %Y')
-		marrInfoDF['Divorced'] 		= pd.to_datetime(marrInfoDF['Divorced'], format='%d %b %Y')
-		marrInfoDF['Spouse Death'] 	= pd.to_datetime(marrInfoDF['Spouse Death'], format='%d %b %Y')
+		marrInfoDF['Married'] 		= pd.to_datetime(marrInfoDF['Married'], format='%d %b %Y', errors='coerce')
+		marrInfoDF['Divorced'] 		= pd.to_datetime(marrInfoDF['Divorced'], format='%d %b %Y', errors='coerce')
+		marrInfoDF['Spouse Death'] 	= pd.to_datetime(marrInfoDF['Spouse Death'], format='%d %b %Y', errors='coerce')
 
 		#sort the table by Married, so we get the earliest marriage first
 		marrInfoDF.sort_values(by=['Married'], inplace=True)
+		marrInfoDF.reset_index(inplace=True, drop="Index")
 
 		#Create four new columns that hold the previous row's info using .shift(), which copies Divorced, Spouse Death, Huband Name, and Husband ID from row 1 to row 2, from row 2 to row 3, etc.
 		#This way when we look at one row, we also have information of the previous row in our own row.
@@ -582,7 +664,8 @@ def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
 
 	return anomalyBigamyDF
 
-def verifyBigamy(indiList, famList, famDF, indiDF):
+#returns the number of offenders who commit bigamy. Prints any offenders.
+def verifyBigamy(famList, famDF, indiDF):
 	husbID_list 		= famDF["Husband ID"].to_list()	#list of all husband IDs, duplicates included
 	wifeID_list 		= famDF["Wife ID"].to_list()
 	remarriedSet_male 	= set([])
@@ -596,27 +679,39 @@ def verifyBigamy(indiList, famList, famDF, indiDF):
 		if(husbID_list.count(husbID) > 1):			#Check if this row's husb ID appears more than once in the husbID list
 			remarriedSet_male.add(husbID)
 
-		if(wifeID_list.count(wifeID) > 1):			#Check if this row's husb ID appears more than once in the husbID list
+		if(wifeID_list.count(wifeID) > 1):			#Check if this row's wife ID appears more than once in the wifeID list
 			remarriedSet_female.add(wifeID)
 
-	maleBigamyDF = getAnomaliesBigamy(remarriedSet_male, famDF, indiDF, "Husband")
-	femaleBigamyDF = getAnomaliesBigamy(remarriedSet_female, famDF, indiDF, "Wife")
+	maleBigamyDF	= getAnomaliesBigamy(remarriedSet_male, famDF, indiDF, "Husband")
+	femaleBigamyDF	= getAnomaliesBigamy(remarriedSet_female, famDF, indiDF, "Wife")
 
+	numOffenders = len(maleBigamyDF) + len(femaleBigamyDF)
+	if numOffenders > 0:	#Print offending entries if either dataframe has entries
+		def maleBigamyPrint(x):
+			printColor("yellow bold", "WARN: FAM: US11: {}: Husband {} married {} on {}, but he was still married to {}"\
+				.format(x["ID"], x["Husband Name"], x["Wife Name"], x["Married"].date(), x["prev_spouseName"]), end="")
+			if pd.isnull(x['prev_marriageEndDate']):
+				printColor("yellow bold", ".")
+			else:
+				printColor("yellow bold", " until {}.".format(x["prev_marriageEndDate"].date()))
 
-	if(len(maleBigamyDF) > 0):
-		printColor("yellow bold","\n\nMale Bigamy:")
-		print(maleBigamyDF)
-		print()
+		def femaleBigamyPrint(x):
+			printColor("yellow bold", "WARN: FAM: US11: {}: Wife {} married {} on {}, but she was still married to {}"\
+				.format(x["ID"], x["Wife Name"], x["Husband Name"], x["Married"].date(), x["prev_spouseName"]), end="")
+			if pd.isnull(x['prev_marriageEndDate']):
+				printColor("yellow bold", ".")
+			else:
+				printColor("yellow bold", " until {}.".format(x["prev_marriageEndDate"].date()))
+
+		maleBigamyDF.apply(lambda x: maleBigamyPrint(x), axis=1)
+		femaleBigamyDF.apply(lambda x: femaleBigamyPrint(x), axis=1)
 	else:
-		printColor("green", "No Males Commiting Bigamy")
-	if(len(femaleBigamyDF) > 0):
-		printColor("yellow bold","\n\nFemale Bigamy:")
-		print(femaleBigamyDF)
-		print()
-	else:
-		printColor("green", "No Females Commiting Bigamy")
+		printColor("green", "INFO: GEN: US11: No Bigamy")
+
+	return numOffenders
 
 
+#US45 JW - Siblings < 35 year age difference
 def siblingAgeDiff(famList, individualListName):
 	for family in famList:
 		if len(family["Children"]) > 1:
@@ -633,6 +728,59 @@ def siblingAgeDiff(famList, individualListName):
 				return False
 	return True
 
+#US46 JW - Children>15 yr age difference parents
+def childParentAgeDiff(famList, individualListName):
+	for family in famList:
+		dhus = dateToCompare(modified_lookup("Birthday", family["Husband ID"],individualListName))
+		dwife = dateToCompare(modified_lookup("Birthday", family["Wife ID"], individualListName))
+		dlow = dhus
+		if dwife < dhus:
+			dlow = dwife
+		for childId in family["Children"]:
+			birthday = dateToCompare(modified_lookup("Birthday", childId, individualListName))
+			ageDiff = birthday.year - dlow.year - ((birthday.month, birthday.day) < (dlow.month, dlow.day))
+			if ageDiff <= 15:
+				return False
+	return True
+
+#US51 JW - List family with most members
+def largestFamily(famList, individualListName):
+	if(len(famList)==0): return "N/A"
+	largest_size = 0
+	largest_id = ""
+	for family in famList:
+		size=2+len(family["Children"])
+		if(size>largest_size):
+			largest_size=size
+			largest_id = family["ID"]
+	return largest_id
+
+#US27- Include individual ages
+def get_individual_age(indList):
+	records = []
+	for person in indList:
+		records.append([person['Name'], person['Age']])
+	return records
+
+#US30 List living married
+def get_living_married(ind_list, famList):
+	living_marriage = []
+	all_deceased_names = []
+	marriage_records = get_married_list(famList)
+	deceased = get_deceased_records(ind_list)[1]
+	for j in range(len(deceased)):
+		all_deceased_names.append(deceased[j][1])
+
+	for k in range(len(marriage_records)):
+		ind_record = marriage_records[k]
+		result = any(elem in ind_record  for elem in all_deceased_names)
+		if result:
+			k += 1
+		else:
+			living_marriage.append(ind_record)
+
+	return living_marriage
+
 
 
 
@@ -643,6 +791,7 @@ def generateInitialData(fileName):
 	# global indiDF, indiList, famDF, famList
 	with open(fileName, "r", encoding="utf-8") as inFile:		#open the file provided in the argument
 		line_num =- 1
+		skipNextLines = False #boolean flag for if we should read the next lines following a tag lvl 0 or not
 		for line in inFile:
 			line_num		+= 1
 			level		= ""
@@ -654,7 +803,7 @@ def generateInitialData(fileName):
 			level		= tokenizedStr[0]
 
 			#Check if third token is in the special list
-			if tokenizedStr[2] in THIRD_TOKEN_TAGS:
+			if tokenizedStr[2] in THIRD_TOKEN_TAGS or level == "0":
 				arguments	= tokenizedStr[1]	#if so, tag is actually the last token
 				tag 		= tokenizedStr[2]	#arguments were the second argument
 			else:
@@ -683,14 +832,18 @@ def generateInitialData(fileName):
 					newIndiv['ID'] 	= arguments
 					newIndiv['Alive'] 	= True
 					indiList.append(newIndiv)
+					skipNextLines 		= False
 				elif tag == "FAM":
 					newFam 			= {}
 					newFam['ID'] 		= arguments
 					newFam['Children']	= []
 					famList.append(newFam)
+					skipNextLines		= False
+				elif tag == "SUBM":
+					skipNextLines		= True
 
 
-			elif level == '1':
+			elif skipNextLines == False and level == '1':
 				nextLineBirt 	= False
 				nextLineDeat 	= False
 				nextLineMarr 	= False
@@ -721,7 +874,7 @@ def generateInitialData(fileName):
 					newestFam['Children'].append(arguments)
 
 
-			elif level == '2':
+			elif skipNextLines == False and level == '2':
 				newestIndiv 	= indiList[-1] if indiList else None
 				newestFam		= famList[-1] if famList else None
 				if nextLineBirt:
@@ -747,11 +900,6 @@ def generateInitialData(fileName):
 		indiDF["Age"] = pd.to_numeric(indiDF["Age"])
 		indiDF.sort_values(by=['ID'], inplace=True)
 		indiDF.reset_index(inplace=True, drop=True)
-
-		#Check age of all individuals
-		for i in range(len(indiList)):
-			if not validAge(indiList[i]["Age"]):
-				print("WARN: IND: US07: Individuals should be less than 150 years old. "+ indiList[i]["Name"] +" is "+ str(indiList[i]["Age"]))
 
 		#Populate the families DataFrame
 		for i in range(len(famList)):		#Loop through the list of families
@@ -829,6 +977,12 @@ def main():
 		#US04
 		verifyMarriageDivorceOrder(famList)
 
+		#US07
+		if validAge(indiList) == False:
+			print('Invalid age detected. All individuals must be <150 years old')
+		else:
+			pass
+
 		#US08
 		if not birthBeforeMarriage2(famList, indiList):
 			print("WARN: FAM: US08: All children must be born after marriage and within 9 months of divorce")
@@ -843,7 +997,7 @@ def main():
 		marriageAge(indiList, famList)
 
 		#US11
-		# verifyBigamy(indiList, famList, famDF, indiDF)
+		verifyBigamy(famList, famDF, indiDF)
 
 		#US12
 		get_parents_not_too_old(famList)
@@ -861,7 +1015,10 @@ def main():
 			print('Siblings are too close together and they are not twins check birth dates')
 		else:
 			pass
-		
+
+		#US19
+		verifyNoFirstCousinMarr(indiList, famList)
+
 		#US22
 		if uniqueID(indiList) != True:
 			print('Repeated ID')
@@ -873,6 +1030,35 @@ def main():
 			print('Repeated Name and Birthday')
 		else:
 			pass
+
+		#US27
+		print(get_individual_age(indiList))
+
+		#US29
+		get_deceased_records(indiList)
+
+		#US30
+		print(get_living_married(indiList, famList))
+		print("Debug")
+		print(famList)
+		check_gender_roles(famList)
+		check_unique_child(famList)
+ 
+		#US45
+		if siblingAgeDiff(famList, indiList) != True:
+			print('sibling age difference>35 years detected')
+		else:
+			pass
+            
+		#US46
+		if childParentAgeDiff(famList, indiList) != True:
+			print('parent-child age difference<15 years detected')
+		else:
+			pass
+
+		#US51
+		largest_family = largestFamily(famList, indiList)
+		print('The largest family is', largest_family)
 
 
 if __name__ == "__main__": 	# execute only if run as a script

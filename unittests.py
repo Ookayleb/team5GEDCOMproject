@@ -1,6 +1,6 @@
 import unittest
 import sys
-from script import validDate
+from script import validDate, check_gender_roles, check_unique_child
 from script import birthBeforeMarriage, reset, generateInitialData
 
 class TestDates(unittest.TestCase):
@@ -11,7 +11,7 @@ class TestDates(unittest.TestCase):
         self.assertTrue(result)
 
     def test_fail(self):
-        result = validDate("15 OCT 2020")
+        result = validDate("15 OCT 2021")
         self.assertFalse(result)
         result = validDate("28 SEP 2021")
         self.assertFalse(result)
@@ -21,6 +21,7 @@ class TestDates(unittest.TestCase):
 
 class TestBirthBeforeMarriage(unittest.TestCase):
     def test_success(self):
+        print("Testing Birth Before Marriage Success")
         reset()
         gedcomStructuredData    = generateInitialData("gedFiles/0BirthAfterDeath.ged") #store the tables and lists into gedcomStructuredData
         famList_0warnings		= gedcomStructuredData['famList']
@@ -28,11 +29,47 @@ class TestBirthBeforeMarriage(unittest.TestCase):
         self.assertTrue(result)
 
     def test_fail(self):
+        print("Testing Birth Before Marriage Failure")
         reset()
         gedcomStructuredData    = generateInitialData("gedFiles/2BirthAfterMarriage.ged") #store the tables and lists into gedcomStructuredData
         famList_2warnings		= gedcomStructuredData['famList']
         result = birthBeforeMarriage(famList_2warnings)
         self.assertFalse(result)
+
+class TestGenderRoles(unittest.TestCase):
+    def test_success(self):
+        print("Testing Gender Roles Success")
+        reset()
+        gedcomStructuredData    = generateInitialData("family_project.ged") #store the tables and lists into gedcomStructuredData
+        famList		= gedcomStructuredData['famList']
+        result = check_gender_roles(famList)
+        self.assertTrue(result)
+        
+    def test_failure(self):
+        print("Testing Gender Roles Failure")
+        reset()
+        gedcomStructuredData    = generateInitialData("gedFiles/WrongGenders.ged") #store the tables and lists into gedcomStructuredData
+        famList		= gedcomStructuredData['famList']
+        result = check_gender_roles(famList)
+        self.assertFalse(result)
+
+class TestUniqueChild(unittest.TestCase):
+    def test_success(self):
+        print("Testing Unique Child Success")
+        reset()
+        gedcomStructuredData    = generateInitialData("family_project.ged") #store the tables and lists into gedcomStructuredData
+        famList		= gedcomStructuredData['famList']
+        result = check_unique_child(famList)
+        self.assertTrue(result)
+
+    def test_failure(self):
+        print("Testing Unique Child Failure")
+        reset()
+        gedcomStructuredData    = generateInitialData("gedFiles/NoUniqueChildren.ged") #store the tables and lists into gedcomStructuredData
+        famList		= gedcomStructuredData['famList']
+        result = check_unique_child(famList)
+        self.assertFalse(result)
+
 
 
 if __name__ == "__main__":
