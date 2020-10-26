@@ -64,8 +64,8 @@ famList	= []		#will hold all families
 
 #---------------------### HELPER FUNCTIONS ###---------------------#
 #Colors!!
-def printColor(color, str):
-	print(Colors[color].format(str))
+def printColor(color, str, end="\n"):
+	print(Colors[color].format(str), end=end)
 
 #Given an id and an attribute of intrest, returns the value of the attribute desired ex lookup("birthday", "I343628")
 def lookup(attr, id):
@@ -463,7 +463,7 @@ def maleLastNames(indiDF, famList):
 				return False
 	return lastNamesEqual
 
-#US13 SJ Sibling Spacing birth dates of siblings must be 8 months or more apart from each other or less than 2 days for twins 
+#US13 SJ Sibling Spacing birth dates of siblings must be 8 months or more apart from each other or less than 2 days for twins
 def SiblingSpacing(indiDF, famList):
 	birthday = ''
 	SiblingSpacing = True
@@ -477,20 +477,20 @@ def SiblingSpacing(indiDF, famList):
 		#	print('ID ' + id)
 			birthdays.append(birthday)
 		#	print('birthday ' + str(birthdays))
-		#	print('\n')	
+		#	print('\n')
 		if len(birthdays) < 2:
 			pass
 		elif ((len(birthdays) >= 2) and (len(birthdays) < 3)) :
 			x = birthdays[0]
-			y = birthdays[1]		
+			y = birthdays[1]
 			xDate = datetime.strptime(x, "%d %b %Y").date()
 			yDate = datetime.strptime(y, "%d %b %Y").date()
 			dayDifference = abs((xDate - yDate).days)
 			if dayDifference > 240 or dayDifference < 2:
-				SiblingSpacing = True					
+				SiblingSpacing = True
 			else:
 				SiblingSpacing = False
-				return False		
+				return False
 		elif ((len(birthdays) >= 3) and (len(birthdays) <4)) :
 			x = birthdays[0]
 			y = birthdays[1]
@@ -500,14 +500,53 @@ def SiblingSpacing(indiDF, famList):
 			zDate = datetime.strptime(z, "%d %b %Y").date()
 			dayDifference = abs((xDate - yDate - zDate).days)
 			if dayDifference > 240 or dayDifference < 2:
-				SiblingSpacing = True					
+				SiblingSpacing = True
 			else:
 				SiblingSpacing = False
-				return False		
+				return False
 
 	return SiblingSpacing
 
-# Sean James - US22 all IDs must be unique 
+#US19: First cousins should not marry | CC Sprint 2
+#First cousins should not marry one another
+def getGrandparents(indiID, indiList, famList):
+	familyID = modified_lookup("Child", indiID, indiList)
+
+	fatherID = modified_lookup("Husband ID", familyID, famList)
+	motherID = modified_lookup("Wife ID", familyID, famList)
+
+	fatherFamilyID = modified_lookup("Child", fatherID, indiList)
+	motherFamilyID = modified_lookup("Child", motherID, indiList)
+
+	fatherFatherID = modified_lookup("Husband ID", fatherFamilyID, famList)
+	fatherMotherID = modified_lookup("Wife ID", fatherFamilyID, famList)
+	motherFatherID = modified_lookup("Husband ID", motherFamilyID, famList)
+	motherMotherID = modified_lookup("Wife ID", motherFamilyID, famList)
+
+	return [fatherFatherID, fatherMotherID, motherFatherID, motherMotherID]
+
+def verifyNoFirstCousinMarr(indiList, famList):
+	warningList = []
+	for family in famList:
+		husbID = family["Husband ID"]
+		wifeID = family["Wife ID"]
+		husbGParents = getGrandparents(husbID, indiList, famList)
+		wifeGParents = getGrandparents(wifeID, indiList, famList)
+
+		for i in husbGParents:
+			if i is not None and i in wifeGParents:
+				warningList.append(family)
+				break
+
+	if len(warningList) < 1:
+		printColor("green", "INFO: GEN: US19: No First Cousins married")
+	else:
+		printColor("yellow bold", "WARN: FAM: US19: First Cousins Marriages found:")
+		print(pd.DataFrame(warningList), end="\n\n")
+
+	return len(warningList)
+
+# Sean James - US22 all IDs must be unique
 def uniqueID(indiList):
 	id_List = list()
 	for i in range(len(indiList)):
@@ -516,9 +555,9 @@ def uniqueID(indiList):
 	id_Set = set(id_List)
 	unique_ids = len(id_Set) == len(id_List)
 
-	return unique_ids	
+	return unique_ids
 
-# Sean James US23 all names and Birthdates must be different 
+# Sean James US23 all names and Birthdates must be different
 def uniqueNameAndBirthday(indiList):
 	name_List = list()
 	birthdate_List = list()
@@ -571,6 +610,8 @@ def birthBeforeMarriage2(famList, individualListName):
 	return True
 
 
+#US11: No bigamy | CC Sprint 2:
+#Marriage should not occur during marriage to another spouse
 def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
 	#Set up variables
 	anomalyBigamyDF = pd.DataFrame()
@@ -596,12 +637,13 @@ def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
 		marrInfoDF.drop('ID', axis=1, inplace=True)							#drop the ID column as we dont need it
 
 		#Convert all dates to datetime so we can easily compare dates
-		marrInfoDF['Married'] 		= pd.to_datetime(marrInfoDF['Married'], format='%d %b %Y')
-		marrInfoDF['Divorced'] 		= pd.to_datetime(marrInfoDF['Divorced'], format='%d %b %Y')
-		marrInfoDF['Spouse Death'] 	= pd.to_datetime(marrInfoDF['Spouse Death'], format='%d %b %Y')
+		marrInfoDF['Married'] 		= pd.to_datetime(marrInfoDF['Married'], format='%d %b %Y', errors='coerce')
+		marrInfoDF['Divorced'] 		= pd.to_datetime(marrInfoDF['Divorced'], format='%d %b %Y', errors='coerce')
+		marrInfoDF['Spouse Death'] 	= pd.to_datetime(marrInfoDF['Spouse Death'], format='%d %b %Y', errors='coerce')
 
 		#sort the table by Married, so we get the earliest marriage first
 		marrInfoDF.sort_values(by=['Married'], inplace=True)
+		marrInfoDF.reset_index(inplace=True, drop="Index")
 
 		#Create four new columns that hold the previous row's info using .shift(), which copies Divorced, Spouse Death, Huband Name, and Husband ID from row 1 to row 2, from row 2 to row 3, etc.
 		#This way when we look at one row, we also have information of the previous row in our own row.
@@ -621,7 +663,8 @@ def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
 
 	return anomalyBigamyDF
 
-def verifyBigamy(indiList, famList, famDF, indiDF):
+#returns the number of offenders who commit bigamy. Prints any offenders.
+def verifyBigamy(famList, famDF, indiDF):
 	husbID_list 		= famDF["Husband ID"].to_list()	#list of all husband IDs, duplicates included
 	wifeID_list 		= famDF["Wife ID"].to_list()
 	remarriedSet_male 	= set([])
@@ -635,25 +678,37 @@ def verifyBigamy(indiList, famList, famDF, indiDF):
 		if(husbID_list.count(husbID) > 1):			#Check if this row's husb ID appears more than once in the husbID list
 			remarriedSet_male.add(husbID)
 
-		if(wifeID_list.count(wifeID) > 1):			#Check if this row's husb ID appears more than once in the husbID list
+		if(wifeID_list.count(wifeID) > 1):			#Check if this row's wife ID appears more than once in the wifeID list
 			remarriedSet_female.add(wifeID)
 
-	maleBigamyDF = getAnomaliesBigamy(remarriedSet_male, famDF, indiDF, "Husband")
-	femaleBigamyDF = getAnomaliesBigamy(remarriedSet_female, famDF, indiDF, "Wife")
+	maleBigamyDF	= getAnomaliesBigamy(remarriedSet_male, famDF, indiDF, "Husband")
+	femaleBigamyDF	= getAnomaliesBigamy(remarriedSet_female, famDF, indiDF, "Wife")
 
+	numOffenders = len(maleBigamyDF) + len(femaleBigamyDF)
+	if numOffenders > 0:	#Print offending entries if either dataframe has entries
+		def maleBigamyPrint(x):
+			printColor("yellow bold", "WARN: IND: US11: Husband {} married {} on {}, but he was still married to {}"\
+				.format(x["Husband Name"], x["Wife Name"], x["Married"].date(), x["prev_spouseName"]), end="")
+			if pd.isnull(x['prev_marriageEndDate']):
+				printColor("yellow bold", ".")
+			else:
+				printColor("yellow bold", " until {}.".format(x["prev_marriageEndDate"].date()))
 
-	if(len(maleBigamyDF) > 0):
-		printColor("yellow bold","\n\nMale Bigamy:")
-		print(maleBigamyDF)
-		print()
+		def femaleBigamyPrint(x):
+			printColor("yellow bold", "WARN: IND: US11: Wife {} married {} on {}, but she was still married to {}"\
+				.format(x["Wife Name"], x["Husband Name"], x["Married"].date(), x["prev_spouseName"]), end="")
+			if pd.isnull(x['prev_marriageEndDate']):
+				printColor("yellow bold", ".")
+			else:
+				printColor("yellow bold", " until {}.".format(x["prev_marriageEndDate"].date()))
+
+		maleBigamyDF.apply(lambda x: maleBigamyPrint(x), axis=1)
+		femaleBigamyDF.apply(lambda x: femaleBigamyPrint(x), axis=1)
 	else:
-		printColor("green", "No Males Commiting Bigamy")
-	if(len(femaleBigamyDF) > 0):
-		printColor("yellow bold","\n\nFemale Bigamy:")
-		print(femaleBigamyDF)
-		print()
-	else:
-		printColor("green", "No Females Commiting Bigamy")
+		printColor("green", "INFO: GEN: US11: No Bigamy")
+
+	return numOffenders
+
 
 
 def siblingAgeDiff(famList, individualListName):
@@ -708,6 +763,7 @@ def generateInitialData(fileName):
 	# global indiDF, indiList, famDF, famList
 	with open(fileName, "r", encoding="utf-8") as inFile:		#open the file provided in the argument
 		line_num =- 1
+		skipNextLines = False #boolean flag for if we should read the next lines following a tag lvl 0 or not
 		for line in inFile:
 			line_num		+= 1
 			level		= ""
@@ -719,7 +775,7 @@ def generateInitialData(fileName):
 			level		= tokenizedStr[0]
 
 			#Check if third token is in the special list
-			if tokenizedStr[2] in THIRD_TOKEN_TAGS:
+			if tokenizedStr[2] in THIRD_TOKEN_TAGS or level == "0":
 				arguments	= tokenizedStr[1]	#if so, tag is actually the last token
 				tag 		= tokenizedStr[2]	#arguments were the second argument
 			else:
@@ -748,14 +804,18 @@ def generateInitialData(fileName):
 					newIndiv['ID'] 	= arguments
 					newIndiv['Alive'] 	= True
 					indiList.append(newIndiv)
+					skipNextLines 		= False
 				elif tag == "FAM":
 					newFam 			= {}
 					newFam['ID'] 		= arguments
 					newFam['Children']	= []
 					famList.append(newFam)
+					skipNextLines		= False
+				elif tag == "SUBM":
+					skipNextLines		= True
 
 
-			elif level == '1':
+			elif skipNextLines == False and level == '1':
 				nextLineBirt 	= False
 				nextLineDeat 	= False
 				nextLineMarr 	= False
@@ -786,7 +846,7 @@ def generateInitialData(fileName):
 					newestFam['Children'].append(arguments)
 
 
-			elif level == '2':
+			elif skipNextLines == False and level == '2':
 				newestIndiv 	= indiList[-1] if indiList else None
 				newestFam		= famList[-1] if famList else None
 				if nextLineBirt:
@@ -908,7 +968,7 @@ def main():
 		marriageAge(indiList, famList)
 
 		#US11
-		# verifyBigamy(indiList, famList, famDF, indiDF)
+		verifyBigamy(famList, famDF, indiDF)
 
 		#US12
 		get_parents_not_too_old(famList)
@@ -926,7 +986,10 @@ def main():
 			print('Siblings are too close together and they are not twins check birth dates')
 		else:
 			pass
-		
+
+		#US19
+		verifyNoFirstCousinMarr(indiList, famList)
+
 		#US22
 		if uniqueID(indiList) != True:
 			print('Repeated ID')
