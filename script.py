@@ -119,8 +119,40 @@ def check_dateOrder(date1, date2):
 def dateToCompare(date):
 	return datetime.strptime(date, "%d %b %Y")
 
+#check age difference for a parent and a child
+def get_age_difference(parent_age, child_age):
+	try:
+		return parent_age - child_age
+	except:
+		pass
 
 
+#function to replace the children id(s) with their actual data
+def replace_id_with_children_data(children_arr):
+	new_arr = []
+	for i in range(len(children_arr)):
+		new_arr.append(look_for_child_by(children_arr[i]))
+	return new_arr
+
+# return all family ids to a record
+def find_family_ids(fam_list):
+	records = []
+	for record in fam_list:
+		records.append(record['ID'])
+	return records
+
+#return all married people to a record
+def get_married_list(famList):
+	fam_records = []
+	fam_id_records = find_family_ids(famList)
+	for id in fam_id_records:
+		husband_name = modified_lookup('Husband Name', id, famList)
+		wife_name = modified_lookup('Wife Name', id, famList)
+		divorce_date = modified_lookup('Divorced', id, famList)
+		if (divorce_date is None):
+			fam_records.append([husband_name,wife_name])
+
+	return fam_records
 
 
 #---------------------### USER STORY FUNCTIONS ###---------------------#
@@ -129,86 +161,93 @@ def dateToCompare(date):
 #function to print father, mother and children data and display if parents are too hold to be a child's parent
 def get_parents_not_too_old(famList):
 	family = []
+	table_arr = []
 	father_age_limit = 80
 	mother_age_limit = 60
-	father_too_old = ""
-	mother_too_old = ""
+
 
 	#loop to retrieve father, mother and children data from family record
 	for i in range(len(famList)):
-		try:
-			family.append({'Husband_ID':famList[i]['Husband ID'], 'Wife_ID':famList[i]['Wife ID'],
-				'Husband Name':famList[i]['Husband Name'], 'Wife Name':famList[i]['Wife Name'],
-				'Husband Age': lookup('Age', famList[i]['Husband ID']), 'Wife Age': lookup('Age', famList[i]['Wife ID']),
-				'Children': replace_id_with_children_data(famList[i]['Children'])})
-		except:
-			famList[i]['N/A'] = 'N/A'
-			family.append({famList[i]['N/A']})
-
-	table_arr = []
+		#append specific data from famList to the family list
+		family.append({'Husband_ID':famList[i]['Husband ID'], 'Wife_ID':famList[i]['Wife ID'],
+			'Husband Name':famList[i]['Husband Name'], 'Wife Name':famList[i]['Wife Name'], 
+			'Husband Age': lookup('Age', famList[i]['Husband ID']), 'Wife Age': lookup('Age', famList[i]['Wife ID']), 
+			'Children': replace_id_with_children_data(famList[i]['Children'])})
 
 	# loop to build list to hold father, mother and children data
 	for j in range(len(family)):
 		for k in range(len(family[j]['Children'])):
-			if(get_age_difference(family[j]['Husband Age'], family[j]['Children'][k]['Age']) > father_age_limit):
-				father_too_old = "Yes"
-			else:
-				father_too_old = "No"
+			#check to see if father is not 80 yrs older than children or if mother is not 60 yrs older than children
+			father = 0 if family[j]['Husband Age'] is None else family[j]['Husband Age']
+			mother = 0 if family[j]['Wife Age'] is None else family[j]['Wife Age']
+			child = 0 if family[j]['Children'][k]['Age'] is None else family[j]['Children'][k]['Age']
 
-			if(get_age_difference(family[j]['Wife Age'], family[j]['Children'][k]['Age']) > mother_age_limit):
-				mother_too_old = "Yes"
-			else:
-				mother_too_old = "No"
+			father_too_old = 'Yes' if get_age_difference(father, child) > father_age_limit else "No"
+			mother_too_old = 'Yes' if get_age_difference(mother, child) > mother_age_limit else "No"
 
-			table_arr.append([family[j]['Husband Name'],"Father", family[j]['Husband Age'],
-				family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], father_too_old])
-			table_arr.append([family[j]['Wife Name'], "Mother", family[j]['Wife Age'],
-				family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], mother_too_old])
-
+			#check to see if parents are older than children then if so append to table_arr
+			if(father > child):
+				table_arr.append([family[j]['Husband Name'],"Father", family[j]['Husband Age'],
+					family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], father_too_old])
+			if(mother > child):
+				table_arr.append([family[j]['Wife Name'], "Mother", family[j]['Wife Age'],
+					family[j]['Children'][k]['Name'], family[j]['Children'][k]['Gender'], family[j]['Children'][k]['Age'], mother_too_old])
 
 	#bring list to a prettytable structure
 	x = PrettyTable()
-	x.field_names = ['Parent Name', 'Relationship', 'Parent Age', 'Child Name', 'Sex', 'Child Age', 'Too old']
+	x.field_names = ['Parent Name', 'Relationship', 'Parent Age', 'Child Name', 'Sex', 'Child Age', 'Parents too old']
 	for n in range(len(table_arr)):
-		x.add_row([table_arr[n][0], table_arr[n][1], table_arr[n][2],
+		x.add_row([table_arr[n][0], table_arr[n][1], table_arr[n][2], 
 			table_arr[n][3], table_arr[n][4], table_arr[n][5], table_arr[n][6]])
-	print('WARN: IND: US12: Parents not too old table\n')
+	
+	
 	print(x)
+	return 1, x
 
 	#************************************************************************end
 
+# Checks the family list to ensure that all wives are female and all husbands are male
+def check_gender_roles(famList):
+	for family in famList:
+		husbandGender = lookup("Gender" ,family["Husband ID"])
+		wifeGender = lookup("Gender" ,family["Wife ID"])
+		if husbandGender != "M":
+			print("All husbands must be males")
+			return False
+		if wifeGender != "F":
+			print("All wives must be female")
+			return False
+	print("Gender roles are OK")
+	return True
+	
+# Checks the family list to ensure that each family only has one child with the same name and birthday
+def check_unique_child(famList):
+	for family in famList:
+		childrenList = {}
+		for child in family["Children"]:
+			name = lookup("Name", child)
+			birthday = lookup("Birthday", child)
+			if name in childrenList and birthday == childrenList[name]:
+				print("No more than one child with the same name and birth date should appear in a family")
+				return False
+			else:
+				childrenList[name] = birthday
+	print("All Unique first names in families")
+	return True
 
 #US29: Deceased list | ND Sprint 1
 def get_deceased_records(indList):
-	printColor('cyan', 'INFO: IND: US29: Deceased Table')
-	decease_list = {}
-	id_arr = []
-	name_arr = []
-	gender_arr = []
-	birth_arr = []
-	age_arr = []
-	death_arr = []
-	spouse_arr = []
+	decease_list = []
+	records = ""
 	for record in indList:
 		if (record['Alive'] == False):
-			id_arr.append(record['ID'])
-			name_arr.append(record['Name'])
-			gender_arr.append(record['Gender'])
-			birth_arr.append(record['Birthday'])
-			age_arr.append(record['Age'])
-			death_arr.append(record['Death'])
-			spouse_arr.append(record['Spouse'])
+			records = [record['ID'],record['Name'], record['Gender'], record['Birthday'], record['Age'],
+			record['Death']]
+			decease_list.append(records)
 
-	decease_list['ID'] = id_arr
-	decease_list['Name'] = name_arr
-	decease_list['Gender'] = gender_arr
-	decease_list['Birthday'] = birth_arr
-	decease_list['Age'] = age_arr
-	decease_list['Death'] = death_arr
-	decease_list['Spouse'] = spouse_arr
-
-	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death', 'Spouse'])
-	print(df, end="\n\n")
+	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death'])
+	#print(df)
+	return 1, decease_list
 #***************************************************************************end
 
 
@@ -688,6 +727,32 @@ def siblingAgeDiff(famList, individualListName):
 				return False
 	return True
 
+#US27- Include individual ages
+def get_individual_age(indList):
+	records = []
+	for person in indList:
+		records.append([person['Name'], person['Age']])
+	return records
+
+#US30 List living married
+def get_living_married(ind_list, famList):
+	living_marriage = []
+	all_deceased_names = []
+	marriage_records = get_married_list(famList)
+	deceased = get_deceased_records(ind_list)[1]
+	for j in range(len(deceased)):
+		all_deceased_names.append(deceased[j][1])
+
+	for k in range(len(marriage_records)):
+		ind_record = marriage_records[k]
+		result = any(elem in ind_record  for elem in all_deceased_names)
+		if result:
+			k += 1
+		else:
+			living_marriage.append(ind_record)
+
+	return living_marriage
+
 
 
 
@@ -936,6 +1001,19 @@ def main():
 			print('Repeated Name and Birthday')
 		else:
 			pass
+
+		#US27
+		print(get_individual_age(indiList))
+
+		#US29
+		print(get_deceased_records(indiList))
+
+		#US30
+		print(get_living_married(indiList, famList))
+		print("Debug")
+		print(famList)
+		check_gender_roles(famList)
+		check_unique_child(famList)
 
 
 if __name__ == "__main__": 	# execute only if run as a script
