@@ -206,20 +206,22 @@ def get_parents_not_too_old(famList):
 
 	#************************************************************************end
 
+#US21 | JT Sprint 2
 # Checks the family list to ensure that all wives are female and all husbands are male
 def check_gender_roles(famList):
 	for family in famList:
 		husbandGender = lookup("Gender" ,family["Husband ID"])
 		wifeGender = lookup("Gender" ,family["Wife ID"])
 		if husbandGender != "M":
-			print("All husbands must be males")
+			print("WARN: IND: US21: All husbands must be males")
 			return False
 		if wifeGender != "F":
-			print("All wives must be female")
+			print("WARN: IND: US21: All wives must be female")
 			return False
-	print("Gender roles are OK")
+	print("INFO: GEN: US21: Gender roles are OK")
 	return True
 
+#US25 | JT Sprint 2
 # Checks the family list to ensure that each family only has one child with the same name and birthday
 def check_unique_child(famList):
 	for family in famList:
@@ -228,11 +230,11 @@ def check_unique_child(famList):
 			name = lookup("Name", child)
 			birthday = lookup("Birthday", child)
 			if name in childrenList and birthday == childrenList[name]:
-				print("No more than one child with the same name and birth date should appear in a family")
+				print("WARN: FAM: US25: No more than one child with the same name and birth date should appear in a family")
 				return False
 			else:
 				childrenList[name] = birthday
-	print("All Unique first names in families")
+	print("INFO: GEN: US25: All Unique first names in families")
 	return True
 
 #US29: Deceased list | ND Sprint 1
@@ -1027,6 +1029,9 @@ def main():
 		#US19
 		verifyNoFirstCousinMarr(indiList, famList)
 
+		#US21
+		check_gender_roles(famList)
+
 		#US22
 		if uniqueID(indiList) != True:
 			print('Repeated ID')
@@ -1039,6 +1044,9 @@ def main():
 		else:
 			pass
 
+		#US25
+		check_unique_child(famList)
+
 		#US27
 		print(get_individual_age(indiList))
 
@@ -1047,14 +1055,10 @@ def main():
 
 		#US30
 		print(get_living_married(indiList, famList))
-		print("Debug")
-		print(famList)
-		check_gender_roles(famList)
-		check_unique_child(famList)
- 
+
 		#US45
 		siblingAgeDiff(famList, indiList)
-            
+
 		#US46
 		childParentAgeDiff(famList, indiList)
 
