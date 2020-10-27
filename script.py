@@ -1032,7 +1032,7 @@ def main():
 
 		#US23
 		if uniqueNameAndBirthday(indiList) != True:
-			print('Repeated Name and Birthday')
+			print('WARN: IND: US23: Repeated Name and Birthday')
 		else:
 			pass
 
@@ -1043,9 +1043,11 @@ def main():
 		print(get_individual_age(indiList))
 
 		#US29
+		print("INFO: IND: US29: Deceased Records:")
 		get_deceased_records(indiList)
 
 		#US30
+		print("INFO: IND: US30: Living Married:")
 		print(get_living_married(indiList, famList))
 
 		#US45
