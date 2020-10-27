@@ -49,7 +49,7 @@ Colors = {
 	"green": "\033[92m{}\033[00m",
 	"yellow": "\033[93m{}\033[00m",
 	"yellow bold": "\033[1m\033[93m{}\033[00m",
- 	"light purple":	"\033[94m{}\033[00m",
+	 "light purple":	"\033[94m{}\033[00m",
 	"purple": "\033[95m{}\033[00m",
 	"cyan": "\033[96m{}\033[00m",
 	"cyan bold":"\033[1m\033[96m{}\033[00m",
@@ -328,6 +328,41 @@ def realBirthday(indiList, famList):
 					print("WARN: IND: US09: Child " + childID + " was born on " + childBirthday + ", father died on " + husbDeath)
 					count += 1
 	return count
+
+
+def multipleSiblings(indfiList, famList):
+	for family in famList:
+		if 'Children' in famList[family.keys()]:
+			if len(famList[family]['Children']) > 15:
+				return False
+	return True 
+
+
+
+def multipleBirths(indiList, famList):
+	if 'Children' in famList[individual].keys():
+		if len(famList[ID][Children]) >= 5:
+			for firstchild in famList[individual]['Children']:
+				counter = 1
+				date = indiList[firstchild]['Birthday']
+				for secondchild in famList [individual]['Children']:
+					if(indiList[secondchild]['Birthday'] == date):
+						counter += 1
+					if(counter > 5):
+						return False
+	return True
+"""
+###########################
+	for family in famList:
+		childrenList = {}
+		for child in family["Children"]:
+			identification = lookup("ID", child)
+			if identification > 5:
+				print("No more than five children are allowed to be born at once.")
+				return False
+	print("All couples have five children or less.")
+	return True
+"""
 
 #Checks date argument to see if that date is not after today's date
 def validDate(arguments):
