@@ -574,11 +574,12 @@ def uniqueNameAndBirthday(indiList):
 		unique_NameAndBirthday = False
 	return unique_NameAndBirthday
 
-# Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
+# JW US07 - Checks age argument to ensure it is less than 150 years
 def validAge(indiList):
 	for person in indiList:
 		age=person["Age"]
 		if age >= 150:
+			print("ERROR: INDIVIDUAL: US07: " + str(person["ID"]) + ": More than 150 years old - Birth Date: " + str(person["Birthday"])) 
 			return False
 	return True
 
@@ -605,8 +606,10 @@ def birthBeforeMarriage2(famList, individualListName):
 					divorceDate = dateToCompare(family['Divorced'])
 					divorceNineMonths = divorceDate + relativedelta(months=+9)
 					if birthday > divorceNineMonths:
+						print("ERROR: FAMILY: US46:", family["ID"] + ": Child " + str(childId) + " born " + str(birthday) + " after divorce on " + str(divorceDate))
 						return False
 				if marriageDate > birthday:
+					print("ERROR: FAMILY: US46:", family["ID"] + ": Child " + str(childId) + " born " + str(birthday) + " before marriage on " + str(marriageDate))
 					return False
 	return True
 
@@ -717,14 +720,19 @@ def siblingAgeDiff(famList, individualListName):
 		if len(family["Children"]) > 1:
 			dlow = dateToCompare(modified_lookup("Birthday", family["Children"][0],individualListName))
 			dhigh = dateToCompare(modified_lookup("Birthday", family["Children"][0], individualListName))
+			lowid=family["Children"][0]
+			highid=birthday=family["Children"][0]
 			for childId in family["Children"]:
 				birthday = dateToCompare(modified_lookup("Birthday", childId, individualListName))
 				if birthday < dlow:
 					dlow=birthday
+					lowid=childId
 				if birthday > dhigh:
 					dhigh=birthday
+					highid=childId
 			ageDiff = dhigh.year - dlow.year - ((dhigh.month, dhigh.day) < (dlow.month, dlow.day))
 			if ageDiff >= 35:
+				print("ERROR: FAMILY: US45:", family["ID"] + ": Age difference between older sibling (" + str(lowid) + ") and younger sibling ("+  str(highid)+ ") is", ageDiff, "which is not less than 35 years")   
 				return False
 	return True
 
@@ -734,17 +742,20 @@ def childParentAgeDiff(famList, individualListName):
 		dhus = dateToCompare(modified_lookup("Birthday", family["Husband ID"],individualListName))
 		dwife = dateToCompare(modified_lookup("Birthday", family["Wife ID"], individualListName))
 		dlow = dhus
-		if dwife < dhus:
+		parid = family["Husband ID"]
+		if dwife > dhus:
+			parid = family["Wife ID"]
 			dlow = dwife
 		for childId in family["Children"]:
 			birthday = dateToCompare(modified_lookup("Birthday", childId, individualListName))
 			ageDiff = birthday.year - dlow.year - ((birthday.month, birthday.day) < (dlow.month, dlow.day))
 			if ageDiff <= 15:
+				print("ERROR: FAMILY: US46:", family["ID"] + ": Age difference between child (" + str(childId) + ") and parent ("+  str(parid)+ ") is", ageDiff, "which is not more than 15 years")   
 				return False
 	return True
 
 #US51 JW - List family with most members
-def largestFamily(famList, individualListName):
+def largestFamily(famList):
 	if(len(famList)==0): return "N/A"
 	largest_size = 0
 	largest_id = ""
@@ -753,6 +764,7 @@ def largestFamily(famList, individualListName):
 		if(size>largest_size):
 			largest_size=size
 			largest_id = family["ID"]
+	print("STATS: FAMILY: US51: The largest family is " + str(largest_id) + " with size " + str(largest_size) + " (living or deceased)")
 	return largest_id
 
 #US27- Include individual ages
@@ -978,14 +990,10 @@ def main():
 		verifyMarriageDivorceOrder(famList)
 
 		#US07
-		if validAge(indiList) == False:
-			print('Invalid age detected. All individuals must be <150 years old')
-		else:
-			pass
+		validAge(indiList)
 
 		#US08
-		if not birthBeforeMarriage2(famList, indiList):
-			print("WARN: FAM: US08: All children must be born after marriage and within 9 months of divorce")
+		birthBeforeMarriage2(famList, indiList)
 
 		#Qualified
 		print(print_data(indiList))
@@ -1045,20 +1053,13 @@ def main():
 		check_unique_child(famList)
  
 		#US45
-		if siblingAgeDiff(famList, indiList) != True:
-			print('sibling age difference>35 years detected')
-		else:
-			pass
+		siblingAgeDiff(famList, indiList)
             
 		#US46
-		if childParentAgeDiff(famList, indiList) != True:
-			print('parent-child age difference<15 years detected')
-		else:
-			pass
+		childParentAgeDiff(famList, indiList)
 
 		#US51
-		largest_family = largestFamily(famList, indiList)
-		print('The largest family is', largest_family)
+		largestFamily(famList)
 
 
 if __name__ == "__main__": 	# execute only if run as a script
