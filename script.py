@@ -206,18 +206,19 @@ def get_parents_not_too_old(famList):
 
 	#************************************************************************end
 
+#US21 | JT Sprint 2
 # Checks the family list to ensure that all wives are female and all husbands are male
 def check_gender_roles(famList):
 	for family in famList:
 		husbandGender = lookup("Gender" ,family["Husband ID"])
 		wifeGender = lookup("Gender" ,family["Wife ID"])
 		if husbandGender != "M":
-			print("All husbands must be males")
+			print("WARN: IND: US21: All husbands must be males")
 			return False
 		if wifeGender != "F":
-			print("All wives must be female")
+			print("WARN: IND: US21: All wives must be female")
 			return False
-	print("Gender roles are OK")
+	print("INFO: GEN: US21: Gender roles are OK")
 	return True
 
 #US25 | JT Sprint 2
@@ -229,11 +230,11 @@ def check_unique_child(famList):
 			name = lookup("Name", child)
 			birthday = lookup("Birthday", child)
 			if name in childrenList and birthday == childrenList[name]:
-				print("No more than one child with the same name and birth date should appear in a family")
+				print("WARN: FAM: US25: No more than one child with the same name and birth date should appear in a family")
 				return False
 			else:
 				childrenList[name] = birthday
-	print("All Unique first names in families")
+	print("INFO: GEN: US25: All Unique first names in families")
 	return True
 
 #US29: Deceased list | ND Sprint 1
