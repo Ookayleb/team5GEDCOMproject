@@ -330,7 +330,7 @@ def realBirthday(indiList, famList):
 	return count
 
 
-def multipleSiblings(indfiList, famList):
+def multipleSiblings(indiList, famList):
 	for family in famList:
 		if 'Children' in famList[family.keys()]:
 			if len(famList[family]['Children']) > 15:
@@ -948,6 +948,11 @@ def main():
 		#US12
 		get_parents_not_too_old(famList)
 
+		#US14
+		multipleBirths(indiList, famList)
+
+		#US15
+		multipleSiblings(indiList, famList)
 
 		#US16
 		if(maleLastNames(indiDF, famList)):
