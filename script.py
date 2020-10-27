@@ -1039,17 +1039,16 @@ def main():
 
 		#US30
 		print(get_living_married(indiList, famList))
-		print("Debug")
-		print(famList)
+
 		check_gender_roles(famList)
 		check_unique_child(famList)
- 
+
 		#US45
 		if siblingAgeDiff(famList, indiList) != True:
 			print('sibling age difference>35 years detected')
 		else:
 			pass
-            
+
 		#US46
 		if childParentAgeDiff(famList, indiList) != True:
 			print('parent-child age difference<15 years detected')
