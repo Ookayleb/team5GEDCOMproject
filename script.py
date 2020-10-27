@@ -220,6 +220,7 @@ def check_gender_roles(famList):
 	print("Gender roles are OK")
 	return True
 
+#US25 | JT Sprint 2
 # Checks the family list to ensure that each family only has one child with the same name and birthday
 def check_unique_child(famList):
 	for family in famList:
@@ -1019,6 +1020,9 @@ def main():
 		#US19
 		verifyNoFirstCousinMarr(indiList, famList)
 
+		#US21
+		check_gender_roles(famList)
+
 		#US22
 		if uniqueID(indiList) != True:
 			print('Repeated ID')
@@ -1031,6 +1035,9 @@ def main():
 		else:
 			pass
 
+		#US25
+		check_unique_child(famList)
+
 		#US27
 		print(get_individual_age(indiList))
 
@@ -1039,9 +1046,6 @@ def main():
 
 		#US30
 		print(get_living_married(indiList, famList))
-
-		check_gender_roles(famList)
-		check_unique_child(famList)
 
 		#US45
 		if siblingAgeDiff(famList, indiList) != True:
