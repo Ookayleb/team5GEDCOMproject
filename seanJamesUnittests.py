@@ -1,7 +1,7 @@
 import unittest
 import sys
 import pandas
-from script import maleLastNames, generateInitialData, reset, SiblingSpacing, uniqueID, uniqueNameAndBirthday
+from script import maleLastNames, generateInitialData, reset, SiblingSpacing, uniqueID, uniqueNameAndBirthday, listRecentBirths
 
 
 class TestMaleLastNames(unittest.TestCase):
@@ -160,6 +160,27 @@ class TestUniqueNameAndBday(unittest.TestCase):
         result = uniqueNameAndBirthday(indiList)
         self.assertFalse(result)
         self.assertIs(result, False)    
+
+class TestlistRecentBirths(unittest.TestCase):
+    def test_Pass_listRecentBirths(self):
+        reset()
+        #birthdayOct27.ged
+        gedcomeStructuredData0 = generateInitialData("gedFiles/birthdayOct27.ged")
+        indiList = 	gedcomeStructuredData0['indiList']
+
+        result = listRecentBirths(indiList)
+        self.assertTrue(result)
+        self.assertIs(result, True)
+
+    def test_Fail_listRecentBirths(self):
+        reset()
+        #RepeatedNameAndBirthday.ged
+        gedcomeStructuredData0 = generateInitialData("gedFiles/RepeatedNameAndBirthday.ged")
+        indiList = 	gedcomeStructuredData0['indiList']
+
+        result = listRecentBirths(indiList)
+        self.assertFalse(result)
+        self.assertIs(result, False) 
 
 if __name__ == "__main__":
     # test_classes_to_run = [TestClassA, TestClassC]

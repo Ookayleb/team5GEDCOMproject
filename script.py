@@ -7,6 +7,7 @@ import unittest
 import numpy as np
 from datetime import datetime
 from datetime import date
+from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from prettytable import PrettyTable
 
@@ -830,7 +831,24 @@ def get_living_married(ind_list, famList):
 
 	return living_marriage
 
-
+#US 35 SJ List recent births, the last 30 days 
+def listRecentBirths(indiList):
+	recentBirthdays = list()
+	today = date.today()
+	y = today - timedelta(days=30)
+	for i in indiList:
+		x = i['Birthday']
+		birthday = datetime.strptime(x, "%d %b %Y").date()
+		if(birthday > y):
+			recentBirthdays.append(i['Name'])
+		else:
+			pass
+	if not recentBirthdays:
+		print("There have been no recent birthdays")
+		return False
+	else:
+		print("The recent birthdays are: " + str(recentBirthdays))
+		return True
 
 
 
@@ -1101,6 +1119,8 @@ def main():
 
 		#US51
 		largestFamily(famList)
+
+		listRecentBirths(indiList)
 
 
 if __name__ == "__main__": 	# execute only if run as a script
