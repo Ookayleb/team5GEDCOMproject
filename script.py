@@ -851,6 +851,26 @@ def listRecentBirths(indiList):
 		return True
 
 
+#US 36 SJ List upcoming, the next 30 days 
+def listUpcomingBirthdays(indiList):
+	upcomingBirthdays = list()
+	today = date.today()
+	y = today + timedelta(days=30)
+	for i in indiList:
+		x = i['Birthday']
+		birthday = datetime.strptime(x, "%d %b %Y").date()
+		if(today < birthday < y):
+			upcomingBirthdays.append(i['Name'])
+		else:
+			pass
+	if not upcomingBirthdays:
+		print("There are  no coming birthdays")
+		return False
+	else:
+		print("The next birthdays are: " + str(upcomingBirthdays))
+		return True
+
+
 
 #---------------------### CORE FUNCTIONS ###---------------------#
 #Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
@@ -1120,7 +1140,14 @@ def main():
 		#US51
 		largestFamily(famList)
 
+		#US35
 		listRecentBirths(indiList)
+
+		#US38
+		listUpcomingBirthdays(indiList)
+
+
+		
 
 
 if __name__ == "__main__": 	# execute only if run as a script
