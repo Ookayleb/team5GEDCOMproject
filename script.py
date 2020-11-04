@@ -811,6 +811,9 @@ def get_individual_age(indList):
 	records = []
 	for person in indList:
 		records.append([person['Name'], person['Age']])
+	print('US27 - Include individual ages')
+	df = pd.DataFrame(records, columns = ['Name','Age'])
+	print(df)
 	return records
 
 #US30 List living married
@@ -829,7 +832,9 @@ def get_living_married(ind_list, famList):
 			k += 1
 		else:
 			living_marriage.append(ind_record)
-
+	print('US30 - List living married')
+	df = pd.DataFrame(living_marriage, columns = ['Husband Name','Wife Name'])
+	print(df)
 	return living_marriage
 
 #US 35 SJ List recent births, the last 30 days 
@@ -1191,15 +1196,14 @@ def main():
 		check_unique_child(famList)
 
 		#US27
-		print(get_individual_age(indiList))
+		get_individual_age(indiList)
 
 		#US29
 		print("INFO: IND: US29: Deceased Records:")
 		get_deceased_records(indiList)
 
 		#US30
-		print("INFO: IND: US30: Living Married:")
-		print(get_living_married(indiList, famList))
+		get_living_married(indiList, famList)
 
 		#US45
 		siblingAgeDiff(famList, indiList)
