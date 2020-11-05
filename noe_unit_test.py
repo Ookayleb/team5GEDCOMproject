@@ -1,6 +1,6 @@
 import unittest
 import script
-from script import get_deceased_records, generateInitialData, reset, get_parents_not_too_old, get_age_difference, replace_id_with_children_data, get_individual_age
+from script import get_deceased_records, generateInitialData, reset, get_parents_not_too_old, get_age_difference, replace_id_with_children_data, get_individual_age, findRecentDeath, FindChildrenBornBeforeParent
 
 class TestGetDeceasedRecords(unittest.TestCase):
 	def test_get_deceased_records_1(self):
@@ -90,6 +90,44 @@ class TestGetLivingMarried(unittest.TestCase):
 		reset()
 		result = script.get_living_married(indiList, famList)
 		self.assertTrue(result)
+
+class TestFindRecentDeath(unittest.TestCase):
+    def test_find_recent_death_pass(self):
+        reset()
+        gedcomeStructuredData = generateInitialData("gedFiles/nov1_recent_death.ged")
+        indiList = 	gedcomeStructuredData['indiList']
+
+        result = findRecentDeath(indiList)
+        self.assertTrue(result)
+        self.assertIs(result, True)
+
+    def test_find_recent_death_fail(self):
+        reset()
+        gedcomeStructuredData0 = generateInitialData("gedFiles/oct4_recent_death.ged")
+        indiList = 	gedcomeStructuredData0['indiList']
+
+        result = findRecentDeath(indiList)
+        self.assertFalse(result)
+        self.assertIs(result, False) 
+
+class TestFindChildrenBornBeforeParent(unittest.TestCase):
+    def test_find_children_born_before_parent_pass(self):
+        reset()
+        gedcomeStructuredData = generateInitialData("gedFiles/born_before_parent.ged")
+        indiList = 	gedcomeStructuredData['famList']
+
+        result = FindChildrenBornBeforeParent(indiList)
+        self.assertTrue(result)
+        self.assertIs(result, True)
+
+    def test_find_children_born_before_parent_fail(self):
+        reset()
+        gedcomeStructuredData0 = generateInitialData("gedFiles/not_born_before_parent.ged")
+        indiList = 	gedcomeStructuredData0['famList']
+
+        result = FindChildrenBornBeforeParent(indiList)
+        self.assertFalse(result)
+        self.assertIs(result, False) 
 
 
 if __name__ == '__main__':
