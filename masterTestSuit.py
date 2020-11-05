@@ -5,7 +5,7 @@ from jared_unnitest 	import *
 from william_tests 		import *
 from seanJamesUnittests 	import *
 from unittests 		import *
-# from noe_unit_test 	import *
+from noe_unit_test 	import *
 
 if __name__ == "__main__":
 	# test_classes_to_run = [TestClassA, TestClassC]

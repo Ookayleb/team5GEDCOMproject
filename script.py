@@ -7,6 +7,7 @@ import unittest
 import numpy as np
 from datetime import datetime
 from datetime import date
+from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from prettytable import PrettyTable
 
@@ -49,7 +50,7 @@ Colors = {
 	"green": "\033[92m{}\033[00m",
 	"yellow": "\033[93m{}\033[00m",
 	"yellow bold": "\033[1m\033[93m{}\033[00m",
- 	"light purple":	"\033[94m{}\033[00m",
+	 "light purple":	"\033[94m{}\033[00m",
 	"purple": "\033[95m{}\033[00m",
 	"cyan": "\033[96m{}\033[00m",
 	"cyan bold":"\033[1m\033[96m{}\033[00m",
@@ -206,20 +207,22 @@ def get_parents_not_too_old(famList):
 
 	#************************************************************************end
 
+#US21 | JT Sprint 2
 # Checks the family list to ensure that all wives are female and all husbands are male
 def check_gender_roles(famList):
 	for family in famList:
 		husbandGender = lookup("Gender" ,family["Husband ID"])
 		wifeGender = lookup("Gender" ,family["Wife ID"])
 		if husbandGender != "M":
-			print("All husbands must be males")
+			print("WARN: IND: US21: All husbands must be males")
 			return False
 		if wifeGender != "F":
-			print("All wives must be female")
+			print("WARN: IND: US21: All wives must be female")
 			return False
-	print("Gender roles are OK")
+	print("INFO: GEN: US21: Gender roles are OK")
 	return True
 
+#US25 | JT Sprint 2
 # Checks the family list to ensure that each family only has one child with the same name and birthday
 def check_unique_child(famList):
 	for family in famList:
@@ -228,11 +231,11 @@ def check_unique_child(famList):
 			name = lookup("Name", child)
 			birthday = lookup("Birthday", child)
 			if name in childrenList and birthday == childrenList[name]:
-				print("No more than one child with the same name and birth date should appear in a family")
+				print("WARN: FAM: US25: No more than one child with the same name and birth date should appear in a family")
 				return False
 			else:
 				childrenList[name] = birthday
-	print("All Unique first names in families")
+	print("INFO: GEN: US25: All Unique first names in families")
 	return True
 
 #US29: Deceased list | ND Sprint 1
@@ -246,7 +249,7 @@ def get_deceased_records(indList):
 			decease_list.append(records)
 
 	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death'])
-	#print(df)
+	print(df)
 	return 1, decease_list
 #***************************************************************************end
 
@@ -329,6 +332,41 @@ def realBirthday(indiList, famList):
 					count += 1
 	return count
 
+
+def multipleSiblings(indfiList, famList):
+	for family in famList:
+		if 'Children' in famList[family.keys()]:
+			if len(famList[family]['Children']) > 15:
+				return False
+	return True 
+
+
+
+def multipleBirths(indiList, famList):
+	if 'Children' in famList[individual].keys():
+		if len(famList[ID][Children]) >= 5:
+			for firstchild in famList[individual]['Children']:
+				counter = 1
+				date = indiList[firstchild]['Birthday']
+				for secondchild in famList [individual]['Children']:
+					if(indiList[secondchild]['Birthday'] == date):
+						counter += 1
+					if(counter > 5):
+						return False
+	return True
+"""
+###########################
+	for family in famList:
+		childrenList = {}
+		for child in family["Children"]:
+			identification = lookup("ID", child)
+			if identification > 5:
+				print("No more than five children are allowed to be born at once.")
+				return False
+	print("All couples have five children or less.")
+	return True
+"""
+
 #Checks date argument to see if that date is not after today's date
 def validDate(arguments):
 	current_date = date.today()
@@ -346,7 +384,8 @@ def getChildren_and_age(id):
 	name = lookup('Name', id)
 	age = lookup('Age', id)
 	gender = lookup('Gender', id)
-	return {'Name': name, 'Age':age, 'Gender':gender}
+	birthday = lookup('Birthday', id)
+	return {'Name': name, 'Age':age, 'Gender':gender, 'Birthday':birthday}
 
 #function to replace the children id(s) with their actual data
 def replace_id_with_children_data(children_arr):
@@ -574,12 +613,14 @@ def uniqueNameAndBirthday(indiList):
 		unique_NameAndBirthday = False
 	return unique_NameAndBirthday
 
-# Jared Weinblatt - User Story 7 - Checks age argument to ensure it is less than 150 years
-def validAge(age):
-	if age >= 150:
-		return False
+# JW US07 - Checks age argument to ensure it is less than 150 years
+def validAge(indiList):
+	for person in indiList:
+		age=person["Age"]
+		if age >= 150:
+			print("ERROR: INDIVIDUAL: US07: " + str(person["ID"]) + ": More than 150 years old - Birth Date: " + str(person["Birthday"])) 
+			return False
 	return True
-
 
 #US02 | JT Sprint 1
 def birthBeforeMarriage(famList):
@@ -604,8 +645,10 @@ def birthBeforeMarriage2(famList, individualListName):
 					divorceDate = dateToCompare(family['Divorced'])
 					divorceNineMonths = divorceDate + relativedelta(months=+9)
 					if birthday > divorceNineMonths:
+						print("ERROR: FAMILY: US46:", family["ID"] + ": Child " + str(childId) + " born " + str(birthday) + " after divorce on " + str(divorceDate))
 						return False
 				if marriageDate > birthday:
+					print("ERROR: FAMILY: US46:", family["ID"] + ": Child " + str(childId) + " born " + str(birthday) + " before marriage on " + str(marriageDate))
 					return False
 	return True
 
@@ -710,28 +753,67 @@ def verifyBigamy(famList, famDF, indiDF):
 	return numOffenders
 
 
-
+#US45 JW - Siblings < 35 year age difference
 def siblingAgeDiff(famList, individualListName):
 	for family in famList:
 		if len(family["Children"]) > 1:
 			dlow = dateToCompare(modified_lookup("Birthday", family["Children"][0],individualListName))
 			dhigh = dateToCompare(modified_lookup("Birthday", family["Children"][0], individualListName))
+			lowid=family["Children"][0]
+			highid=birthday=family["Children"][0]
 			for childId in family["Children"]:
 				birthday = dateToCompare(modified_lookup("Birthday", childId, individualListName))
 				if birthday < dlow:
 					dlow=birthday
+					lowid=childId
 				if birthday > dhigh:
 					dhigh=birthday
+					highid=childId
 			ageDiff = dhigh.year - dlow.year - ((dhigh.month, dhigh.day) < (dlow.month, dlow.day))
 			if ageDiff >= 35:
+				print("ERROR: FAMILY: US45:", family["ID"] + ": Age difference between older sibling (" + str(lowid) + ") and younger sibling ("+  str(highid)+ ") is", ageDiff, "which is not less than 35 years")   
 				return False
 	return True
+
+#US46 JW - Children>15 yr age difference parents
+def childParentAgeDiff(famList, individualListName):
+	for family in famList:
+		dhus = dateToCompare(modified_lookup("Birthday", family["Husband ID"],individualListName))
+		dwife = dateToCompare(modified_lookup("Birthday", family["Wife ID"], individualListName))
+		dlow = dhus
+		parid = family["Husband ID"]
+		if dwife > dhus:
+			parid = family["Wife ID"]
+			dlow = dwife
+		for childId in family["Children"]:
+			birthday = dateToCompare(modified_lookup("Birthday", childId, individualListName))
+			ageDiff = birthday.year - dlow.year - ((birthday.month, birthday.day) < (dlow.month, dlow.day))
+			if ageDiff <= 15:
+				print("ERROR: FAMILY: US46:", family["ID"] + ": Age difference between child (" + str(childId) + ") and parent ("+  str(parid)+ ") is", ageDiff, "which is not more than 15 years")   
+				return False
+	return True
+
+#US51 JW - List family with most members
+def largestFamily(famList):
+	if(len(famList)==0): return "N/A"
+	largest_size = 0
+	largest_id = ""
+	for family in famList:
+		size=2+len(family["Children"])
+		if(size>largest_size):
+			largest_size=size
+			largest_id = family["ID"]
+	print("STATS: FAMILY: US51: The largest family is " + str(largest_id) + " with size " + str(largest_size) + " (living or deceased)")
+	return largest_id
 
 #US27- Include individual ages
 def get_individual_age(indList):
 	records = []
 	for person in indList:
 		records.append([person['Name'], person['Age']])
+	print('US27 - Include individual ages')
+	df = pd.DataFrame(records, columns = ['Name','Age'])
+	print(df)
 	return records
 
 #US30 List living married
@@ -750,10 +832,118 @@ def get_living_married(ind_list, famList):
 			k += 1
 		else:
 			living_marriage.append(ind_record)
-
+	print('US30 - List living married')
+	df = pd.DataFrame(living_marriage, columns = ['Husband Name','Wife Name'])
+	print(df)
 	return living_marriage
 
+#US 35 SJ List recent births, the last 30 days 
+def listRecentBirths(indiList):
+	recentBirthdays = list()
+	today = date.today()
+	y = today - timedelta(days=30)
+	for i in indiList:
+		x = i['Birthday']
+		birthday = datetime.strptime(x, "%d %b %Y").date()
+		if(birthday > y):
+			recentBirthdays.append(i['Name'])
+		else:
+			pass
+	if not recentBirthdays:
+		print("There have been no recent birthdays")
+		return False
+	else:
+		print("The recent birthdays are: " + str(recentBirthdays))
+		return True
 
+#US 36 ND List recent deaths
+def findRecentDeath(indiList):
+	recent_death_list = []
+	today_date = date.today()
+	thirty_days_ago = today_date - timedelta(days=30)
+	epoch_time = "1 JAN 1970"
+	formal_epoch_time = datetime.strptime(epoch_time, "%d %b %Y").date()
+	for people in indiList:
+		validate_death_date = people.get('Death', formal_epoch_time)
+		if validate_death_date == formal_epoch_time:
+			continue
+		else:
+			formal_death_date = datetime.strptime(validate_death_date, "%d %b %Y").date()
+			if (formal_death_date>thirty_days_ago and formal_death_date<today_date):
+				recent_death_list.append([people['Name'], people['Death']])
+	if(len(recent_death_list) <=0):
+		print('There are no death in the last 30 days')
+		print('\n\n')
+		return False
+	else:
+		print('List of people who died in the last 30 days:')
+		df = pd.DataFrame(recent_death_list, columns = ['Name', 'Death'])
+		print(df)
+		print('\n\n')
+		return True
+
+
+#US 38 SJ List upcoming, the next 30 days 
+def listUpcomingBirthdays(indiList):
+	upcomingBirthdays = list()
+	today = date.today()
+	y = today + timedelta(days=30)
+	for i in indiList:
+		x = i['Birthday']
+		birthday = datetime.strptime(x, "%d %b %Y").date()
+		if(today < birthday < y):
+			upcomingBirthdays.append(i['Name'])
+		else:
+			pass
+	if not upcomingBirthdays:
+		print("There are  no coming birthdays")
+		return False
+	else:
+		print("The next birthdays are: " + str(upcomingBirthdays))
+		return True
+
+#US 43 ND Born Before Parents
+def FindChildrenBornBeforeParent(famList):
+	family = []
+	children_and_parent_data = []
+	zero = 0
+
+	#loop to retrieve father, mother and children data from family record
+	for i in range(len(famList)):
+		#append specific data from famList to the family list
+		family.append({'Husband_ID':famList[i]['Husband ID'], 
+			'Wife_ID':famList[i]['Wife ID'],
+			'Husband Name':famList[i]['Husband Name'], 
+			'Wife Name':famList[i]['Wife Name'],
+			'Husband Birthday': lookup('Birthday', famList[i]['Husband ID']),
+			'Wife Birthday': lookup('Birthday', famList[i]['Wife ID']),
+			'Husband Age': lookup('Age', famList[i]['Husband ID']), 
+			'Wife Age': lookup('Age', famList[i]['Wife ID']),
+			'Children': replace_id_with_children_data(famList[i]['Children'])})
+
+	# loop to build list to hold father, mother and children data
+	for j in range(len(family)):
+		for k in range(len(family[j]['Children'])):
+			#check to see if children are not born before or on the same date as their father
+			if check_dateOrder(family[j]['Children'][k]['Birthday'],family[j]['Husband Birthday'] ):
+				children_and_parent_data.append([family[j]['Husband Name'],family[j]['Husband Age'],
+					family[j]['Children'][k]['Name'],family[j]['Children'][k]['Age'] ])
+				print("WARN: IND: US43: " + family[j]['Children'][k]['Name'] + " was born on (" + family[j]['Children'][k]['Birthday'] 
+					+  ") the same date or before his/her father " + family[j]['Husband Name'] + " who were born on (" + family[j]['Husband Birthday'] + ").")
+			
+			#check to see if children are not born before or on the same date as their mother
+			if check_dateOrder(family[j]['Children'][k]['Birthday'],family[j]['Wife Birthday'] ):
+				children_and_parent_data.append([family[j]['Wife Name'],family[j]['Wife Age'],
+					family[j]['Children'][k]['Name'],family[j]['Children'][k]['Age'] ])
+				print("WARN: IND: US43: " + family[j]['Children'][k]['Name'] + " was born on (" + family[j]['Children'][k]['Birthday'] 
+					+  ") the same date or before his/her mother " + family[j]['Wife Name'] + " who were born on (" + family[j]['Wife Birthday'] + ").")
+	
+	if len(children_and_parent_data)<=0:
+		print('There are no children born before or on the same date as parent')
+		print('\n\n')
+		return False
+	else:
+		return True
 
 
 
@@ -873,11 +1063,6 @@ def generateInitialData(fileName):
 		indiDF.sort_values(by=['ID'], inplace=True)
 		indiDF.reset_index(inplace=True, drop=True)
 
-		#Check age of all individuals
-		for i in range(len(indiList)):
-			if not validAge(indiList[i]["Age"]):
-				print("WARN: IND: US07: Individuals should be less than 150 years old. "+ indiList[i]["Name"] +" is "+ str(indiList[i]["Age"]))
-
 		#Populate the families DataFrame
 		for i in range(len(famList)):		#Loop through the list of families
 			famList[i]['Husband Name'] 	= lookup('Name', famList[i]['Husband ID']) #lookup husband name from id
@@ -954,9 +1139,11 @@ def main():
 		#US04
 		verifyMarriageDivorceOrder(famList)
 
+		#US07
+		validAge(indiList)
+
 		#US08
-		if not birthBeforeMarriage2(famList, indiList):
-			print("WARN: FAM: US08: All children must be born after marriage and within 9 months of divorce")
+		birthBeforeMarriage2(famList, indiList)
 
 		#Qualified
 		print(print_data(indiList))
@@ -990,6 +1177,9 @@ def main():
 		#US19
 		verifyNoFirstCousinMarr(indiList, famList)
 
+		#US21
+		check_gender_roles(famList)
+
 		#US22
 		if uniqueID(indiList) != True:
 			print('Repeated ID')
@@ -998,22 +1188,46 @@ def main():
 
 		#US23
 		if uniqueNameAndBirthday(indiList) != True:
-			print('Repeated Name and Birthday')
+			print('WARN: IND: US23: Repeated Name and Birthday')
 		else:
 			pass
 
+		#US25
+		check_unique_child(famList)
+
 		#US27
-		print(get_individual_age(indiList))
+		get_individual_age(indiList)
 
 		#US29
-		print(get_deceased_records(indiList))
+		print("INFO: IND: US29: Deceased Records:")
+		get_deceased_records(indiList)
 
 		#US30
-		print(get_living_married(indiList, famList))
-		print("Debug")
-		print(famList)
-		check_gender_roles(famList)
-		check_unique_child(famList)
+		get_living_married(indiList, famList)
+
+		#US45
+		siblingAgeDiff(famList, indiList)
+
+		#US46
+		childParentAgeDiff(famList, indiList)
+
+		#US51
+		largestFamily(famList)
+
+		#US35
+		listRecentBirths(indiList)
+
+		#US36
+		findRecentDeath(indiList)
+
+		#US38
+		listUpcomingBirthdays(indiList)
+
+		#US43
+		FindChildrenBornBeforeParent(famList)
+
+
+		
 
 
 if __name__ == "__main__": 	# execute only if run as a script

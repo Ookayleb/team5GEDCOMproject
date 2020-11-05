@@ -183,7 +183,7 @@
 1 NAME Jarvis /Stark/
 2 GIVN Jarvis
 2 _MARNM Stark
-1 SEX M
+1 SEX F
 1 BIRT
 2 DATE 8 AUG 1999
 1 DEAT
@@ -225,7 +225,7 @@
 1 NAME Jennifer /Tuckers/
 2 GIVN Jennifer
 2 _MARNM Tuckers
-1 SEX F
+1 SEX M
 1 BIRT
 2 DATE 18 APR 1952
 1 DEAT
@@ -290,6 +290,89 @@
 1 CHAN
 2 DATE 30 SEP 2020
 3 TIME 13:51:04
+0 ICUZ_grandpa INDI
+1 NAME Barry /Allen/
+1 SEX M
+1 BIRT
+2 DATE 6 SEP 1999
+1 FAMS FCUZ_gparents
+0 ICUZ_grandma INDI
+1 NAME Marry /Allen/
+1 SEX M
+1 BIRT
+2 DATE 6 SEP 1999
+1 FAMS FCUZ_gparents
+0 ICUZ_brother INDI
+1 NAME Larry /Allen/
+1 SEX M
+1 BIRT
+2 DATE 6 SEP 1999
+1 FAMC FCUZ_gparents
+1 FAMS FCUZ_sonFam
+0 ICUZ_sister INDI
+1 NAME Sharry /Allen/
+1 SEX M
+1 BIRT
+2 DATE 6 SEP 1999
+1 FAMC FCUZ_gparents
+1 FAMS FCUZ_daughterFam
+0 ICUZ_rdmWife INDI
+1 NAME Sydney /Collins/
+1 SEX M
+1 BIRT
+2 DATE 6 SEP 1999
+1 FAMS FCUZ_sonFam
+0 ICUZ_cuz1 INDI
+1 NAME Scarry /Allen/
+1 SEX M
+1 BIRT
+2 DATE 6 SEP 1999
+1 FAMC FCUZ_sonFam
+1 FAMS FCUZ_firstCuzFam
+0 ICUZ_rdmHusb INDI
+1 NAME Mark /Smelly/
+1 SEX M
+1 BIRT
+2 DATE 6 SEP 1999
+1 FAMS FCUZ_daughterFam
+0 ICUZ_cuz2 INDI
+1 NAME Terry /Allen/
+1 SEX F
+1 BIRT
+2 DATE 6 SEP 1999
+1 FAMC FCUZ_daughterFam
+1 FAMS FCUZ_firstCuzFam
+0 ICUZ_cuzChild INDI
+1 NAME Lairy /Allen/
+1 SEX M
+1 BIRT
+2 DATE 6 SEP 1999
+1 FAMC FCUZ_firstCuzFam
+0 FCUZ_gparents FAM
+1 MARR
+2 DATE 3 MAR 2012
+1 HUSB ICUZ_grandpa
+1 WIFE ICUZ_grandma
+1 CHIL ICUZ_brother
+1 CHIL ICUZ_sister
+0 FCUZ_sonFam FAM
+1 MARR
+2 DATE 3 MAR 2012
+1 HUSB ICUZ_brother
+1 WIFE ICUZ_rdmWife
+1 CHIL ICUZ_cuz1
+0 FCUZ_daughterFam FAM
+1 MARR
+2 DATE 3 MAR 2012
+1 HUSB ICUZ_rdmHusb
+1 WIFE ICUZ_sister
+1 CHIL ICUZ_cuz2
+0 FCUZ_firstCuzFam FAM
+1 MARR
+2 DATE 3 MAR 2012
+1 HUSB ICUZ_cuz2
+1 WIFE ICUZ_cuz1
+1 CHIL ICUZ_cuzChild
 0 F0517412841 FAM
 1 MARR
 2 DATE 19 JUL 1970
