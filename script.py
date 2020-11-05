@@ -243,6 +243,7 @@ def check_unique_child(famList):
 #Likewise, all individual roles (spouse, child) specified in family records should have corresponding entries in the corresponding  individual's records.
 #I.e. the information in the individual and family records should be consistent.
 def verifyCorrespondingEntries_ind(indiList, famList):
+	count = 0
 	for indi in indiList:
 		indiID			= indi["ID"]
 		childOfFamID		= indi.get("Child", None)
@@ -250,16 +251,51 @@ def verifyCorrespondingEntries_ind(indiList, famList):
 
 		#now check that indiID appears in the child array of the family ID
 		if (childOfFamID is not None) and (indiID not in modified_lookup("Children", childOfFamID, famList)):
-			printColor("yellow bold", "WARN: FAM: US26: {}: {}'s individual record says they are a child in {}, but no corresponding family entry found"\
-				.format(childOfFamID, indi["Name"], childOfFamID))
+			count += 1
+			printColor("yellow bold", "WARN: FAM: US26: {}: {} {}'s individual record says they are a child in {}, but no corresponding family entry found"\
+				.format(childOfFamID, indiID, indi["Name"], childOfFamID))
 
 		for spouseOfFamID in spouseOfFamIDArray:
+			count += 1
 			if (spouseOfFamID is not None) and (indiID not in (modified_lookup("Husband ID", spouseOfFamID, famList), modified_lookup("Wife ID", spouseOfFamID, famList))):
-				printColor("yellow bold", "WARN: FAM: US26: {}: {}'s individual record says they are a spouse in {}, but no corresponding family entry found"\
-					.format(spouseOfFamID, indi["Name"], spouseOfFamID))
+				printColor("yellow bold", "WARN: FAM: US26: {}: {} {}'s individual record says they are a spouse in {}, but no corresponding family entry found"\
+					.format(spouseOfFamID, indiID, indi["Name"], spouseOfFamID))
 
-def verifyCorrespondingEntries_fam():
-	pass
+	return count
+
+def verifyCorrespondingEntries_fam(indiList, famList):
+	count = 0
+	for fam in famList:
+		famID			= fam["ID"]
+		husbID			= fam["Husband ID"]
+		wifeID			= fam["Wife ID"]
+		childrenIDArray	= fam["Children"]
+
+		husbFamilies = modified_lookup("Spouse", husbID, indiList)
+		if husbID != "" and (husbFamilies is None or famID not in husbFamilies):
+			count += 1
+			printColor("yellow bold", "WARN: IND: US26: {}: family record {} has {} {} as husband, but his inividual record does not have corresponding spouse entry"\
+				.format(husbID, famID, husbID, fam["Husband Name"]))
+
+		wifeFamilies = modified_lookup("Spouse", wifeID, indiList)
+		if wifeID != "" and (wifeFamilies is None or famID not in wifeFamilies):
+			count += 1
+			printColor("yellow bold", "WARN: IND: US26: {}: family record {} has {} {} as wife, but her inividual record does not have corresponding spouse entry"\
+				.format(wifeID, famID, wifeID, fam["Wife Name"]))
+
+		for childID in childrenIDArray:
+			if famID != modified_lookup("Child", childID, indiList):
+				count += 1
+				printColor("yellow bold", "WARN: IND: US26: {}: family record {} has {} as child, but their inividual record does not have corresponding child entry"\
+					.format(childID, famID, childID))
+
+	return count
+
+def verifyCorrespondingEntries(indiList, famList):
+	return {
+		"ind": verifyCorrespondingEntries_ind(indiList, famList),
+		"fam": verifyCorrespondingEntries_fam(indiList, famList)
+	}
 
 #US29: Deceased list | ND Sprint 1
 def get_deceased_records(indList):
@@ -1226,7 +1262,7 @@ def main():
 		check_unique_child(famList)
 
 		#US26
-		verifyCorrespondingEntries_ind(indiList, famList)
+		verifyCorrespondingEntries(indiList, famList)
 
 		# #US27
 		# get_individual_age(indiList)
