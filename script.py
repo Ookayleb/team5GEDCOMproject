@@ -311,7 +311,6 @@ def marriageAge(indiList, famList):
 		if wifeMarriageAge < 14:
 			print("WARN: IND: US10: Wife " + wifeID + " married before 14 years old, married at " + str(wifeMarriageAge) + "yrs old")
 
-
 def realBirthday(indiList, famList):
 	count = 0
 	for family in famList:
@@ -329,7 +328,6 @@ def realBirthday(indiList, famList):
 					count += 1
 	return count
 
-
 def multipleSiblings(indiList, famList):
 	for family in famList:
 		if 'Children' in famList[family.keys()]:
@@ -337,11 +335,9 @@ def multipleSiblings(indiList, famList):
 				return False
 	return True 
 
-
-
 def multipleBirths(indiList, famList):
 	if 'Children' in famList[individual].keys():
-		if len(famList[ID][Children]) >= 5:
+		if len(famList[individual]['Children']) >= 5:
 			for firstchild in famList[individual]['Children']:
 				counter = 1
 				date = indiList[firstchild]['Birthday']
@@ -363,6 +359,24 @@ def multipleBirths(indiList, famList):
 	print("All couples have five children or less.")
 	return True
 """
+
+def tooOld(indiList):
+    for individual in indiList:
+        individualAge = lookup("Age", individual)
+        if individualAge > 130:
+            print("No individuals allowed to be older 130 years old.")
+            return False
+    return True
+
+def multipleBirths(famList):
+    for family in famList:
+        childrenList = {}
+        childrenID = lookup("Children", family)
+        for children in family["Children"]:
+            print(childrenID)
+            return True
+    return False
+    print("This perseon does not have a child.")
 
 #Checks date argument to see if that date is not after today's date
 def validDate(arguments):
