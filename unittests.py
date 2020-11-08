@@ -1,6 +1,6 @@
 import unittest
 import sys
-from script import validDate, check_gender_roles, check_unique_child
+from script import validDate, check_gender_roles, check_unique_child, isDateLegitimate, check_dupe_spouses
 from script import birthBeforeMarriage, reset, generateInitialData
 
 class TestDates(unittest.TestCase):
@@ -70,6 +70,32 @@ class TestUniqueChild(unittest.TestCase):
         result = check_unique_child(famList)
         self.assertFalse(result)
 
+class TestLegitDate(unittest.TestCase):
+    def test_success(self):
+        print("Testing Legit Date Success")
+        result = isDateLegitimate("8 NOV 2020")
+        self.assertTrue(result)
+        
+    def test_failure(self):
+        print("Testing Legit Date Failure")
+        result = isDateLegitimate("31 NOV 2020")
+        self.assertFalse(result)
+class TestDupeSpouses(unittest.TestCase):
+    def test_success(self):
+        print("Testing Dupe Spouses Success")
+        reset()
+        gedcomStructuredData    = generateInitialData("family_project.ged") #store the tables and lists into gedcomStructuredData
+        famList		= gedcomStructuredData['famList']
+        result = check_dupe_spouses(famList)
+        self.assertTrue(result)
+
+    def test_failure(self):
+        print("Testing Dupe Spouses Failure")
+        reset()
+        gedcomStructuredData    = generateInitialData("gedFiles/dupeSpouses.ged") #store the tables and lists into gedcomStructuredData
+        famList		= gedcomStructuredData['famList']
+        result = check_dupe_spouses(famList)
+        self.assertFalse(result)
 
 
 if __name__ == "__main__":

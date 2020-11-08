@@ -806,6 +806,21 @@ def largestFamily(famList):
 	print("STATS: FAMILY: US51: The largest family is " + str(largest_id) + " with size " + str(largest_size) + " (living or deceased)")
 	return largest_id
 
+# US24 Unique families by spouses
+def check_dupe_spouses(famList):
+	print(famList)
+	spouse_list = []
+	for family in famList:
+		marriage_date = family["Married"]
+		husband = family["Husband Name"]
+		wife = family["Wife Name"]
+		entry = marriage_date + "_" + husband + "_" + wife
+		spouse_list.append(entry)
+	if len(set(spouse_list)) != len(spouse_list):
+		print("ERROR: US 24: No more than one family with the same spouses by name and the same marriage date should appear in a GEDCOM file")
+		return False
+	return True
+
 #US27- Include individual ages
 def get_individual_age(indList):
 	records = []
@@ -901,6 +916,30 @@ def listUpcomingBirthdays(indiList):
 	else:
 		print("The next birthdays are: " + str(upcomingBirthdays))
 		return True
+		
+#US 42 Reject Illegitimate Dates
+def isDateLegitimate(date):
+	month_dates = {
+		"JAN": 31,
+		"FEB": 28,
+		"MAR": 31,
+		"APR": 30,
+		"MAY": 31,
+		"JUN": 30,
+		"JUL": 31,
+		"AUG": 31,
+		"SEP": 30,
+		"OCT": 31,
+		"NOV": 30,
+		"DEC": 31,
+	}
+	date_split = date.split(" ")
+	day = int(date_split[0])
+	month = date_split[1]
+	if month_dates[month] < day:
+		return False
+	return True
+
 
 #US 43 ND Born Before Parents
 def FindChildrenBornBeforeParent(famList):
@@ -980,8 +1019,11 @@ def generateInitialData(fileName):
 				valid = 'N'
 			if(tag == 'DATE'):
 				if not validDate(arguments):
-					print("ERRO: GEN: US01: No dates should be after the current date. Recieved: "+ arguments)
-					# raise Exception("No dates should be after the current date")
+					print("ERRO: GEN: US01: No dates should be after the current date. Received: "+ arguments)
+				if not isDateLegitimate(arguments):
+					print("ERRO: GEN: US42: Date does not match month. Received: "+ arguments)
+
+				
 
 
 			if level == '0':
@@ -1226,7 +1268,7 @@ def main():
 		#US43
 		FindChildrenBornBeforeParent(famList)
 
-
+		check_dupe_spouses(famList)
 		
 
 
