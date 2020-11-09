@@ -852,6 +852,51 @@ def get_living_married(ind_list, famList):
 	print(df)
 	return living_marriage
 
+#JW- US31 List living Single
+def get_living_single(ind_list, famList):
+	all_bad_ids = []
+	deceased = get_deceased_records(ind_list)[1]
+	for j in range(len(deceased)):
+		all_bad_ids.append(deceased[j][0])
+	for family in famList:
+		all_bad_ids.append(family['Husband ID'])
+		all_bad_ids.append(family['Wife ID'])
+	all_good_ids = []
+	add_person = True
+	for person in ind_list:
+		add_person = True
+		for id in all_bad_ids:
+			if (id == person['ID']):
+				add_person = False
+		if (add_person == True):
+			all_good_ids.append(person['Name'])
+	print('US31 - List living single')
+	df = pd.DataFrame(all_good_ids, columns = ['Living Single'])
+	print(df)
+	return all_good_ids
+    
+#JW- US34 Large Age Differences
+def get_large_age_diff(ind_list, famList):
+	large_age_list = []
+	for family in famList:
+		dhus = dateToCompare(modified_lookup("Birthday", family["Husband ID"],ind_list))
+		dwife = dateToCompare(modified_lookup("Birthday", family["Wife ID"], ind_list))
+		dmarr = dateToCompare(family['Married'])
+		husAge = dmarr.year - dhus.year - ((dmarr.month, dmarr.day) < (dhus.month, dhus.day))
+		wifeAge = dmarr.year - dwife.year - ((dmarr.month, dmarr.day) < (dwife.month, dwife.day))
+		agehigh = husAge
+		agelo = wifeAge
+		if (wifeAge > husAge):
+			agehigh = wifeAge
+			agelo = husAge
+		if (agehigh > (agelo*2)):
+			large_age_list.append([family['Husband Name'], family['Wife Name']])
+	print('US34 - List large age differences')
+	df = pd.DataFrame(large_age_list, columns = ['Husband Name', 'Wife Name'])
+	print(df)
+	return large_age_list
+        
+
 #US 35 SJ List recent births, the last 30 days 
 def listRecentBirths(indiList):
 	recentBirthdays = list()
@@ -1246,6 +1291,12 @@ def main():
 
 		#US30
 		get_living_married(indiList, famList)
+
+		#US31
+		get_living_single(indiList, famList)
+
+		#US34
+		get_large_age_diff(indiList, famList)
 
 		#US45
 		siblingAgeDiff(famList, indiList)
