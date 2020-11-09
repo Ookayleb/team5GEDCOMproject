@@ -1,7 +1,7 @@
 import unittest
 import sys
 import pandas
-from script import maleLastNames, generateInitialData, reset, SiblingSpacing, uniqueID, uniqueNameAndBirthday
+from script import maleLastNames, generateInitialData, reset, SiblingSpacing, uniqueID, uniqueNameAndBirthday, listRecentBirths, listUpcomingBirthdays
 
 
 class TestMaleLastNames(unittest.TestCase):
@@ -160,6 +160,49 @@ class TestUniqueNameAndBday(unittest.TestCase):
         result = uniqueNameAndBirthday(indiList)
         self.assertFalse(result)
         self.assertIs(result, False)    
+
+class TestlistRecentBirths(unittest.TestCase):
+    def test_Pass_listRecentBirths(self):
+        reset()
+        #birthdayOct27.ged
+        gedcomeStructuredData0 = generateInitialData("gedFiles/birthdayOct27.ged")
+        indiList = 	gedcomeStructuredData0['indiList']
+
+        result = listRecentBirths(indiList)
+        self.assertTrue(result)
+        self.assertIs(result, True)
+
+    def test_Fail_listRecentBirths(self):
+        reset()
+        #RepeatedNameAndBirthday.ged
+        gedcomeStructuredData0 = generateInitialData("gedFiles/RepeatedNameAndBirthday.ged")
+        indiList = 	gedcomeStructuredData0['indiList']
+
+        result = listRecentBirths(indiList)
+        self.assertFalse(result)
+        self.assertIs(result, False) 
+
+class TestlistUpcomingBirthdays(unittest.TestCase):
+    def test_Pass_listUpcomingBirthdays(self):
+        reset()
+        #birthdayOct31.ged
+        gedcomeStructuredData0 = generateInitialData("gedFiles/birthdayOct31.ged")
+        indiList = 	gedcomeStructuredData0['indiList']
+
+        result = listUpcomingBirthdays(indiList)
+        self.assertTrue(result)
+        self.assertIs(result, True)
+
+    def test_Fail_listUpcomingBirthdays(self):
+        reset()
+        #RepeatedNameAndBirthday.ged
+        gedcomeStructuredData0 = generateInitialData("gedFiles/RepeatedNameAndBirthday.ged")
+        indiList = 	gedcomeStructuredData0['indiList']
+
+        result = listUpcomingBirthdays(indiList)
+        self.assertFalse(result)
+        self.assertIs(result, False) 
+
 
 if __name__ == "__main__":
     # test_classes_to_run = [TestClassA, TestClassC]
