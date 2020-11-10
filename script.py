@@ -207,6 +207,42 @@ def get_parents_not_too_old(famList):
 
 	#************************************************************************end
 
+#US20: Aunts and uncles | CC Sprint 3
+# Aunts and uncles should not marry their nieces or nephews
+def veifyNoAuntUncleMarrNieceNephew(indiList, famList):
+	count = 0
+	for family in famList:
+		husbID		= family["Husband ID"]
+		wifeID		= family["Wife ID"]
+		husbGParents	= getGrandparents(husbID, indiList, famList)
+		wifeGParents	= getGrandparents(wifeID, indiList, famList)
+		husbParents	= getParents(husbID, indiList, famList)
+		wifeParents	= getParents(wifeID, indiList, famList)
+
+		auntMarriages	= set(husbGParents) & set(wifeParents)
+		uncleMarriages	= set(wifeGParents) & set(husbParents)
+
+		uncleMarriages.discard(None)
+		auntMarriages.discard(None)
+
+		if len(uncleMarriages) > 0: #if we have elements remaining in the intersection, this means an unlce married his niece
+			count += 1
+			printColor("yellow bold", "WARN: FAM: US20: {}: Uncle {} {} married his niece {} {}"\
+				.format(family["ID"], husbID, family["Husband Name"], wifeID, family["Wife Name"]))
+
+		if len(auntMarriages) > 0: #if we have elements remaining in the intersection, this means an aunt married her nephew
+			count += 1
+			printColor("yellow bold", "WARN: FAM: US20: {}: Aunt {} {} married hew nephew {} {}"\
+				.format(family["ID"], wifeID, family["Wife Name"], husbID, family["Husband Name"]))
+
+	if count == 0:
+		printColor("green", "INFO: GEN: US20: No Aunts marrying their Nephews or Uncles marrying their Nieces")
+
+	return count
+
+
+
+
 #US21 | JT Sprint 2
 # Checks the family list to ensure that all wives are female and all husbands are male
 def check_gender_roles(famList):
@@ -237,6 +273,65 @@ def check_unique_child(famList):
 				childrenList[name] = birthday
 	print("INFO: GEN: US25: All Unique first names in families")
 	return True
+
+#US26: Corresponding entries | CC Sprint 3
+#All family roles (spouse, child) specified in an individual record should have corresponding entries in the corresponding family records.
+#Likewise, all individual roles (spouse, child) specified in family records should have corresponding entries in the corresponding  individual's records.
+#I.e. the information in the individual and family records should be consistent.
+def verifyCorrespondingEntries_ind(indiList, famList):
+	count = 0
+	for indi in indiList:
+		indiID			= indi["ID"]
+		childOfFamID		= indi.get("Child", None)
+		spouseOfFamIDArray	= indi.get("Spouse", None)
+
+		#now check that indiID appears in the child array of the family ID
+		if (childOfFamID is not None) and (indiID not in modified_lookup("Children", childOfFamID, famList)):
+			count += 1
+			printColor("yellow bold", "WARN: FAM: US26: {}: {} {}'s individual record says they are a child in {}, but no corresponding family entry found"\
+				.format(childOfFamID, indiID, indi["Name"], childOfFamID))
+
+		for spouseOfFamID in spouseOfFamIDArray:
+			if (spouseOfFamID is not None) and (indiID not in (modified_lookup("Husband ID", spouseOfFamID, famList), modified_lookup("Wife ID", spouseOfFamID, famList))):
+				count += 1
+				printColor("yellow bold", "WARN: FAM: US26: {}: {} {}'s individual record says they are a spouse in {}, but no corresponding family entry found"\
+					.format(spouseOfFamID, indiID, indi["Name"], spouseOfFamID))
+
+	return count
+
+def verifyCorrespondingEntries_fam(indiList, famList):
+	count = 0
+	for fam in famList:
+		famID			= fam["ID"]
+		husbID			= fam["Husband ID"]
+		wifeID			= fam["Wife ID"]
+		childrenIDArray	= fam["Children"]
+
+		husbFamilies = modified_lookup("Spouse", husbID, indiList)
+		if husbID != "" and (husbFamilies is None or famID not in husbFamilies):
+			count += 1
+			printColor("yellow bold", "WARN: IND: US26: {}: family record {} has {} {} as husband, but his inividual record does not have corresponding spouse entry"\
+				.format(husbID, famID, husbID, fam["Husband Name"]))
+
+		wifeFamilies = modified_lookup("Spouse", wifeID, indiList)
+		if wifeID != "" and (wifeFamilies is None or famID not in wifeFamilies):
+			count += 1
+			printColor("yellow bold", "WARN: IND: US26: {}: family record {} has {} {} as wife, but her inividual record does not have corresponding spouse entry"\
+				.format(wifeID, famID, wifeID, fam["Wife Name"]))
+
+		for childID in childrenIDArray:
+			if famID != modified_lookup("Child", childID, indiList):
+				count += 1
+				printColor("yellow bold", "WARN: IND: US26: {}: family record {} has {} as child, but their inividual record does not have corresponding child entry"\
+					.format(childID, famID, childID))
+
+	return count
+
+def verifyCorrespondingEntries(indiList, famList):
+	return {
+		"ind": verifyCorrespondingEntries_ind(indiList, famList),
+		"fam": verifyCorrespondingEntries_fam(indiList, famList)
+	}
 
 #US29: Deceased list | ND Sprint 1
 def get_deceased_records(indList):
@@ -338,7 +433,7 @@ def multipleSiblings(indfiList, famList):
 		if 'Children' in famList[family.keys()]:
 			if len(famList[family]['Children']) > 15:
 				return False
-	return True 
+	return True
 
 
 
@@ -473,7 +568,11 @@ def maleLastNames(indiDF, famList):
 	for fam in famList:
 		# print(fam)
 		husbandName = fam['Husband Name'] #for each family stor the husb name
-		lastName = re.findall("\/(.*)\/", str(husbandName))[0]
+		lastName = re.findall("\/(.*)\/", str(husbandName))
+		if len(lastName) > 0:
+			lastName = lastName[0]
+		else:
+			lastName = ""
 		childrenID = fam['Children'] #get the childrenid
 		# print('children ids', str(childrenID))
 		# print('husband Last name' , str(lastName))
@@ -548,29 +647,44 @@ def SiblingSpacing(indiDF, famList):
 
 #US19: First cousins should not marry | CC Sprint 2
 #First cousins should not marry one another
-def getGrandparents(indiID, indiList, famList):
-	familyID = modified_lookup("Child", indiID, indiList)
+def getParents(indiID, indiList, famList):
+	familyID	= modified_lookup("Child", indiID, indiList)
 
 	fatherID = modified_lookup("Husband ID", familyID, famList)
 	motherID = modified_lookup("Wife ID", familyID, famList)
 
-	fatherFamilyID = modified_lookup("Child", fatherID, indiList)
-	motherFamilyID = modified_lookup("Child", motherID, indiList)
+	return [fatherID, motherID]
 
-	fatherFatherID = modified_lookup("Husband ID", fatherFamilyID, famList)
-	fatherMotherID = modified_lookup("Wife ID", fatherFamilyID, famList)
-	motherFatherID = modified_lookup("Husband ID", motherFamilyID, famList)
-	motherMotherID = modified_lookup("Wife ID", motherFamilyID, famList)
+def getGrandparents(indiID, indiList, famList):
+	familyID = modified_lookup("Child", indiID, indiList)
 
-	return [fatherFatherID, fatherMotherID, motherFatherID, motherMotherID]
+	parentsID_arr = getParents(indiID, indiList, famList)
+	grandParentsID_arr = []
+
+	for parentID in parentsID_arr:
+		grandParentsID_arr.extend(getParents(parentID, indiList, famList))
+
+	return grandParentsID_arr
+	# fatherID = modified_lookup("Husband ID", familyID, famList)
+	# motherID = modified_lookup("Wife ID", familyID, famList)
+
+	# fatherFamilyID = modified_lookup("Child", fatherID, indiList)
+	# motherFamilyID = modified_lookup("Child", motherID, indiList)
+
+	# fatherFatherID = modified_lookup("Husband ID", fatherFamilyID, famList)
+	# fatherMotherID = modified_lookup("Wife ID", fatherFamilyID, famList)
+	# motherFatherID = modified_lookup("Husband ID", motherFamilyID, famList)
+	# motherMotherID = modified_lookup("Wife ID", motherFamilyID, famList)
+
+	# return [fatherFatherID, fatherMotherID, motherFatherID, motherMotherID]
 
 def verifyNoFirstCousinMarr(indiList, famList):
 	warningList = []
 	for family in famList:
-		husbID = family["Husband ID"]
-		wifeID = family["Wife ID"]
-		husbGParents = getGrandparents(husbID, indiList, famList)
-		wifeGParents = getGrandparents(wifeID, indiList, famList)
+		husbID		= family["Husband ID"]
+		wifeID		= family["Wife ID"]
+		husbGParents	= getGrandparents(husbID, indiList, famList)
+		wifeGParents	= getGrandparents(wifeID, indiList, famList)
 
 		for i in husbGParents:
 			if i is not None and i in wifeGParents:
@@ -618,7 +732,7 @@ def validAge(indiList):
 	for person in indiList:
 		age=person["Age"]
 		if age >= 150:
-			print("ERROR: INDIVIDUAL: US07: " + str(person["ID"]) + ": More than 150 years old - Birth Date: " + str(person["Birthday"])) 
+			print("ERROR: INDIVIDUAL: US07: " + str(person["ID"]) + ": More than 150 years old - Birth Date: " + str(person["Birthday"]))
 			return False
 	return True
 
@@ -674,6 +788,8 @@ def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
 			['ID', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Married', 'Divorced']	#This line specifies what columns our output contains. Is independent from the above line
 		]
 
+		marrInfoDF.dropna(subset=['Husband Name', 'Wife Name'], inplace = True)
+		print(marrInfoDF)
 		#Merge data from indiDF into our newly created marrInfoDF table. We are intrested in getting Death dates from indiDF
 		marrInfoDF = marrInfoDF.merge(indiDF[["ID", "Death"]], how="left", left_on=spousePositionID, right_on="ID")
 		marrInfoDF.drop('ID_y', axis=1, inplace=True)							#drop the ID column as we dont need it
@@ -771,7 +887,7 @@ def siblingAgeDiff(famList, individualListName):
 					highid=childId
 			ageDiff = dhigh.year - dlow.year - ((dhigh.month, dhigh.day) < (dlow.month, dlow.day))
 			if ageDiff >= 35:
-				print("ERROR: FAMILY: US45:", family["ID"] + ": Age difference between older sibling (" + str(lowid) + ") and younger sibling ("+  str(highid)+ ") is", ageDiff, "which is not less than 35 years")   
+				print("ERROR: FAMILY: US45:", family["ID"] + ": Age difference between older sibling (" + str(lowid) + ") and younger sibling ("+  str(highid)+ ") is", ageDiff, "which is not less than 35 years")
 				return False
 	return True
 
@@ -789,7 +905,7 @@ def childParentAgeDiff(famList, individualListName):
 			birthday = dateToCompare(modified_lookup("Birthday", childId, individualListName))
 			ageDiff = birthday.year - dlow.year - ((birthday.month, birthday.day) < (dlow.month, dlow.day))
 			if ageDiff <= 15:
-				print("ERROR: FAMILY: US46:", family["ID"] + ": Age difference between child (" + str(childId) + ") and parent ("+  str(parid)+ ") is", ageDiff, "which is not more than 15 years")   
+				print("ERROR: FAMILY: US46:", family["ID"] + ": Age difference between child (" + str(childId) + ") and parent ("+  str(parid)+ ") is", ageDiff, "which is not more than 15 years")
 				return False
 	return True
 
@@ -851,6 +967,7 @@ def get_living_married(ind_list, famList):
 	df = pd.DataFrame(living_marriage, columns = ['Husband Name','Wife Name'])
 	print(df)
 	return living_marriage
+
 
 #JW- US31 List living Single
 def get_living_single(ind_list, famList):
@@ -943,7 +1060,7 @@ def findRecentDeath(indiList):
 		return True
 
 
-#US 38 SJ List upcoming, the next 30 days 
+#US 38 SJ List upcoming, the next 30 days
 def listUpcomingBirthdays(indiList):
 	upcomingBirthdays = list()
 	today = date.today()
@@ -995,13 +1112,13 @@ def FindChildrenBornBeforeParent(famList):
 	#loop to retrieve father, mother and children data from family record
 	for i in range(len(famList)):
 		#append specific data from famList to the family list
-		family.append({'Husband_ID':famList[i]['Husband ID'], 
+		family.append({'Husband_ID':famList[i]['Husband ID'],
 			'Wife_ID':famList[i]['Wife ID'],
-			'Husband Name':famList[i]['Husband Name'], 
+			'Husband Name':famList[i]['Husband Name'],
 			'Wife Name':famList[i]['Wife Name'],
 			'Husband Birthday': lookup('Birthday', famList[i]['Husband ID']),
 			'Wife Birthday': lookup('Birthday', famList[i]['Wife ID']),
-			'Husband Age': lookup('Age', famList[i]['Husband ID']), 
+			'Husband Age': lookup('Age', famList[i]['Husband ID']),
 			'Wife Age': lookup('Age', famList[i]['Wife ID']),
 			'Children': replace_id_with_children_data(famList[i]['Children'])})
 
@@ -1012,16 +1129,16 @@ def FindChildrenBornBeforeParent(famList):
 			if check_dateOrder(family[j]['Children'][k]['Birthday'],family[j]['Husband Birthday'] ):
 				children_and_parent_data.append([family[j]['Husband Name'],family[j]['Husband Age'],
 					family[j]['Children'][k]['Name'],family[j]['Children'][k]['Age'] ])
-				print("WARN: IND: US43: " + family[j]['Children'][k]['Name'] + " was born on (" + family[j]['Children'][k]['Birthday'] 
+				print("WARN: IND: US43: " + family[j]['Children'][k]['Name'] + " was born on (" + family[j]['Children'][k]['Birthday']
 					+  ") the same date or before his/her father " + family[j]['Husband Name'] + " who were born on (" + family[j]['Husband Birthday'] + ").")
-			
+
 			#check to see if children are not born before or on the same date as their mother
 			if check_dateOrder(family[j]['Children'][k]['Birthday'],family[j]['Wife Birthday'] ):
 				children_and_parent_data.append([family[j]['Wife Name'],family[j]['Wife Age'],
 					family[j]['Children'][k]['Name'],family[j]['Children'][k]['Age'] ])
-				print("WARN: IND: US43: " + family[j]['Children'][k]['Name'] + " was born on (" + family[j]['Children'][k]['Birthday'] 
+				print("WARN: IND: US43: " + family[j]['Children'][k]['Name'] + " was born on (" + family[j]['Children'][k]['Birthday']
 					+  ") the same date or before his/her mother " + family[j]['Wife Name'] + " who were born on (" + family[j]['Wife Birthday'] + ").")
-	
+
 	if len(children_and_parent_data)<=0:
 		print('There are no children born before or on the same date as parent')
 		print('\n\n')
@@ -1080,12 +1197,15 @@ def generateInitialData(fileName):
 					newIndiv 			= {}
 					newIndiv['ID'] 	= arguments
 					newIndiv['Alive'] 	= True
+					newIndiv['Spouse']	= []
 					indiList.append(newIndiv)
 					skipNextLines 		= False
 				elif tag == "FAM":
 					newFam 			= {}
 					newFam['ID'] 		= arguments
 					newFam['Children']	= []
+					newFam['Husband ID']	= ""
+					newFam['Wife ID']		= ""
 					famList.append(newFam)
 					skipNextLines		= False
 				elif tag == "SUBM":
@@ -1112,7 +1232,7 @@ def generateInitialData(fileName):
 				elif tag == "DIV":
 					nextLineDiv			= True
 				elif tag == "FAMS":
-					newestIndiv['Spouse'] 	= arguments
+					newestIndiv['Spouse'].append(arguments)
 				elif tag == "FAMC":
 					newestIndiv['Child'] 	= arguments
 				elif tag == "HUSB":
@@ -1264,6 +1384,9 @@ def main():
 		#US19
 		verifyNoFirstCousinMarr(indiList, famList)
 
+		#US20
+		veifyNoAuntUncleMarrNieceNephew(indiList, famList)
+
 		#US21
 		check_gender_roles(famList)
 
@@ -1281,6 +1404,9 @@ def main():
 
 		#US25
 		check_unique_child(famList)
+
+		#US26
+		verifyCorrespondingEntries(indiList, famList)
 
 		#US27
 		get_individual_age(indiList)
@@ -1319,8 +1445,9 @@ def main():
 		#US43
 		FindChildrenBornBeforeParent(famList)
 
+
 		check_dupe_spouses(famList)
-		
+
 
 
 if __name__ == "__main__": 	# execute only if run as a script
