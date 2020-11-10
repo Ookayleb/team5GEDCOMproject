@@ -207,6 +207,42 @@ def get_parents_not_too_old(famList):
 
 	#************************************************************************end
 
+#US20: Aunts and uncles | CC Sprint 3
+# Aunts and uncles should not marry their nieces or nephews
+def veifyNoAuntUncleMarrNieceNephew(indiList, famList):
+	count = 0
+	for family in famList:
+		husbID		= family["Husband ID"]
+		wifeID		= family["Wife ID"]
+		husbGParents	= getGrandparents(husbID, indiList, famList)
+		wifeGParents	= getGrandparents(wifeID, indiList, famList)
+		husbParents	= getParents(husbID, indiList, famList)
+		wifeParents	= getParents(wifeID, indiList, famList)
+
+		auntMarriages	= set(husbGParents) & set(wifeParents)
+		uncleMarriages	= set(wifeGParents) & set(husbParents)
+
+		uncleMarriages.discard(None)
+		auntMarriages.discard(None)
+
+		if len(uncleMarriages) > 0: #if we have elements remaining in the intersection, this means an unlce married his niece
+			count += 1
+			printColor("yellow bold", "WARN: FAM: US20: {}: Uncle {} {} married his niece {} {}"\
+				.format(family["ID"], husbID, family["Husband Name"], wifeID, family["Wife Name"]))
+
+		if len(auntMarriages) > 0: #if we have elements remaining in the intersection, this means an aunt married her nephew
+			count += 1
+			printColor("yellow bold", "WARN: FAM: US20: {}: Aunt {} {} married hew nephew {} {}"\
+				.format(family["ID"], wifeID, family["Wife Name"], husbID, family["Husband Name"]))
+
+	if count == 0:
+		printColor("green", "INFO: GEN: US20: No Aunts marrying their Nephews or Uncles marrying their Nieces")
+
+	return count
+
+
+
+
 #US21 | JT Sprint 2
 # Checks the family list to ensure that all wives are female and all husbands are male
 def check_gender_roles(famList):
@@ -256,8 +292,8 @@ def verifyCorrespondingEntries_ind(indiList, famList):
 				.format(childOfFamID, indiID, indi["Name"], childOfFamID))
 
 		for spouseOfFamID in spouseOfFamIDArray:
-			count += 1
 			if (spouseOfFamID is not None) and (indiID not in (modified_lookup("Husband ID", spouseOfFamID, famList), modified_lookup("Wife ID", spouseOfFamID, famList))):
+				count += 1
 				printColor("yellow bold", "WARN: FAM: US26: {}: {} {}'s individual record says they are a spouse in {}, but no corresponding family entry found"\
 					.format(spouseOfFamID, indiID, indi["Name"], spouseOfFamID))
 
@@ -611,29 +647,44 @@ def SiblingSpacing(indiDF, famList):
 
 #US19: First cousins should not marry | CC Sprint 2
 #First cousins should not marry one another
-def getGrandparents(indiID, indiList, famList):
-	familyID = modified_lookup("Child", indiID, indiList)
+def getParents(indiID, indiList, famList):
+	familyID	= modified_lookup("Child", indiID, indiList)
 
 	fatherID = modified_lookup("Husband ID", familyID, famList)
 	motherID = modified_lookup("Wife ID", familyID, famList)
 
-	fatherFamilyID = modified_lookup("Child", fatherID, indiList)
-	motherFamilyID = modified_lookup("Child", motherID, indiList)
+	return [fatherID, motherID]
 
-	fatherFatherID = modified_lookup("Husband ID", fatherFamilyID, famList)
-	fatherMotherID = modified_lookup("Wife ID", fatherFamilyID, famList)
-	motherFatherID = modified_lookup("Husband ID", motherFamilyID, famList)
-	motherMotherID = modified_lookup("Wife ID", motherFamilyID, famList)
+def getGrandparents(indiID, indiList, famList):
+	familyID = modified_lookup("Child", indiID, indiList)
 
-	return [fatherFatherID, fatherMotherID, motherFatherID, motherMotherID]
+	parentsID_arr = getParents(indiID, indiList, famList)
+	grandParentsID_arr = []
+
+	for parentID in parentsID_arr:
+		grandParentsID_arr.extend(getParents(parentID, indiList, famList))
+
+	return grandParentsID_arr
+	# fatherID = modified_lookup("Husband ID", familyID, famList)
+	# motherID = modified_lookup("Wife ID", familyID, famList)
+
+	# fatherFamilyID = modified_lookup("Child", fatherID, indiList)
+	# motherFamilyID = modified_lookup("Child", motherID, indiList)
+
+	# fatherFatherID = modified_lookup("Husband ID", fatherFamilyID, famList)
+	# fatherMotherID = modified_lookup("Wife ID", fatherFamilyID, famList)
+	# motherFatherID = modified_lookup("Husband ID", motherFamilyID, famList)
+	# motherMotherID = modified_lookup("Wife ID", motherFamilyID, famList)
+
+	# return [fatherFatherID, fatherMotherID, motherFatherID, motherMotherID]
 
 def verifyNoFirstCousinMarr(indiList, famList):
 	warningList = []
 	for family in famList:
-		husbID = family["Husband ID"]
-		wifeID = family["Wife ID"]
-		husbGParents = getGrandparents(husbID, indiList, famList)
-		wifeGParents = getGrandparents(wifeID, indiList, famList)
+		husbID		= family["Husband ID"]
+		wifeID		= family["Wife ID"]
+		husbGParents	= getGrandparents(husbID, indiList, famList)
+		wifeGParents	= getGrandparents(wifeID, indiList, famList)
 
 		for i in husbGParents:
 			if i is not None and i in wifeGParents:
@@ -737,6 +788,8 @@ def getAnomaliesBigamy(remarriedSet, famDF, indiDF, maritalPosition):
 			['ID', 'Husband ID', 'Husband Name', 'Wife ID', 'Wife Name', 'Married', 'Divorced']	#This line specifies what columns our output contains. Is independent from the above line
 		]
 
+		marrInfoDF.dropna(subset=['Husband Name', 'Wife Name'], inplace = True)
+		print(marrInfoDF)
 		#Merge data from indiDF into our newly created marrInfoDF table. We are intrested in getting Death dates from indiDF
 		marrInfoDF = marrInfoDF.merge(indiDF[["ID", "Death"]], how="left", left_on=spousePositionID, right_on="ID")
 		marrInfoDF.drop('ID_y', axis=1, inplace=True)							#drop the ID column as we dont need it
@@ -1243,6 +1296,9 @@ def main():
 		#US19
 		verifyNoFirstCousinMarr(indiList, famList)
 
+		#US20
+		veifyNoAuntUncleMarrNieceNephew(indiList, famList)
+
 		#US21
 		check_gender_roles(famList)
 
@@ -1264,36 +1320,36 @@ def main():
 		#US26
 		verifyCorrespondingEntries(indiList, famList)
 
-		# #US27
-		# get_individual_age(indiList)
+		#US27
+		get_individual_age(indiList)
 
-		# #US29
-		# print("INFO: IND: US29: Deceased Records:")
-		# get_deceased_records(indiList)
+		#US29
+		print("INFO: IND: US29: Deceased Records:")
+		get_deceased_records(indiList)
 
-		# #US30
-		# get_living_married(indiList, famList)
+		#US30
+		get_living_married(indiList, famList)
 
-		# #US45
-		# siblingAgeDiff(famList, indiList)
+		#US45
+		siblingAgeDiff(famList, indiList)
 
-		# #US46
-		# childParentAgeDiff(famList, indiList)
+		#US46
+		childParentAgeDiff(famList, indiList)
 
-		# #US51
-		# largestFamily(famList)
+		#US51
+		largestFamily(famList)
 
-		# #US35
-		# listRecentBirths(indiList)
+		#US35
+		listRecentBirths(indiList)
 
-		# #US36
-		# findRecentDeath(indiList)
+		#US36
+		findRecentDeath(indiList)
 
-		# #US38
-		# listUpcomingBirthdays(indiList)
+		#US38
+		listUpcomingBirthdays(indiList)
 
-		# #US43
-		# FindChildrenBornBeforeParent(famList)
+		#US43
+		FindChildrenBornBeforeParent(famList)
 
 
 

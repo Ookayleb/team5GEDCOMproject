@@ -1,6 +1,6 @@
 import unittest
 import sys
-from script import validDate, check_dateOrder, reset, generateInitialData, verifyBirthDeathDateOrder, verifyMarriageDivorceOrder, verifyBigamy, verifyNoFirstCousinMarr
+from script import validDate, check_dateOrder, reset, generateInitialData, verifyBirthDeathDateOrder, verifyMarriageDivorceOrder, verifyBigamy, verifyNoFirstCousinMarr, veifyNoAuntUncleMarrNieceNephew, verifyCorrespondingEntries
 
 
 class TestDateOrder(unittest.TestCase):
@@ -99,6 +99,43 @@ class TestVerifyNoFirstCousinMarr(unittest.TestCase):
 		famList				= gedcomStructuredData['famList']
 		result 				= verifyNoFirstCousinMarr(indiList, famList)
 		self.assertEqual(result, 0)
+
+
+class TestVeifyNoAuntUncleMarrNieceNephew(unittest.TestCase):
+	def testUncAuntMarrNieceNephew_2(self):
+		reset()
+		gedcomStructuredData	= generateInitialData("gedFiles/allTest.ged") #store the tables and lists into gedcomStructuredData
+		indiList				= gedcomStructuredData['indiList']
+		famList				= gedcomStructuredData['famList']
+		result 				= veifyNoAuntUncleMarrNieceNephew(indiList, famList)
+		self.assertEqual(result, 2)
+
+
+	def testUncAuntMarrNieceNephew_0(self):
+		reset()
+		gedcomStructuredData	= generateInitialData("gedFiles/Choy_familyTree.ged") #store the tables and lists into gedcomStructuredData
+		indiList				= gedcomStructuredData['indiList']
+		famList				= gedcomStructuredData['famList']
+		result 				= veifyNoAuntUncleMarrNieceNephew(indiList, famList)
+		self.assertEqual(result, 0)
+
+
+class TestVerifyCorrespondingEntries(unittest.TestCase):
+	def testVerifyCorrespondingEntries_10(self):
+		reset()
+		gedcomStructuredData	= generateInitialData("gedFiles/allTest.ged") #store the tables and lists into gedcomStructuredData
+		indiList				= gedcomStructuredData['indiList']
+		famList				= gedcomStructuredData['famList']
+		result 				= verifyCorrespondingEntries(indiList, famList)
+		self.assertEqual(result, {"fam": 3, "ind":7})
+
+	def testVerifyCorrespondingEntries_0(self):
+		reset()
+		gedcomStructuredData	= generateInitialData("gedFiles/Choy_familyTree.ged") #store the tables and lists into gedcomStructuredData
+		indiList				= gedcomStructuredData['indiList']
+		famList				= gedcomStructuredData['famList']
+		result 				= verifyCorrespondingEntries(indiList, famList)
+		self.assertEqual(result, {"fam": 0, "ind":0})
 
 
 if __name__ == "__main__":
