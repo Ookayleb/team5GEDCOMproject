@@ -51,7 +51,7 @@ orderByAge(child)
 
 def listOrphans(c):
     res = []
-    [res.append(x) for x in c if x not in res] 
+    [res.append(x) for x in c if x not in res]
     tempCheck = []
     for x in res:
         tempCheck.append(indi.loc[indi['Spouse'] == x]['Alive'].tolist())
@@ -65,7 +65,7 @@ def listOrphans(c):
     for i in range(counter):
         if i not in checker:
             print(indi.loc[indi['Child'] == res[i]]['Name'].tolist(), '\n')
-            
+
 
 listOrphans(child)
 
