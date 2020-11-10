@@ -4,6 +4,8 @@ import sys
 from datetime import datetime
 import numpy as np
 import ast
+from operator import itemgetter
+import time
 
 indi = pd.read_csv('indi.csv')
 fam = pd.read_csv('fam.csv')
@@ -31,6 +33,44 @@ spouse = indi['Spouse'].tolist()
 
 to_format(fam['Husband Name'].tolist(), True)
 to_format(fam['Wife Name'].tolist(), False)
+
+def orderByAge(c):
+    bdays = indi['Birthday'].tolist()
+    names = indi['Name'].tolist()
+    bday_timestamp = []
+    for x in bdays:
+        bday_timestamp.append(time.mktime(time.strptime(x, "%d %b %Y")))
+    res = {names[i]: bday_timestamp[i] for i in range(len(names))}
+    sort_orders = sorted(res.items(), key=lambda x: x[1], reverse=True)
+    for i in sort_orders:
+        if indi.loc[indi['Name'] == i[0]]['Child'].any():
+	        print(i[0], indi.loc[indi['Name'] == i[0]]['Child'])
+
+print("\nThe children with tags printed in order (US28): ")
+orderByAge(child)
+
+def listOrphans(c):
+    res = []
+    [res.append(x) for x in c if x not in res] 
+    tempCheck = []
+    for x in res:
+        tempCheck.append(indi.loc[indi['Spouse'] == x]['Alive'].tolist())
+    print("\nOrphans (US33): ")
+    checker = []
+    counter = 0
+    for x in tempCheck:
+        if not x or True in x:
+            checker.append(counter)
+        counter = counter + 1
+    for i in range(counter):
+        if i not in checker:
+            print(indi.loc[indi['Child'] == res[i]]['Name'].tolist(), '\n')
+            
+
+listOrphans(child)
+
+#print(indi.loc[indi['Child'] == 515745826.0]['Birthday'].tolist())
+#print(indi.loc[indi['Child'] == 515745826.0]['Name'].tolist())
 
 def checkMarrNotDescOrSib(c, s):
     if not (isinstance(c, int) or isinstance(c, float) or isinstance(s, int) or isinstance(c, float)):

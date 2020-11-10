@@ -922,6 +922,21 @@ def largestFamily(famList):
 	print("STATS: FAMILY: US51: The largest family is " + str(largest_id) + " with size " + str(largest_size) + " (living or deceased)")
 	return largest_id
 
+# US24 Unique families by spouses
+def check_dupe_spouses(famList):
+	print(famList)
+	spouse_list = []
+	for family in famList:
+		marriage_date = family["Married"]
+		husband = family["Husband Name"]
+		wife = family["Wife Name"]
+		entry = marriage_date + "_" + husband + "_" + wife
+		spouse_list.append(entry)
+	if len(set(spouse_list)) != len(spouse_list):
+		print("ERROR: US 24: No more than one family with the same spouses by name and the same marriage date should appear in a GEDCOM file")
+		return False
+	return True
+
 #US27- Include individual ages
 def get_individual_age(indList):
 	records = []
@@ -953,7 +968,53 @@ def get_living_married(ind_list, famList):
 	print(df)
 	return living_marriage
 
-#US 35 SJ List recent births, the last 30 days
+
+#JW- US31 List living Single
+def get_living_single(ind_list, famList):
+	all_bad_ids = []
+	deceased = get_deceased_records(ind_list)[1]
+	for j in range(len(deceased)):
+		all_bad_ids.append(deceased[j][0])
+	for family in famList:
+		all_bad_ids.append(family['Husband ID'])
+		all_bad_ids.append(family['Wife ID'])
+	all_good_ids = []
+	add_person = True
+	for person in ind_list:
+		add_person = True
+		for id in all_bad_ids:
+			if (id == person['ID']):
+				add_person = False
+		if (add_person == True):
+			all_good_ids.append(person['Name'])
+	print('US31 - List living single')
+	df = pd.DataFrame(all_good_ids, columns = ['Living Single'])
+	print(df)
+	return all_good_ids
+    
+#JW- US34 Large Age Differences
+def get_large_age_diff(ind_list, famList):
+	large_age_list = []
+	for family in famList:
+		dhus = dateToCompare(modified_lookup("Birthday", family["Husband ID"],ind_list))
+		dwife = dateToCompare(modified_lookup("Birthday", family["Wife ID"], ind_list))
+		dmarr = dateToCompare(family['Married'])
+		husAge = dmarr.year - dhus.year - ((dmarr.month, dmarr.day) < (dhus.month, dhus.day))
+		wifeAge = dmarr.year - dwife.year - ((dmarr.month, dmarr.day) < (dwife.month, dwife.day))
+		agehigh = husAge
+		agelo = wifeAge
+		if (wifeAge > husAge):
+			agehigh = wifeAge
+			agelo = husAge
+		if (agehigh > (agelo*2)):
+			large_age_list.append([family['Husband Name'], family['Wife Name']])
+	print('US34 - List large age differences')
+	df = pd.DataFrame(large_age_list, columns = ['Husband Name', 'Wife Name'])
+	print(df)
+	return large_age_list
+        
+
+#US 35 SJ List recent births, the last 30 days 
 def listRecentBirths(indiList):
 	recentBirthdays = list()
 	today = date.today()
@@ -1017,6 +1078,30 @@ def listUpcomingBirthdays(indiList):
 	else:
 		print("The next birthdays are: " + str(upcomingBirthdays))
 		return True
+		
+#US 42 Reject Illegitimate Dates
+def isDateLegitimate(date):
+	month_dates = {
+		"JAN": 31,
+		"FEB": 28,
+		"MAR": 31,
+		"APR": 30,
+		"MAY": 31,
+		"JUN": 30,
+		"JUL": 31,
+		"AUG": 31,
+		"SEP": 30,
+		"OCT": 31,
+		"NOV": 30,
+		"DEC": 31,
+	}
+	date_split = date.split(" ")
+	day = int(date_split[0])
+	month = date_split[1]
+	if month_dates[month] < day:
+		return False
+	return True
+
 
 #US 43 ND Born Before Parents
 def FindChildrenBornBeforeParent(famList):
@@ -1096,8 +1181,11 @@ def generateInitialData(fileName):
 				valid = 'N'
 			if(tag == 'DATE'):
 				if not validDate(arguments):
-					print("ERRO: GEN: US01: No dates should be after the current date. Recieved: "+ arguments)
-					# raise Exception("No dates should be after the current date")
+					print("ERRO: GEN: US01: No dates should be after the current date. Received: "+ arguments)
+				if not isDateLegitimate(arguments):
+					print("ERRO: GEN: US42: Date does not match month. Received: "+ arguments)
+
+				
 
 
 			if level == '0':
@@ -1330,6 +1418,12 @@ def main():
 		#US30
 		get_living_married(indiList, famList)
 
+		#US31
+		get_living_single(indiList, famList)
+
+		#US34
+		get_large_age_diff(indiList, famList)
+
 		#US45
 		siblingAgeDiff(famList, indiList)
 
@@ -1352,6 +1446,7 @@ def main():
 		FindChildrenBornBeforeParent(famList)
 
 
+		check_dupe_spouses(famList)
 
 
 
