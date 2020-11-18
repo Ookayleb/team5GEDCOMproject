@@ -343,8 +343,8 @@ def get_deceased_records(indList):
 			record['Death']]
 			decease_list.append(records)
 
-	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death'])
-	print(df)
+	#df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death'])
+	#print(df)
 	return 1, decease_list
 #***************************************************************************end
 
@@ -1151,6 +1151,101 @@ def FindChildrenBornBeforeParent(famList):
 	else:
 		return True
 
+#US 57 list living widowed
+def get_list_of_widow(indList, famList):
+	print('US 57: list of living widows')
+	divorced_list = {}
+	no_both_couples_died_list = []
+	no_divorced_array = []
+	decease_array = []
+	all_individuals_alive = []
+	no_both_couples_alive = []
+	marriage_with_widowed = []
+	living_couples = []
+
+	#get individuals ids who died
+	decease_list = get_deceased_records(indList)[1]
+	for i in range(len(decease_list)):
+		decease_array.append(decease_list[i][0])
+
+	#get all individual ids who are alive
+	for indi_record in indList:
+		if indi_record['Alive'] == True:
+			all_individuals_alive.append(indi_record['ID'])
+
+	#get all ids of marriage with divorce 
+	for divorced in famList:
+		formal_divorce = divorced.get('Divorced')
+		if formal_divorce != None:
+			divorced_list[divorced['ID']] = formal_divorce
+
+	family_ids_of_divorcees = divorced_list.keys()
+
+	#get family marriage that does not have any divorce
+	for a_record in famList:
+		if a_record['ID'] not in family_ids_of_divorcees:
+			no_divorced_array.append(a_record)
+
+	# get marriage where both couples are not dead
+	for marriage_record in no_divorced_array:
+		husband_ids = marriage_record.get('Husband ID')
+		wife_ids = marriage_record.get('Wife ID')
+		if husband_ids not in decease_array or wife_ids not in decease_array:
+			no_both_couples_died_list.append(marriage_record)
+	
+	#get marriage where one spouse died
+	for m_record in no_both_couples_died_list:
+		husband_ids = m_record.get('Husband ID')
+		wife_ids = m_record.get('Wife ID')
+		if husband_ids not in all_individuals_alive and wife_ids in all_individuals_alive:
+			marriage_with_widowed.append(m_record)
+		elif wife_ids not in all_individuals_alive and husband_ids in all_individuals_alive:
+			marriage_with_widowed.append(m_record)
+
+	#get marriage records where both couples are alive
+	for alive_record in no_both_couples_died_list:
+		husband_ids = alive_record.get('Husband ID')
+		wife_ids = alive_record.get('Wife ID')
+		if husband_ids in all_individuals_alive and wife_ids in all_individuals_alive:
+			living_couples.append(alive_record)
+
+	#get ids for all living couples
+	living_couples_ids=[]
+	for c_record in living_couples:
+		living_couples_ids.append(c_record['Husband ID'])
+		living_couples_ids.append(c_record['Wife ID'])
+	
+	#remove duplicate living couple ids
+	formal_living_couples_ids = list(set(living_couples_ids))
+
+	#get ids of marriage with widows that are alive
+	widow_marriage_ids = []
+	for widow_marriage in marriage_with_widowed:
+		valid_husband_death = modified_lookup('Death',widow_marriage['Husband ID'], indList)
+		valid_wife_death = modified_lookup('Death',widow_marriage['Wife ID'], indList)
+		if valid_husband_death == None:
+			widow_marriage_ids.append(widow_marriage['Husband ID'])
+		if valid_wife_death == None:
+			widow_marriage_ids.append(widow_marriage['Wife ID'])
+
+	#check to see if widow is currently married and if not add to list
+	widow_ids = []
+	for w_record in widow_marriage_ids:
+		if w_record not in formal_living_couples_ids:
+			widow_ids.append(w_record)
+
+	#return name of living widows
+	living_widow_list = []
+	for p_id in widow_ids:
+		living_widow_list.append(modified_lookup('Name', p_id, indList))
+	
+	if(len(living_widow_list)<=0):
+		print('No living widow')
+		return False
+	else:
+		print(living_widow_list)
+		return True
+
 
 
 #---------------------### CORE FUNCTIONS ###---------------------#
@@ -1452,6 +1547,9 @@ def main():
 
 		#US51
 		largestFamily(famList)
+
+		#US57
+		get_list_of_widow(indiList, famList)
 
 
 

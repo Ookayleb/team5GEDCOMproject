@@ -1,6 +1,6 @@
 import unittest
 import script
-from script import get_deceased_records, generateInitialData, reset, get_parents_not_too_old, get_age_difference, replace_id_with_children_data, get_individual_age, findRecentDeath, FindChildrenBornBeforeParent
+from script import get_deceased_records, generateInitialData, reset, get_parents_not_too_old, get_age_difference, replace_id_with_children_data, get_individual_age, findRecentDeath, FindChildrenBornBeforeParent, get_list_of_widow
 
 class TestGetDeceasedRecords(unittest.TestCase):
 	def test_get_deceased_records_1(self):
@@ -126,6 +126,27 @@ class TestFindChildrenBornBeforeParent(unittest.TestCase):
         indiList = 	gedcomeStructuredData0['famList']
 
         result = FindChildrenBornBeforeParent(indiList)
+        self.assertFalse(result)
+        self.assertIs(result, False) 
+
+class TestGetListOfWidow(unittest.TestCase):
+    def test_get_list_of_widow_pass(self):
+        reset()
+        gedcomeStructuredData = generateInitialData("gedFiles/widow_pass.ged")
+        indiList = 	gedcomeStructuredData['indiList']
+        famList = 	gedcomeStructuredData['famList']
+
+        result = get_list_of_widow(indiList, famList)
+        self.assertTrue(result)
+        self.assertIs(result, True)
+
+    def test_get_list_of_widow_fail(self):
+        reset()
+        gedcomeStructuredData = generateInitialData("gedFiles/widow_fail.ged")
+        indiList = 	gedcomeStructuredData['indiList']
+        famList = 	gedcomeStructuredData['famList']
+
+        result = get_list_of_widow(indiList, famList)
         self.assertFalse(result)
         self.assertIs(result, False) 
 
