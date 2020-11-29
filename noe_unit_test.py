@@ -94,7 +94,7 @@ class TestGetLivingMarried(unittest.TestCase):
 class TestFindRecentDeath(unittest.TestCase):
     def test_find_recent_death_pass(self):
         reset()
-        gedcomeStructuredData = generateInitialData("gedFiles/nov1_recent_death.ged")
+        gedcomeStructuredData = generateInitialData("gedFiles/nov28_recent_death.ged")
         indiList = 	gedcomeStructuredData['indiList']
 
         result = findRecentDeath(indiList)
