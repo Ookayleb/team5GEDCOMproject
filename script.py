@@ -343,8 +343,8 @@ def get_deceased_records(indList):
 			record['Death']]
 			decease_list.append(records)
 
-	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death'])
-	print(df)
+	#df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death'])
+	#print(df)
 	return 1, decease_list
 #***************************************************************************end
 
@@ -1498,11 +1498,16 @@ def main():
 		#US51
 		largestFamily(famList)
 
+<<<<<<< HEAD
 		#US39
 		upcomingAnni(famList)
         
 		#US55
 		listDeceasedDivor(indiDF, famList)
+=======
+		#US57
+		get_list_of_widow(indiList, famList)
+>>>>>>> bbb3b555e702f5ce02528244f97a6dfd8b5ca588
 
 
 
