@@ -549,6 +549,9 @@ def SiblingSpacing(indiDF, famList, indiList):
 			birthday_2 = birthdays[index + 1]
 			date_1 = datetime.strptime(birthday_1, "%d %b %Y").date()
 			date_2 = datetime.strptime(birthday_2, "%d %b %Y").date()
+			print("DEBUG")
+			print(date_1)
+			print(date_2)
 			dayDifference = abs((date_1 - date_2).days)
 			if dayDifference > 240 or dayDifference < 2:
 				print('INFO: IND: US13: Day difference = ' + str(dayDifference))
@@ -608,40 +611,23 @@ def SiblingSpacing(indiDF, famList):
 	for fam in famList:
 		i = 0
 		childrenList = fam['Children']
-		#print('childrenList ' + str(childrenList))
 		birthdays = list()
 		for id in childrenList:
 			birthday = lookup("Birthday", id)
-		#	print('ID ' + id)
 			birthdays.append(birthday)
 		#	print('birthday ' + str(birthdays))
-		#	print('\n')
-		if len(birthdays) < 2:
-			pass
-		elif ((len(birthdays) >= 2) and (len(birthdays) < 3)) :
-			x = birthdays[0]
-			y = birthdays[1]
-			xDate = datetime.strptime(x, "%d %b %Y").date()
-			yDate = datetime.strptime(y, "%d %b %Y").date()
-			dayDifference = abs((xDate - yDate).days)
-			if dayDifference > 240 or dayDifference < 2:
-				SiblingSpacing = True
-			else:
-				SiblingSpacing = False
-				return False
-		elif ((len(birthdays) >= 3) and (len(birthdays) <4)) :
-			x = birthdays[0]
-			y = birthdays[1]
-			z = birthdays[2]
-			xDate = datetime.strptime(x, "%d %b %Y").date()
-			yDate = datetime.strptime(y, "%d %b %Y").date()
-			zDate = datetime.strptime(z, "%d %b %Y").date()
-			dayDifference = abs((xDate - yDate - zDate).days)
-			if dayDifference > 240 or dayDifference < 2:
-				SiblingSpacing = True
-			else:
-				SiblingSpacing = False
-				return False
+		for index in range(0, len(birthdays)):
+			birthday_1 = birthdays[index]
+			for j in range(index + 1, len(birthdays)):
+				birthday_2 = birthdays[j]
+				date_1 = datetime.strptime(birthday_1, "%d %b %Y").date()
+				date_2 = datetime.strptime(birthday_2, "%d %b %Y").date()
+				dayDifference = abs((date_1 - date_2).days)
+				if dayDifference > 240 or dayDifference < 2:
+					print('INFO: IND: US13: Day difference = ' + str(dayDifference))
+				else:
+					print('ERR: IND: US13: Siblings must be born at least 8 months apart or less than 2 days for twins')
+					return False
 
 	return SiblingSpacing
 
@@ -1346,7 +1332,33 @@ def reset():
 	famDF = []
 	famList = []
 
+def findTwins(famList):
+	twins = []
+	for family in famList:
+		children = family["Children"]
+		for i in range(0, len(children)):
+			birthday1 = lookup("Birthday", children[i])
+			for j in range(i + 1, len(children)):
+				birthday2 = lookup("Birthday", children[j])
+				if birthday1 == birthday2:
+					twins.append([children[i], children[j]])
+	print("Twins are:", twins)
+	return twins
 
+def findTriplets(famList):
+	triplets = []
+	for family in famList:
+		children = family["Children"]
+		for i in range(0, len(children)):
+			birthday_1 = lookup("Birthday", children[i])
+			for j in range(i + 1, len(children)):
+				birthday_2 = lookup("Birthday", children[j])
+				for k in range(j + 1, len(children)):
+					birthday_3 = lookup("Birthday", children[k])
+					if birthday_1 == birthday_2 == birthday_3:
+						triplets.append([children[i], children[j], children[k]])
+	print("triplets are:", triplets)
+	return triplets
 
 
 #---------------------### MAIN CODE ###---------------------#
@@ -1489,6 +1501,7 @@ def main():
 		#US43
 		FindChildrenBornBeforeParent(famList)
 
+
 		#US45
 		siblingAgeDiff(famList, indiList)
 
@@ -1498,18 +1511,21 @@ def main():
 		#US51
 		largestFamily(famList)
 
-<<<<<<< HEAD
 		#US39
 		upcomingAnni(famList)
         
 		#US55
 		listDeceasedDivor(indiDF, famList)
-=======
 		#US57
-		get_list_of_widow(indiList, famList)
->>>>>>> bbb3b555e702f5ce02528244f97a6dfd8b5ca588
+		# get_list_of_widow(indiList, famList)
 
+		check_dupe_spouses(famList)
+		
+		#US49
+		findTwins(famList)
 
+		#US50
+		findTriplets(famList)
 
 if __name__ == "__main__": 	# execute only if run as a script
 	main()
