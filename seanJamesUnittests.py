@@ -1,7 +1,7 @@
 import unittest
 import sys
 import pandas
-from script import maleLastNames, generateInitialData, reset, SiblingSpacing, uniqueID, uniqueNameAndBirthday, listRecentBirths, listUpcomingBirthdays
+from script import listDeceasedDivor, maleLastNames,upcomingAnni, generateInitialData, reset, SiblingSpacing, uniqueID, uniqueNameAndBirthday, listRecentBirths, listUpcomingBirthdays
 
 
 class TestMaleLastNames(unittest.TestCase):
@@ -202,6 +202,42 @@ class TestlistUpcomingBirthdays(unittest.TestCase):
         result = listUpcomingBirthdays(indiList)
         self.assertFalse(result)
         self.assertIs(result, False) 
+
+class TestupcomingAnni(unittest.TestCase):
+    def test_Pass_upcomingAnni(self):
+        reset()
+        gedcomeStructuredData5 = generateInitialData("gedFiles/MarriageNov28.ged")
+        famList = 	gedcomeStructuredData5['famList']
+
+        result = upcomingAnni(famList)
+        self.assertTrue(result)
+
+    def test_Fail_upcomingAnni(self):
+        reset()
+        gedcomeStructuredData5 = generateInitialData("gedFiles/cousinMarriage.ged")
+        famList = 	gedcomeStructuredData5['famList']
+
+        result = upcomingAnni(famList)
+        self.assertFalse(result)
+
+class TestlistDeceasedDivor(unittest.TestCase):
+    def test_Pass_listDeceasedDivor(self):
+        reset()
+        gedcomeStructuredData5 = generateInitialData("gedFiles/cousinMarriageChrisSmithDead.ged")
+        famList = 	gedcomeStructuredData5['famList']
+        indiDF = gedcomeStructuredData5['indiDF']
+
+        result = listDeceasedDivor(indiDF, famList)
+        self.assertTrue(result)
+    
+    def test_Fail_listDeceasedDivor(self):
+        reset()
+        gedcomeStructuredData5 = generateInitialData("gedFiles/cousinMarriage.ged")
+        famList = 	gedcomeStructuredData5['famList']
+        indiDF = gedcomeStructuredData5['indiDF']
+
+        result = listDeceasedDivor(indiDF, famList)
+        self.assertFalse(result)
 
 
 if __name__ == "__main__":

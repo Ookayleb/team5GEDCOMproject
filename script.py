@@ -1151,7 +1151,53 @@ def FindChildrenBornBeforeParent(famList):
 	else:
 		return True
 
+#US39 SJ Upcoming anniversaries
+#marrige in the next 30 days
+def upcomingAnni(famList):
+	#get the marrige dates for couples 
+	#check if the month and date is coming up 
+	upcomingMarr = list()
+	today = date.today()
+	y = today + timedelta(days=30)
+	for i in famList:
+		x = i['Married']
+		marrDate = datetime.strptime(x, "%d %b %Y").date()
+		if(today < marrDate < y):
+			upcomingMarr.append(i['Husband Name'])
+		else:
+			pass
+	if not upcomingMarr:
+		print("There are no upcoming marriges")
+		return False
+	else:
+		print("The next marriges are: " + str(upcomingMarr))
+		return True
 
+#US55 List recent dead divorcies 
+def listDeceasedDivor(indiDF, famList):
+	divorcedL = list()
+	deceasedL = list()
+	for i in famList:
+		if i.get("Divorced") != None:
+			divorcedL.append(i['Husband Name'])
+			divorcedL.append(i['Wife Name'])
+	
+	for i in divorcedL:
+
+		person = indiDF[(indiDF['Name'] == i)]
+		death = str(person.loc[person['Name'] == i, ['Death']])
+		if 'NaN' in death:
+			pass
+
+		else:
+			deceasedL.append(i)			
+	
+	if not deceasedL:
+		print('There are no deceased divorced members')
+		return False
+	else:
+		print('Deceased list of divorced members is ' + str(deceasedL))
+		return True
 
 #---------------------### CORE FUNCTIONS ###---------------------#
 #Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
@@ -1299,7 +1345,6 @@ def reset():
 	indiList = []
 	famDF = []
 	famList = []
-
 
 
 
@@ -1452,6 +1497,12 @@ def main():
 
 		#US51
 		largestFamily(famList)
+
+		#US39
+		upcomingAnni(famList)
+        
+		#US55
+		listDeceasedDivor(indiDF, famList)
 
 
 
