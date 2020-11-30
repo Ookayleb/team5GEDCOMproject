@@ -13,9 +13,10 @@ orderedP = []
 datesM = []
 datesD = []
 datesDea = []
-
+bdaysGroup = ['15 MAY','12 MAR','14 JAN']
 print(indi)
 print(fam)
+
 
 def to_format(lis, hus):
     if hus == True:
@@ -33,6 +34,54 @@ spouse = indi['Spouse'].tolist()
 
 to_format(fam['Husband Name'].tolist(), True)
 to_format(fam['Wife Name'].tolist(), False)
+
+def divTrue(al):
+    if al == True:
+        return True
+    else:
+        return False
+
+def findDiv():
+    rowDiv = []
+    c = 0
+    idCheck = []
+    alDiv = []
+    for x in fam['Divorced'].tolist():
+        if str(x) == 'nan':
+            pass
+        else:
+            rowDiv.append(c)
+        c = c+1
+    for x in rowDiv:
+        idCheck.append(fam.loc[fam['Unnamed: 0'] == x]['Husband ID'])
+        idCheck.append(fam.loc[fam['Unnamed: 0'] == x]['Wife ID'])
+    for x in idCheck:
+        if divTrue(indi.loc[indi['ID'] == x]['Alive']):
+            alDiv.append(indi.loc[indi['ID'] == x]['Name'])
+        
+findDiv()
+
+def same_bda(indi_in, grp_in):
+    if grp_in == indi_in[:-4].strip():
+        return True
+    if grp_in != indi_in[:-4].strip():
+        return False
+
+def bdayGroupCh(b):
+    ch_bd = indi['Birthday'].tolist()
+    grab = []
+    counter2 = 0
+    for x in ch_bd:
+        for y in b:
+            if same_bda(x,y):
+                grab.append(counter2)
+        counter2 = counter2 + 1 
+    print(grab)
+    for x in grab: 
+        print(indi.loc[indi['Unnamed: 0'] == x]['Name'])
+
+bdayGroupCh(bdaysGroup)
+
 
 def orderByAge(c):
     bdays = indi['Birthday'].tolist()
@@ -141,6 +190,26 @@ class Testing(unittest.TestCase):
     def test_input_fail_no_marr(self):
         with self.assertRaises(ValueError): checkMarrNotDescOrSib("Testing","444")
 
+    def test_success_born_same(self):
+        result = same_bda('15 JAN 1931', '15 JAN')
+        self.assertTrue(result)
+        result = same_bda('1 APR 2000','1 APR')
+        self.assertTrue(result)
+
+    def test_fail_born_same(self):
+        result = same_bda('5 JAN 1931', '15 JAN')
+        self.assertFalse(result)
+        result = same_bda('1 APR 2000','13 APR')
+        self.assertFalse(result)
+
+    def test_success_divTrue(self):
+        result = divTrue(True)
+        self.assertTrue(result)
+    
+    def test_fail_divTrue(self):
+        result = divTrue(False)
+        self.assertFalse(result)
+        
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromModule( sys.modules[__name__] )
     unittest.TextTestRunner(verbosity=3).run( suite )
