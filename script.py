@@ -298,7 +298,6 @@ def print_data(indiList):
 	df = pd.DataFrame(person_data, columns = ['Name', 'Birth Date','Qualified'])
 	return df
 
-
 #Austin Luo
 def marriageAge(indiList, famList):
 	for family in famList:
@@ -350,6 +349,29 @@ def multipleBirths(indiList, famList):
 					if(counter > 5):
 						return False
 	return True
+
+def correctName(indiList):
+	for individual in indiList:
+		if 'Name'.isdigit():
+			contains_digit = False
+	return True
+
+def sameName(indiList):
+	for individuals in indiList:
+		Name = modified_lookup('Name', indiList)
+	Name = set(indiList)
+	contains_duplicates = len(indiList) != len('Name')
+			#return True
+	print(contains_duplicates)
+	print('These individuals have the same name.')
+	#return False
+
+def largestName(famList):
+	for family in famList:
+		for famID in family
+		familyIdentification = modified_lookup('ID', famList)
+
+
 """
 ###########################
 	for family in famList:
