@@ -854,6 +854,32 @@ def verifyBigamy(famList, famDF, indiDF):
 
 	return numOffenders
 
+#US44: Grandparents | CC Sprint 4
+#Grandparents should not marry their grandchildren
+def verifyNoGrandparentMarrGranchild(indiList, famList):
+	count = 0
+	for family in famList:
+		husbID		= family["Husband ID"]
+		wifeID		= family["Wife ID"]
+		husbGParents	= getGrandparents(husbID, indiList, famList)
+		wifeGParents	= getGrandparents(wifeID, indiList, famList)
+
+		if husbID in wifeGParents:
+			count += 1
+			printColor("yellow bold", "WARN: FAM: US44: {}: Grandpa {} {} married his granddaughter {} {}"\
+				.format(family["ID"], husbID, family["Husband Name"], wifeID, family["Wife Name"]))
+
+		if wifeID in husbGParents:
+			count += 1
+			printColor("yellow bold", "WARN: FAM: US44: {}: Grandma {} {} married her grandson {} {}"\
+				.format(family["ID"], wifeID, family["Wife Name"], husbID, family["Husband Name"]))
+
+
+	if count == 0:
+		printColor("green", "INFO: GEN: US44: No Grandparents marrying their Grandchildren")
+
+	return count
+
 
 #US45 JW - Siblings < 35 year age difference
 def siblingAgeDiff(famList, individualListName):
@@ -1140,8 +1166,8 @@ def FindChildrenBornBeforeParent(famList):
 #US39 SJ Upcoming anniversaries
 #marrige in the next 30 days
 def upcomingAnni(famList):
-	#get the marrige dates for couples 
-	#check if the month and date is coming up 
+	#get the marrige dates for couples
+	#check if the month and date is coming up
 	upcomingMarr = list()
 	today = date.today()
 	y = today + timedelta(days=30)
@@ -1159,7 +1185,7 @@ def upcomingAnni(famList):
 		print("The next marriges are: " + str(upcomingMarr))
 		return True
 
-#US55 List recent dead divorcies 
+#US55 List recent dead divorcies
 def listDeceasedDivor(indiDF, famList):
 	divorcedL = list()
 	deceasedL = list()
@@ -1167,7 +1193,7 @@ def listDeceasedDivor(indiDF, famList):
 		if i.get("Divorced") != None:
 			divorcedL.append(i['Husband Name'])
 			divorcedL.append(i['Wife Name'])
-	
+
 	for i in divorcedL:
 
 		person = indiDF[(indiDF['Name'] == i)]
@@ -1176,8 +1202,8 @@ def listDeceasedDivor(indiDF, famList):
 			pass
 
 		else:
-			deceasedL.append(i)			
-	
+			deceasedL.append(i)
+
 	if not deceasedL:
 		print('There are no deceased divorced members')
 		return False
@@ -1501,6 +1527,8 @@ def main():
 		#US43
 		FindChildrenBornBeforeParent(famList)
 
+		#US44
+		verifyNoGrandparentMarrGranchild(indiList, famList)
 
 		#US45
 		siblingAgeDiff(famList, indiList)
@@ -1513,14 +1541,14 @@ def main():
 
 		#US39
 		upcomingAnni(famList)
-        
+
 		#US55
 		listDeceasedDivor(indiDF, famList)
 		#US57
 		# get_list_of_widow(indiList, famList)
 
 		check_dupe_spouses(famList)
-		
+
 		#US49
 		findTwins(famList)
 
