@@ -1,6 +1,6 @@
 import unittest
 import sys
-from script import validDate, check_gender_roles, check_unique_child, isDateLegitimate, check_dupe_spouses
+from script import validDate, check_gender_roles, check_unique_child, isDateLegitimate, check_dupe_spouses, findTwins, findTriplets
 from script import birthBeforeMarriage, reset, generateInitialData
 
 class TestDates(unittest.TestCase):
@@ -96,6 +96,41 @@ class TestDupeSpouses(unittest.TestCase):
         famList		= gedcomStructuredData['famList']
         result = check_dupe_spouses(famList)
         self.assertFalse(result)
+
+class TestFindTwins(unittest.TestCase):
+    def test_empty(self):
+        print("Testing Find Twins Empty")
+        reset()
+        gedcomStructuredData    = generateInitialData("family_project.ged") #store the tables and lists into gedcomStructuredData
+        famList		= gedcomStructuredData['famList']
+        result = findTwins(famList)
+        self.assertEqual(result, [])
+
+    def test_twins(self):
+        print("Testing Find Twins")
+        reset()
+        gedcomStructuredData    = generateInitialData("gedFiles/twins.ged") #store the tables and lists into gedcomStructuredData
+        famList		= gedcomStructuredData['famList']
+        result = findTwins(famList)
+        self.assertEqual(result, [["I48", "I56"]])
+
+class TestFindTriplets(unittest.TestCase):
+    def test_empty(self):
+        print("Testing Find Triplets Empty")
+        reset()
+        gedcomStructuredData    = generateInitialData("family_project.ged") #store the tables and lists into gedcomStructuredData
+        famList		= gedcomStructuredData['famList']
+        result = findTriplets(famList)
+        self.assertEqual(result, [])
+
+    def test_triplets(self):
+        print("Testing Find Triplets")
+        reset()
+        gedcomStructuredData    = generateInitialData("gedFiles/triplets.ged") #store the tables and lists into gedcomStructuredData
+        famList		= gedcomStructuredData['famList']
+        result = check_unique_child(famList)
+        self.assertEqual(result, [["I48", "I56", "I64"]])
+
 
 
 if __name__ == "__main__":

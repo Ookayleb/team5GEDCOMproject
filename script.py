@@ -343,8 +343,8 @@ def get_deceased_records(indList):
 			record['Death']]
 			decease_list.append(records)
 
-	df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death'])
-	print(df)
+	#df = pd.DataFrame(decease_list, columns = ['ID', 'Name', 'Gender', 'Birthday', 'Age', 'Death'])
+	#print(df)
 	return 1, decease_list
 #***************************************************************************end
 
@@ -549,6 +549,9 @@ def SiblingSpacing(indiDF, famList, indiList):
 			birthday_2 = birthdays[index + 1]
 			date_1 = datetime.strptime(birthday_1, "%d %b %Y").date()
 			date_2 = datetime.strptime(birthday_2, "%d %b %Y").date()
+			print("DEBUG")
+			print(date_1)
+			print(date_2)
 			dayDifference = abs((date_1 - date_2).days)
 			if dayDifference > 240 or dayDifference < 2:
 				print('INFO: IND: US13: Day difference = ' + str(dayDifference))
@@ -608,40 +611,23 @@ def SiblingSpacing(indiDF, famList):
 	for fam in famList:
 		i = 0
 		childrenList = fam['Children']
-		#print('childrenList ' + str(childrenList))
 		birthdays = list()
 		for id in childrenList:
 			birthday = lookup("Birthday", id)
-		#	print('ID ' + id)
 			birthdays.append(birthday)
 		#	print('birthday ' + str(birthdays))
-		#	print('\n')
-		if len(birthdays) < 2:
-			pass
-		elif ((len(birthdays) >= 2) and (len(birthdays) < 3)) :
-			x = birthdays[0]
-			y = birthdays[1]
-			xDate = datetime.strptime(x, "%d %b %Y").date()
-			yDate = datetime.strptime(y, "%d %b %Y").date()
-			dayDifference = abs((xDate - yDate).days)
-			if dayDifference > 240 or dayDifference < 2:
-				SiblingSpacing = True
-			else:
-				SiblingSpacing = False
-				return False
-		elif ((len(birthdays) >= 3) and (len(birthdays) <4)) :
-			x = birthdays[0]
-			y = birthdays[1]
-			z = birthdays[2]
-			xDate = datetime.strptime(x, "%d %b %Y").date()
-			yDate = datetime.strptime(y, "%d %b %Y").date()
-			zDate = datetime.strptime(z, "%d %b %Y").date()
-			dayDifference = abs((xDate - yDate - zDate).days)
-			if dayDifference > 240 or dayDifference < 2:
-				SiblingSpacing = True
-			else:
-				SiblingSpacing = False
-				return False
+		for index in range(0, len(birthdays)):
+			birthday_1 = birthdays[index]
+			for j in range(index + 1, len(birthdays)):
+				birthday_2 = birthdays[j]
+				date_1 = datetime.strptime(birthday_1, "%d %b %Y").date()
+				date_2 = datetime.strptime(birthday_2, "%d %b %Y").date()
+				dayDifference = abs((date_1 - date_2).days)
+				if dayDifference > 240 or dayDifference < 2:
+					print('INFO: IND: US13: Day difference = ' + str(dayDifference))
+				else:
+					print('ERR: IND: US13: Siblings must be born at least 8 months apart or less than 2 days for twins')
+					return False
 
 	return SiblingSpacing
 
@@ -1151,7 +1137,53 @@ def FindChildrenBornBeforeParent(famList):
 	else:
 		return True
 
+#US39 SJ Upcoming anniversaries
+#marrige in the next 30 days
+def upcomingAnni(famList):
+	#get the marrige dates for couples 
+	#check if the month and date is coming up 
+	upcomingMarr = list()
+	today = date.today()
+	y = today + timedelta(days=30)
+	for i in famList:
+		x = i['Married']
+		marrDate = datetime.strptime(x, "%d %b %Y").date()
+		if(today < marrDate < y):
+			upcomingMarr.append(i['Husband Name'])
+		else:
+			pass
+	if not upcomingMarr:
+		print("There are no upcoming marriges")
+		return False
+	else:
+		print("The next marriges are: " + str(upcomingMarr))
+		return True
 
+#US55 List recent dead divorcies 
+def listDeceasedDivor(indiDF, famList):
+	divorcedL = list()
+	deceasedL = list()
+	for i in famList:
+		if i.get("Divorced") != None:
+			divorcedL.append(i['Husband Name'])
+			divorcedL.append(i['Wife Name'])
+	
+	for i in divorcedL:
+
+		person = indiDF[(indiDF['Name'] == i)]
+		death = str(person.loc[person['Name'] == i, ['Death']])
+		if 'NaN' in death:
+			pass
+
+		else:
+			deceasedL.append(i)			
+	
+	if not deceasedL:
+		print('There are no deceased divorced members')
+		return False
+	else:
+		print('Deceased list of divorced members is ' + str(deceasedL))
+		return True
 
 #---------------------### CORE FUNCTIONS ###---------------------#
 #Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
@@ -1300,8 +1332,33 @@ def reset():
 	famDF = []
 	famList = []
 
+def findTwins(famList):
+	twins = []
+	for family in famList:
+		children = family["Children"]
+		for i in range(0, len(children)):
+			birthday1 = lookup("Birthday", children[i])
+			for j in range(i + 1, len(children)):
+				birthday2 = lookup("Birthday", children[j])
+				if birthday1 == birthday2:
+					twins.append([children[i], children[j]])
+	print("Twins are:", twins)
+	return twins
 
-
+def findTriplets(famList):
+	triplets = []
+	for family in famList:
+		children = family["Children"]
+		for i in range(0, len(children)):
+			birthday_1 = lookup("Birthday", children[i])
+			for j in range(i + 1, len(children)):
+				birthday_2 = lookup("Birthday", children[j])
+				for k in range(j + 1, len(children)):
+					birthday_3 = lookup("Birthday", children[k])
+					if birthday_1 == birthday_2 == birthday_3:
+						triplets.append([children[i], children[j], children[k]])
+	print("triplets are:", triplets)
+	return triplets
 
 
 #---------------------### MAIN CODE ###---------------------#
@@ -1444,6 +1501,7 @@ def main():
 		#US43
 		FindChildrenBornBeforeParent(famList)
 
+
 		#US45
 		siblingAgeDiff(famList, indiList)
 
@@ -1453,7 +1511,21 @@ def main():
 		#US51
 		largestFamily(famList)
 
+		#US39
+		upcomingAnni(famList)
+        
+		#US55
+		listDeceasedDivor(indiDF, famList)
+		#US57
+		# get_list_of_widow(indiList, famList)
 
+		check_dupe_spouses(famList)
+		
+		#US49
+		findTwins(famList)
+
+		#US50
+		findTriplets(famList)
 
 if __name__ == "__main__": 	# execute only if run as a script
 	main()
