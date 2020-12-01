@@ -57,8 +57,10 @@ Colors = {
 	"light gray": "\033[97m{}\033[00m",
 	"black": "\033[98m{}\033[00m"
 }
-indiList 	= []		#will hold all individuals
-famList	= []		#will hold all families
+indiList 		= []		#will hold all individuals
+famList		= []		#will hold all families
+indiLineInfo	={}
+famLineInfo	={}
 
 
 
@@ -84,6 +86,20 @@ def modified_lookup(attr, id, inputlist):
 def get_age_difference(parent_age, child_age):
 	age = parent_age - child_age
 	return age
+
+def getIndiLine(pid, tag):
+	try:
+		stri = str((indiLineInfo.get(pid)).get(tag))
+	except:
+		stri = ""
+	return stri
+
+def getFamLine(pid, tag):
+	try:
+		stri = str(famLineInfo[pid][tag])
+	except:
+		stri = ""
+	return stri
 
 #Return the difference of two dates in months
 def diffMonth(d1, d2):
@@ -250,10 +266,10 @@ def check_gender_roles(famList):
 		husbandGender = lookup("Gender" ,family["Husband ID"])
 		wifeGender = lookup("Gender" ,family["Wife ID"])
 		if husbandGender != "M":
-			print("WARN: IND: US21: All husbands must be males")
+			print("WARN: IND: US21: L{}: All husbands must be males".format(getIndiLine(family["Husband ID"], "SEX")))
 			return False
 		if wifeGender != "F":
-			print("WARN: IND: US21: All wives must be female")
+			print("WARN: IND: US21: L{}: All wives must be female".format(getIndiLine(family["Wife ID"], "SEX")))
 			return False
 	print("INFO: GEN: US21: Gender roles are OK")
 	return True
@@ -288,14 +304,14 @@ def verifyCorrespondingEntries_ind(indiList, famList):
 		#now check that indiID appears in the child array of the family ID
 		if (childOfFamID is not None) and (indiID not in modified_lookup("Children", childOfFamID, famList)):
 			count += 1
-			printColor("yellow bold", "WARN: FAM: US26: {}: {} {}'s individual record says they are a child in {}, but no corresponding family entry found"\
-				.format(childOfFamID, indiID, indi["Name"], childOfFamID))
+			printColor("yellow bold", "WARN: FAM: US26: L{}: {}: {} {}'s individual record says they are a child in {}, but no corresponding family entry found"\
+				.format(getIndiLine(indiID, "FAMC"), childOfFamID, indiID, indi["Name"], childOfFamID))
 
 		for spouseOfFamID in spouseOfFamIDArray:
 			if (spouseOfFamID is not None) and (indiID not in (modified_lookup("Husband ID", spouseOfFamID, famList), modified_lookup("Wife ID", spouseOfFamID, famList))):
 				count += 1
-				printColor("yellow bold", "WARN: FAM: US26: {}: {} {}'s individual record says they are a spouse in {}, but no corresponding family entry found"\
-					.format(spouseOfFamID, indiID, indi["Name"], spouseOfFamID))
+				printColor("yellow bold", "WARN: FAM: US26: L{}: {}: {} {}'s individual record says they are a spouse in {}, but no corresponding family entry found"\
+					.format(getIndiLine(indiID, "FAMC"), spouseOfFamID, indiID, indi["Name"], spouseOfFamID))
 
 	return count
 
@@ -508,11 +524,12 @@ def verifyBirthDeathDateOrder(indiList):
 		printColor("green", "INFO: GEN: US03: No Deaths before Births")
 	else:
 		def verifyBirthDeathDateOrderPrint(x):
-			printColor("yellow bold", "ERRO: IND: US03: {}: {} died on {}, before their birthday of {}"\
-				.format(x['ID'], x['Name'], x['Death'], x['Birthday']))
+			printColor("yellow bold", "ERRO: IND: US03: L{}: {}: {} died on {}, before their birthday of {}"\
+				.format(getIndiLine(x['ID'], "DEAT"), x['ID'], x['Name'], x['Death'], x['Birthday']))
 		pd.DataFrame(warningList).apply(lambda x: verifyBirthDeathDateOrderPrint(x), axis=1)
 
 	return len(warningList)
+
 
 #US04: Marriage before divorce | CC Sprint 1
 #Verify that all divorce dates are after marriage dates. Returns 0 if no offenders. If offenders detected, returns the number of them
@@ -526,8 +543,8 @@ def verifyMarriageDivorceOrder(famList):
 		printColor("green", "INFO: GEN: US04: No Divorces before Marriages")
 	else:
 		def verifyMarriageDivorceOrderPrint(x):
-			printColor("yellow bold", "ERRO: FAM: US04: {}: {} and {} divorced on {}, before their marriage on {}"\
-				.format(x['ID'], x['Husband Name'], x['Wife Name'], x['Divorced'], x['Married']))
+			printColor("yellow bold", "ERRO: FAM: US04: L{}: {}: {} and {} divorced on {}, before their marriage on {}"\
+				.format(getFamLine(x['ID'], "DIV"), x['ID'], x['Husband Name'], x['Wife Name'], x['Divorced'], x['Married']))
 		pd.DataFrame(warningList).apply(lambda x: verifyMarriageDivorceOrderPrint(x), axis=1)
 
 	return len(warningList)
@@ -718,7 +735,7 @@ def validAge(indiList):
 	for person in indiList:
 		age=person["Age"]
 		if age >= 150:
-			print("ERROR: INDIVIDUAL: US07: " + str(person["ID"]) + ": More than 150 years old - Birth Date: " + str(person["Birthday"]))
+			print("ERROR: INDIVIDUAL: US07: L" + getIndiLine(person["ID"], "BIRT") + " "  + str(person["ID"]) + ": More than 150 years old - Birth Date: " + str(person["Birthday"]))
 			return False
 	return True
 
@@ -853,6 +870,32 @@ def verifyBigamy(famList, famDF, indiDF):
 		printColor("green", "INFO: GEN: US11: No Bigamy")
 
 	return numOffenders
+
+#US44: Grandparents | CC Sprint 4
+#Grandparents should not marry their grandchildren
+def verifyNoGrandparentMarrGranchild(indiList, famList):
+	count = 0
+	for family in famList:
+		husbID		= family["Husband ID"]
+		wifeID		= family["Wife ID"]
+		husbGParents	= getGrandparents(husbID, indiList, famList)
+		wifeGParents	= getGrandparents(wifeID, indiList, famList)
+
+		if husbID in wifeGParents:
+			count += 1
+			printColor("yellow bold", "WARN: FAM: US44: {}: Grandpa {} {} married his granddaughter {} {}"\
+				.format(family["ID"], husbID, family["Husband Name"], wifeID, family["Wife Name"]))
+
+		if wifeID in husbGParents:
+			count += 1
+			printColor("yellow bold", "WARN: FAM: US44: {}: Grandma {} {} married her grandson {} {}"\
+				.format(family["ID"], wifeID, family["Wife Name"], husbID, family["Husband Name"]))
+
+
+	if count == 0:
+		printColor("green", "INFO: GEN: US44: No Grandparents marrying their Grandchildren")
+
+	return count
 
 
 #US45 JW - Siblings < 35 year age difference
@@ -1181,8 +1224,8 @@ def FindChildrenBornBeforeParent(famList):
 #US39 SJ Upcoming anniversaries
 #marrige in the next 30 days
 def upcomingAnni(famList):
-	#get the marrige dates for couples 
-	#check if the month and date is coming up 
+	#get the marrige dates for couples
+	#check if the month and date is coming up
 	upcomingMarr = list()
 	today = date.today()
 	y = today + timedelta(days=30)
@@ -1200,7 +1243,35 @@ def upcomingAnni(famList):
 		print("The next marriges are: " + str(upcomingMarr))
 		return True
 
-#US55 List recent dead divorcies 
+#US53 Same name | CC Sprint 4
+#List individuals who share the same name
+def sameName(indiDF):
+	count = 0
+	names	= indiDF["Name"].tolist()
+	ids		= indiDF["ID"].tolist()
+
+	nameIDDict = {}
+
+	for i in range(len(names)):
+		name = names[i]
+		j = i+1
+		while j < len(names):
+			if names[j] == name:
+				if name not in nameIDDict:
+					nameIDDict[name] = [ids[i], ids[j]]
+				else:
+					nameIDDict[name].append(ids[j])
+					nameIDDict[name] = list(dict.fromkeys(nameIDDict[name]))
+			j+=1
+
+	for k in nameIDDict:
+		count += 1
+		printColor("black", "INFO: IND: US53: The following IDs share the same name {}: {}"\
+				.format(k, nameIDDict[k]))
+
+	return count
+
+#US55 List recent dead divorcies
 def listDeceasedDivor(indiDF, famList):
 	divorcedL = list()
 	deceasedL = list()
@@ -1208,7 +1279,7 @@ def listDeceasedDivor(indiDF, famList):
 		if i.get("Divorced") != None:
 			divorcedL.append(i['Husband Name'])
 			divorcedL.append(i['Wife Name'])
-	
+
 	for i in divorcedL:
 
 		person = indiDF[(indiDF['Name'] == i)]
@@ -1217,8 +1288,8 @@ def listDeceasedDivor(indiDF, famList):
 			pass
 
 		else:
-			deceasedL.append(i)			
-	
+			deceasedL.append(i)
+
 	if not deceasedL:
 		print('There are no deceased divorced members')
 		return False
@@ -1231,8 +1302,10 @@ def listDeceasedDivor(indiDF, famList):
 def generateInitialData(fileName):
 	# global indiDF, indiList, famDF, famList
 	with open(fileName, "r", encoding="utf-8") as inFile:		#open the file provided in the argument
-		line_num =- 1
+		line_num = 0
 		skipNextLines = False #boolean flag for if we should read the next lines following a tag lvl 0 or not
+		currentID		= None
+
 		for line in inFile:
 			line_num		+= 1
 			level		= ""
@@ -1259,9 +1332,9 @@ def generateInitialData(fileName):
 				valid = 'N'
 			if(tag == 'DATE'):
 				if not validDate(arguments):
-					print("ERRO: GEN: US01: No dates should be after the current date. Received: "+ arguments)
+					print("ERRO: GEN: US01: L" + str(line_num) + ": No dates should be after the current date. Received: "+ arguments)
 				if not isDateLegitimate(arguments):
-					print("ERRO: GEN: US42: Date does not match month. Received: "+ arguments)
+					print("ERRO: GEN: US42: L" + str(line_num) + ": Date does not match month. Received: "+ arguments)
 
 
 
@@ -1278,6 +1351,16 @@ def generateInitialData(fileName):
 					newIndiv['Spouse']	= []
 					indiList.append(newIndiv)
 					skipNextLines 		= False
+					if currentID is None:
+						currentID = arguments
+						indiLineInfo[currentID] = {}
+						indiLineInfo[currentID]["Start"] = line_num
+					else:
+						indiLineInfo[currentID]["End"] = line_num - 1
+						currentID = arguments
+						if currentID not in indiLineInfo:
+							indiLineInfo[currentID] = {}
+						indiLineInfo[currentID]["Start"] = line_num
 				elif tag == "FAM":
 					newFam 			= {}
 					newFam['ID'] 		= arguments
@@ -1298,27 +1381,38 @@ def generateInitialData(fileName):
 				newestIndiv 	= indiList[-1] if indiList else None	#This syntax chooses the the last element in indiList if it exists, otherwise the newestIndiv is None
 				newestFam		= famList[-1] if famList else None
 				if tag == "NAME":
-					newestIndiv['Name'] 	= arguments
+					newestIndiv['Name'] 			= arguments
+					indiLineInfo[currentID]["NAME"]	= line_num
 				elif tag == "SEX":
-					newestIndiv['Gender'] 	= arguments
+					newestIndiv['Gender'] 			= arguments
+					indiLineInfo[currentID]["SEX"]	= line_num
 				elif tag == "BIRT":
-					nextLineBirt 			= True
+					nextLineBirt 					= True
+					indiLineInfo[currentID]["BIRT"]	= line_num + 1
 				elif tag == "DEAT":
-					nextLineDeat 			= True
+					nextLineDeat 					= True
+					indiLineInfo[currentID]["DEAT"]	= line_num + 1
 				elif tag == "MARR":
-					nextLineMarr 			= True
+					nextLineMarr 					= True
+					indiLineInfo[currentID]["MARR"]	= line_num + 1
 				elif tag == "DIV":
-					nextLineDiv			= True
+					nextLineDiv					= True
+					indiLineInfo[currentID]["DIV"]	= line_num + 1
 				elif tag == "FAMS":
 					newestIndiv['Spouse'].append(arguments)
+					indiLineInfo[currentID]["FAMS"]	= line_num
 				elif tag == "FAMC":
-					newestIndiv['Child'] 	= arguments
+					newestIndiv['Child'] 			= arguments
+					indiLineInfo[currentID]["FAMC"]	= line_num
 				elif tag == "HUSB":
-					newestFam['Husband ID'] 	= arguments
+					newestFam['Husband ID'] 			= arguments
+					indiLineInfo[currentID]["HUSB"]	= line_num
 				elif tag == "WIFE":
-					newestFam['Wife ID'] 	= arguments
+					newestFam['Wife ID'] 			= arguments
+					indiLineInfo[currentID]["WIFE"]	= line_num
 				elif tag == "CHIL":
 					newestFam['Children'].append(arguments)
+					indiLineInfo[currentID]["CHIL"]	= line_num
 
 
 			elif skipNextLines == False and level == '2':
@@ -1356,13 +1450,14 @@ def generateInitialData(fileName):
 		famDF.sort_values(by=['ID'], inplace=True)
 		famDF.reset_index(inplace=True, drop=True)
 
-
 		#return a dictionary, whose keys are "indiDF", "famDF", "indiList", and "famList". Use this key value pair to obtain the actual dataframes or lists
 		return {
 			"indiDF": 	indiDF,
 			"famDF":		famDF,
 			"indiList":	indiList,
-			"famList":	famList
+			"famList":	famList,
+			"indiLineInfo":indiLineInfo,
+			"famLineInfo":	famLineInfo
 		}
 
 #Reset global variables
@@ -1409,10 +1504,12 @@ def main():
 	else:
 		gedcomStructuredData = generateInitialData(sys.argv[1]) #store the tables and lists into gedcomStructuredData
 
-		indiDF = 		gedcomStructuredData['indiDF']
-		famDF = 		gedcomStructuredData['famDF']
-		indiList = 	gedcomStructuredData['indiList']
-		famList = 	gedcomStructuredData['famList']
+		indiDF		= gedcomStructuredData['indiDF']
+		famDF		= gedcomStructuredData['famDF']
+		indiList		= gedcomStructuredData['indiList']
+		famList		= gedcomStructuredData['famList']
+		indiLineInfo	= gedcomStructuredData['indiLineInfo']
+		famLineInfo	= gedcomStructuredData['famLineInfo']
 
 		# Now have access to indiDF and famDF DataFrames, can use below
 		# Example template:
@@ -1539,9 +1636,14 @@ def main():
 		#US38
 		listUpcomingBirthdays(indiList)
 
+		#US39
+		upcomingAnni(famList)
+
 		#US43
 		FindChildrenBornBeforeParent(famList)
 
+		#US44
+		verifyNoGrandparentMarrGranchild(indiList, famList)
 
 		#US45
 		siblingAgeDiff(famList, indiList)
@@ -1551,6 +1653,12 @@ def main():
 
 		#US48
 		get_children_same_birthdays(indiList, famList)
+    
+		#US49
+		findTwins(famList)
+
+		#US50
+		findTriplets(famList)
 
 		#US51
 		largestFamily(famList)
@@ -1561,18 +1669,18 @@ def main():
 		#US39
 		upcomingAnni(famList)
         
+		#US53
+		sameName(indiDF)
+
 		#US55
 		listDeceasedDivor(indiDF, famList)
+
 		#US57
 		# get_list_of_widow(indiList, famList)
 
 		check_dupe_spouses(famList)
-		
-		#US49
-		findTwins(famList)
 
-		#US50
-		findTriplets(famList)
+
 
 if __name__ == "__main__": 	# execute only if run as a script
 	main()
