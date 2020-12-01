@@ -1,0 +1,384 @@
+ERRO: GEN: US01: No dates should be after the current date. Received: 3 APR 3904
+ERRO: GEN: US01: No dates should be after the current date. Received: 8 AUG 4020
+Individuals
+               ID                   Name Gender     Birthday   Age  Alive        Death             Child                                             Spouse
+0     I0512113035            Joe /Smith/      M   4 APR 1951    69   True          NaN       F0515745826                         [F0521797825, F0521431836]
+1     I0514811822            Bob /Smith/      M  19 JUL 1966    54   True          NaN       F0515745826                                      [F0517412841]
+2     I0515745822        Terrace /Smith/      M   4 MAY 1700   199  False   3 JAN 1900               NaN                                      [F0515745826]
+3     I0516107833      Carrie /Williams/      F   3 APR 3904 -2003  False  19 AUG 1901               NaN                                      [F0515745826]
+4     I0517412837       Tiffany /Jacobs/      F   9 JUL 1949    71   True          NaN               NaN                                      [F0517412841]
+5     I0517748837       Chris /Smoothie/      M   5 MAY 2000    20   True          NaN       F0517412841                         [F3671894825, F3671292846]
+6     I0517979828          Julia /Smith/      F   8 MAY 1001  1019   True          NaN       F0517412841  [F3713189871, F3711991040, F3712744970, F37128...
+7     I0521431830     Jennifer /Tuckers/      M  18 APR 1952    46  False  13 APR 1999               NaN                                      [F0521431836]
+8     I0521797821          Jessica /Cho/      F   8 JUL 1952    68   True          NaN               NaN                         [F3712576951, F0521797825]
+9     I0522001821           Bret /Smith/      M   4 JAN 1971    49   True          NaN       F0521431836                         [F3673131826, F3672607826]
+10    I0522180821           Jill /Smith/      F   9 JAN 2002    18   True          NaN       F0521797825                                                 []
+11    I3671292842            Lisa /West/      F   5 MAY 2000    20   True          NaN               NaN                                      [F3671292846]
+12    I3671894821        Samantha /Cole/      F   7 JAN 1999    21   True          NaN               NaN                                      [F3671894825]
+13    I3672607822           Bella /Dune/      F   4 APR 1991    29   True          NaN               NaN                                      [F3672607826]
+14    I3673131822             Ally /Han/      F   9 APR 1991    29   True          NaN               NaN                                      [F3673131826]
+15    I3711991034  Hamilton /Washington/      M   7 MAY 1999  2021  False   8 AUG 4020               NaN                                      [F3711991040]
+16    I3712576947          Dan /Pancake/      M   8 AUG 1950    70   True          NaN               NaN                                      [F3712576951]
+17    I3712744966         Tony /Baloney/      M   5 MAY 1989    31   True          NaN               NaN                                      [F3712744970]
+18    I3712856872         Jarvis /Stark/      F   8 AUG 1999    19  False  15 JAN 2019               NaN                                      [F3712856876]
+19    I3713189867          Barney /Dino/      M   7 MAY 1999    21   True          NaN               NaN                                      [F3713189871]
+20     IAntNphw_1        Warren /Farmer/      M   6 SEP 1999    21   True          NaN        FAntNphw_3                                       [FAntNphw_1]
+21    IAntNphw_10        Darren /Farmer/      M   6 SEP 1999    21   True          NaN               NaN                                       [FAntNphw_0]
+22     IAntNphw_2         Marry /Farmer/      F   6 SEP 1999    21   True          NaN        FAntNphw_2                                       [FAntNphw_1]
+23    IAntNphw_20        Karren /Farmer/      F   6 SEP 1999    21   True          NaN               NaN                                       [FAntNphw_0]
+24     IAntNphw_3        Tarren /Farmer/      M   6 SEP 1999    21   True          NaN        FAntNphw_0                                       [FAntNphw_2]
+25     IAntNphw_4        Harren /Farmer/      F   6 SEP 1999    21   True          NaN               NaN                                       [FAntNphw_2]
+26     IAntNphw_5        Lauren /Farmer/      F   6 SEP 1999    21   True          NaN        FAntNphw_2                                       [FAntNphw_3]
+27     IAntNphw_6        Praren /Farmer/      M   6 SEP 1999    21   True          NaN               NaN                                       [FAntNphw_3]
+28     ICORSPND_1          Wally /Stern/      M   6 SEP 1999    21   True          NaN               NaN                                                 []
+29     ICORSPND_2          Sally /Stern/      F   6 SEP 1999    21   True          NaN               NaN                                                 []
+30     ICORSPND_3           Kaly /Stern/      M   6 SEP 1999    21   True          NaN               NaN                                                 []
+31     ICORSPND_4          Wally /Stern/      M   6 SEP 1999    21   True          NaN               NaN                                       [FCORSPND_2]
+32     ICORSPND_5          Sally /Stern/      F   6 SEP 1999    21   True          NaN               NaN                                       [FCORSPND_2]
+33     ICORSPND_6           Kaly /Stern/      M   6 SEP 1999    21   True          NaN        FCORSPND_2                                       [FCORSPND_2]
+34   ICUZ_brother          Larry /Allen/      M   6 SEP 1999    21   True          NaN     FCUZ_gparents                                      [FCUZ_sonFam]
+35      ICUZ_cuz1         Scarry /Allen/      M   6 SEP 1999    21   True          NaN       FCUZ_sonFam                                 [FCUZ_firstCuzFam]
+36      ICUZ_cuz2          Terry /Allen/      F   6 SEP 1999    21   True          NaN  FCUZ_daughterFam                                 [FCUZ_firstCuzFam]
+37  ICUZ_cuzChild          Lairy /Allen/      M   6 SEP 1999    21   True          NaN  FCUZ_firstCuzFam                                                 []
+38   ICUZ_grandma          Marry /Allen/      M   6 SEP 1999    21   True          NaN               NaN                                    [FCUZ_gparents]
+39   ICUZ_grandpa          Barry /Allen/      M   6 SEP 1999    21   True          NaN               NaN                                    [FCUZ_gparents]
+40   ICUZ_rdmHusb          Mark /Smelly/      M   6 SEP 1999    21   True          NaN               NaN                                 [FCUZ_daughterFam]
+41   ICUZ_rdmWife       Sydney /Collins/      M   6 SEP 1999    21   True          NaN               NaN                                      [FCUZ_sonFam]
+42    ICUZ_sister         Sharry /Allen/      M   6 SEP 1999    21   True          NaN     FCUZ_gparents                                 [FCUZ_daughterFam]
+43    ISameName_1            Mess /Tess/      M   6 SEP 1999    21   True          NaN               NaN                                      [FSameName_1]
+44    ISameName_2            Jess /Tess/      F   6 SEP 1999    21   True          NaN               NaN                                      [FSameName_1]
+45    ISameName_3            Mess /Tess/      M   6 SEP 1999    21   True          NaN               NaN                                      [FSameName_2]
+46    ISameName_4            Jess /Tess/      F   6 SEP 1999    21   True          NaN               NaN                                      [FSameName_2]
+47    IUnclNiec_1           Aaron /Barn/      M   6 SEP 1999    21   True          NaN       FUnclNiec_2                                      [FUnclNiec_1]
+48    IUnclNiec_2           Sarah /Barn/      F   6 SEP 1999    21   True          NaN       FUnclNiec_3                                      [FUnclNiec_1]
+49    IUnclNiec_3           Baron /Barn/      M   6 SEP 1999    21   True          NaN               NaN                                      [FUnclNiec_2]
+50    IUnclNiec_4          Myrian /Barn/      F   6 SEP 1999    21   True          NaN               NaN                                      [FUnclNiec_2]
+51    IUnclNiec_5           Karen /Barn/      F   6 SEP 1999    21   True          NaN       FUnclNiec_2                                      [FUnclNiec_3]
+52    IUnclNiec_6          Darren /Barn/      M   6 SEP 1999    21   True          NaN               NaN                                      [FUnclNiec_3]
+
+Families
+                  ID      Married    Divorced    Husband ID           Husband Name       Wife ID           Wife Name                     Children
+0        F0515745826  19 JUL 1970         NaN   I0515745822        Terrace /Smith/   I0516107833   Carrie /Williams/   [I0512113035, I0514811822]
+1        F0517412841  19 JUL 1970         NaN   I0514811822            Bob /Smith/   I0517412837    Tiffany /Jacobs/                           []
+2        F0521431836  13 APR 1980         NaN   I0512113035            Joe /Smith/   I0521431830  Jennifer /Tuckers/                [I0522001821]
+3        F0521797825   7 JAN 2000         NaN   I0512113035            Joe /Smith/   I0521797821       Jessica /Cho/                [I0522180821]
+4        F3671292846   8 JAN 2020  5 JAN 2020                                 None   I3671292842         Lisa /West/                           []
+5        F3671894825   5 MAY 2020         NaN   I0517748837       Chris /Smoothie/   I3671894821     Samantha /Cole/                           []
+6        F3672607826   2 FEB 2015  1 SEP 2014   I0522001821           Bret /Smith/   I3672607822        Bella /Dune/                           []
+7        F3673131826   5 MAY 2013         NaN   I0522001821           Bret /Smith/   I3673131822          Ally /Han/                           []
+8        F3711991040   3 MAR 2019  3 SEP 2020   I3711991034  Hamilton /Washington/   I0517979828       Julia /Smith/                           []
+9        F3712576951   4 APR 2012         NaN   I3712576947          Dan /Pancake/   I0521797821       Jessica /Cho/                           []
+10       F3712744970   2 FEB 2019         NaN   I3712744966         Tony /Baloney/   I0517979828       Julia /Smith/                           []
+11       F3712856876   1 JAN 2019         NaN   I3712856872         Jarvis /Stark/   I0517979828       Julia /Smith/                           []
+12       F3713189871   4 APR 2019         NaN   I3713189867          Barney /Dino/   I0517979828       Julia /Smith/                           []
+13        FAntNphw_0   3 MAR 2012         NaN   IAntNphw_10        Darren /Farmer/   IAntNphw_20     Karren /Farmer/                 [IAntNphw_3]
+14        FAntNphw_1   3 MAR 2012         NaN    IAntNphw_1        Warren /Farmer/    IAntNphw_2      Marry /Farmer/                           []
+15        FAntNphw_2   3 MAR 2012         NaN    IAntNphw_3        Tarren /Farmer/    IAntNphw_4     Harren /Farmer/     [IAntNphw_2, IAntNphw_5]
+16        FAntNphw_3   3 MAR 2012         NaN    IAntNphw_6        Praren /Farmer/    IAntNphw_5     Lauren /Farmer/                 [IAntNphw_1]
+17        FCORSPND_1   3 MAR 2012         NaN    ICORSPND_1          Wally /Stern/    ICORSPND_2       Sally /Stern/                 [ICORSPND_3]
+18        FCORSPND_2   3 MAR 2012         NaN                                 None                              None                           []
+19  FCUZ_daughterFam   3 MAR 2012         NaN  ICUZ_rdmHusb          Mark /Smelly/   ICUZ_sister      Sharry /Allen/                  [ICUZ_cuz2]
+20  FCUZ_firstCuzFam   3 MAR 2012         NaN     ICUZ_cuz2          Terry /Allen/     ICUZ_cuz1      Scarry /Allen/              [ICUZ_cuzChild]
+21     FCUZ_gparents   3 MAR 2012         NaN  ICUZ_grandpa          Barry /Allen/  ICUZ_grandma       Marry /Allen/  [ICUZ_brother, ICUZ_sister]
+22       FCUZ_sonFam   3 MAR 2012         NaN  ICUZ_brother          Larry /Allen/  ICUZ_rdmWife    Sydney /Collins/                  [ICUZ_cuz1]
+23       FSameName_1   3 MAR 2012         NaN   ISameName_1            Mess /Tess/   ISameName_2         Jess /Tess/                           []
+24       FSameName_2   3 MAR 2012         NaN   ISameName_3            Mess /Tess/   ISameName_4         Jess /Tess/                           []
+25       FUnclNiec_1   3 MAR 2012         NaN   IUnclNiec_1           Aaron /Barn/   IUnclNiec_2        Sarah /Barn/                           []
+26       FUnclNiec_2   3 MAR 2012         NaN   IUnclNiec_3           Baron /Barn/   IUnclNiec_4       Myrian /Barn/   [IUnclNiec_1, IUnclNiec_5]
+27       FUnclNiec_3   3 MAR 2012         NaN   IUnclNiec_6          Darren /Barn/   IUnclNiec_5        Karen /Barn/                [IUnclNiec_2]
+
+WARN: IND: US02: All children must be born after marriage
+ERRO: IND: US03: I0516107833: Carrie /Williams/ died on 19 AUG 1901, before their birthday of 3 APR 3904
+ERRO: FAM: US04: F3671292846: None and Lisa /West/ divorced on 5 JAN 2020, before their marriage on 8 JAN 2020
+ERRO: FAM: US04: F3672607826: Bret /Smith/ and Bella /Dune/ divorced on 1 SEP 2014, before their marriage on 2 FEB 2015
+ERROR: INDIVIDUAL: US07: I0517979828: More than 150 years old - Birth Date: 8 MAY 1001
+ERROR: FAMILY: US46: FUnclNiec_2: Child IUnclNiec_1 born 1999-09-06 00:00:00 before marriage on 2012-03-03 00:00:00
+                   Name   Birth Date Qualified
+0             Bob Smith  19 JUL 1966       Yes
+1        Tiffany Jacobs   9 JUL 1949       Yes
+2        Chris Smoothie   5 MAY 2000       Yes
+3           Julia Smith   8 MAY 1001        No
+4         Terrace Smith   4 MAY 1700        No
+5       Carrie Williams   3 APR 3904       Yes
+6             Joe Smith   4 APR 1951       Yes
+7         Samantha Cole   7 JAN 1999       Yes
+8             Lisa West   5 MAY 2000       Yes
+9           Barney Dino   7 MAY 1999       Yes
+10  Hamilton Washington   7 MAY 1999        No
+11         Tony Baloney   5 MAY 1989       Yes
+12         Jarvis Stark   8 AUG 1999       Yes
+13          Jessica Cho   8 JUL 1952       Yes
+14           Jill Smith   9 JAN 2002       Yes
+15     Jennifer Tuckers  18 APR 1952       Yes
+16           Bret Smith   4 JAN 1971       Yes
+17          Dan Pancake   8 AUG 1950       Yes
+18             Ally Han   9 APR 1991       Yes
+19           Bella Dune   4 APR 1991       Yes
+20          Barry Allen   6 SEP 1999       Yes
+21          Marry Allen   6 SEP 1999       Yes
+22          Larry Allen   6 SEP 1999       Yes
+23         Sharry Allen   6 SEP 1999       Yes
+24       Sydney Collins   6 SEP 1999       Yes
+25         Scarry Allen   6 SEP 1999       Yes
+26          Mark Smelly   6 SEP 1999       Yes
+27          Terry Allen   6 SEP 1999       Yes
+28          Lairy Allen   6 SEP 1999       Yes
+29          Wally Stern   6 SEP 1999       Yes
+30          Sally Stern   6 SEP 1999       Yes
+31           Kaly Stern   6 SEP 1999       Yes
+32          Wally Stern   6 SEP 1999       Yes
+33          Sally Stern   6 SEP 1999       Yes
+34           Kaly Stern   6 SEP 1999       Yes
+35           Aaron Barn   6 SEP 1999       Yes
+36           Sarah Barn   6 SEP 1999       Yes
+37           Baron Barn   6 SEP 1999       Yes
+38          Myrian Barn   6 SEP 1999       Yes
+39            Mess Tess   6 SEP 1999       Yes
+40            Jess Tess   6 SEP 1999       Yes
+41            Mess Tess   6 SEP 1999       Yes
+42            Jess Tess   6 SEP 1999       Yes
+43           Karen Barn   6 SEP 1999       Yes
+44          Darren Barn   6 SEP 1999       Yes
+45        Darren Farmer   6 SEP 1999       Yes
+46        Karren Farmer   6 SEP 1999       Yes
+47        Warren Farmer   6 SEP 1999       Yes
+48         Marry Farmer   6 SEP 1999       Yes
+49        Tarren Farmer   6 SEP 1999       Yes
+50        Harren Farmer   6 SEP 1999       Yes
+51        Lauren Farmer   6 SEP 1999       Yes
+52        Praren Farmer   6 SEP 1999       Yes
+ERRO: IND: US09: I0512113035: Child was born on 4 APR 1951, mother died on 19 AUG 1901
+WARN: IND: US09: I0512113035: Child was born on 4 APR 1951, father died on 3 JAN 1900
+ERRO: IND: US09: I0514811822: Child was born on 19 JUL 1966, mother died on 19 AUG 1901
+WARN: IND: US09: I0514811822: Child was born on 19 JUL 1966, father died on 3 JAN 1900
+WARN: IND: US10: ISameName_1: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: ISameName_2: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: ISameName_3: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: ISameName_4: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: IUnclNiec_1: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: IUnclNiec_2: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: IUnclNiec_3: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: IUnclNiec_4: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: IUnclNiec_6: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: IUnclNiec_5: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: IAntNphw_10: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: IAntNphw_20: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: IAntNphw_1: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: IAntNphw_2: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: IAntNphw_3: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: IAntNphw_4: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: IAntNphw_6: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: IAntNphw_5: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: ICORSPND_1: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: ICORSPND_2: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: : Husband married before 14 years old, married at 0yrs old
+WARN: IND: US10: : Wife married before 14 years old, married at 0yrs old
+WARN: IND: US10: ICUZ_grandpa: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: ICUZ_grandma: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: ICUZ_brother: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: ICUZ_rdmWife: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: ICUZ_rdmHusb: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: ICUZ_sister: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: ICUZ_cuz2: Husband married before 14 years old, married at 12yrs old
+WARN: IND: US10: ICUZ_cuz1: Wife married before 14 years old, married at 12yrs old
+WARN: IND: US10: I0514811822: Husband married before 14 years old, married at 4yrs old
+WARN: IND: US10: I0516107833: Wife married before 14 years old, married at -1934yrs old
+WARN: IND: US10: : Husband married before 14 years old, married at 0yrs old
+Empty DataFrame
+Columns: [ID, Husband ID, Husband Name, Wife ID, Wife Name, Married, Divorced]
+Index: []
+            ID   Husband ID  Husband Name      Wife ID     Wife Name     Married    Divorced
+6  F3672607826  I0522001821  Bret /Smith/  I3672607822  Bella /Dune/  2 FEB 2015  1 SEP 2014
+7  F3673131826  I0522001821  Bret /Smith/  I3673131822    Ally /Han/  5 MAY 2013         NaN
+            ID   Husband ID Husband Name      Wife ID           Wife Name      Married Divorced
+2  F0521431836  I0512113035  Joe /Smith/  I0521431830  Jennifer /Tuckers/  13 APR 1980      NaN
+3  F0521797825  I0512113035  Joe /Smith/  I0521797821       Jessica /Cho/   7 JAN 2000      NaN
+            ID   Husband ID   Husband Name      Wife ID      Wife Name     Married Divorced
+3  F0521797825  I0512113035    Joe /Smith/  I0521797821  Jessica /Cho/  7 JAN 2000      NaN
+9  F3712576951  I3712576947  Dan /Pancake/  I0521797821  Jessica /Cho/  4 APR 2012      NaN
+             ID   Husband ID           Husband Name      Wife ID      Wife Name     Married    Divorced
+8   F3711991040  I3711991034  Hamilton /Washington/  I0517979828  Julia /Smith/  3 MAR 2019  3 SEP 2020
+10  F3712744970  I3712744966         Tony /Baloney/  I0517979828  Julia /Smith/  2 FEB 2019         NaN
+11  F3712856876  I3712856872         Jarvis /Stark/  I0517979828  Julia /Smith/  1 JAN 2019         NaN
+12  F3713189871  I3713189867          Barney /Dino/  I0517979828  Julia /Smith/  4 APR 2019         NaN
+WARN: FAM: US11: F3672607826: Husband Bret /Smith/ married Bella /Dune/ on 2015-02-02, but he was still married to Ally /Han/.
+WARN: FAM: US11: F3712576951: Wife Jessica /Cho/ married Dan /Pancake/ on 2012-04-04, but she was still married to Joe /Smith/.
+WARN: FAM: US11: F3711991040: Wife Julia /Smith/ married Hamilton /Washington/ on 2019-03-03, but she was still married to Tony /Baloney/.
+WARN: FAM: US11: F3713189871: Wife Julia /Smith/ married Barney /Dino/ on 2019-04-04, but she was still married to Hamilton /Washington/ until 2020-09-03.
++-----------------+--------------+------------+--------------+-----+-----------+-----------------+
+|   Parent Name   | Relationship | Parent Age |  Child Name  | Sex | Child Age | Parents too old |
++-----------------+--------------+------------+--------------+-----+-----------+-----------------+
+| Terrace /Smith/ |    Father    |    199     | Joe /Smith/  |  M  |     69    |       Yes       |
+| Terrace /Smith/ |    Father    |    199     | Bob /Smith/  |  M  |     54    |       Yes       |
+|   Joe /Smith/   |    Father    |     69     | Jill /Smith/ |  F  |     18    |        No       |
+|  Jessica /Cho/  |    Mother    |     68     | Jill /Smith/ |  F  |     18    |        No       |
+|   Joe /Smith/   |    Father    |     69     | Bret /Smith/ |  M  |     49    |        No       |
++-----------------+--------------+------------+--------------+-----+-----------+-----------------+
+[92mINFO: GEN: US16: All males have same last name
+WARN: FAM: US19: First Cousins Marriages found:
+                 ID         Children Husband ID    Wife ID     Married   Husband Name       Wife Name
+0  FCUZ_firstCuzFam  [ICUZ_cuzChild]  ICUZ_cuz2  ICUZ_cuz1  3 MAR 2012  Terry /Allen/  Scarry /Allen/
+
+WARN: FAM: US20: FUnclNiec_1: Uncle IUnclNiec_1 Aaron /Barn/ married his niece IUnclNiec_2 Sarah /Barn/
+WARN: FAM: US20: FAntNphw_1: Aunt IAntNphw_2 Marry /Farmer/ married hew nephew IAntNphw_1 Warren /Farmer/
+WARN: IND: US21: All husbands must be males
+WARN: IND: US23: Repeated Name and Birthday
+ERROR: US 24: No more than one family with the same spouses by name and the same marriage date should appear in a GEDCOM file
+INFO: GEN: US25: All Unique first names in families
+WARN: FAM: US26: F0517412841: I0517748837 Chris /Smoothie/'s individual record says they are a child in F0517412841, but no corresponding family entry found
+WARN: FAM: US26: F3671292846: I0517748837 Chris /Smoothie/'s individual record says they are a spouse in F3671292846, but no corresponding family entry found
+WARN: FAM: US26: F0517412841: I0517979828 Julia /Smith/'s individual record says they are a child in F0517412841, but no corresponding family entry found
+WARN: FAM: US26: FCORSPND_2: ICORSPND_4 Wally /Stern/'s individual record says they are a spouse in FCORSPND_2, but no corresponding family entry found
+WARN: FAM: US26: FCORSPND_2: ICORSPND_5 Sally /Stern/'s individual record says they are a spouse in FCORSPND_2, but no corresponding family entry found
+WARN: FAM: US26: FCORSPND_2: ICORSPND_6 Kaly /Stern/'s individual record says they are a child in FCORSPND_2, but no corresponding family entry found
+WARN: FAM: US26: FCORSPND_2: ICORSPND_6 Kaly /Stern/'s individual record says they are a spouse in FCORSPND_2, but no corresponding family entry found
+WARN: IND: US26: ICORSPND_1: family record FCORSPND_1 has ICORSPND_1 Wally /Stern/ as husband, but his inividual record does not have corresponding spouse entry
+WARN: IND: US26: ICORSPND_2: family record FCORSPND_1 has ICORSPND_2 Sally /Stern/ as wife, but her inividual record does not have corresponding spouse entry
+WARN: IND: US26: ICORSPND_3: family record FCORSPND_1 has ICORSPND_3 as child, but their inividual record does not have corresponding child entry
+US27 - Include individual ages
+                     Name   Age
+0             Bob /Smith/    54
+1        Tiffany /Jacobs/    71
+2        Chris /Smoothie/    20
+3           Julia /Smith/  1019
+4         Terrace /Smith/   199
+5       Carrie /Williams/ -2003
+6             Joe /Smith/    69
+7         Samantha /Cole/    21
+8             Lisa /West/    20
+9           Barney /Dino/    21
+10  Hamilton /Washington/  2021
+11         Tony /Baloney/    31
+12         Jarvis /Stark/    19
+13          Jessica /Cho/    68
+14           Jill /Smith/    18
+15     Jennifer /Tuckers/    46
+16           Bret /Smith/    49
+17          Dan /Pancake/    70
+18             Ally /Han/    29
+19           Bella /Dune/    29
+20          Barry /Allen/    21
+21          Marry /Allen/    21
+22          Larry /Allen/    21
+23         Sharry /Allen/    21
+24       Sydney /Collins/    21
+25         Scarry /Allen/    21
+26          Mark /Smelly/    21
+27          Terry /Allen/    21
+28          Lairy /Allen/    21
+29          Wally /Stern/    21
+30          Sally /Stern/    21
+31           Kaly /Stern/    21
+32          Wally /Stern/    21
+33          Sally /Stern/    21
+34           Kaly /Stern/    21
+35           Aaron /Barn/    21
+36           Sarah /Barn/    21
+37           Baron /Barn/    21
+38          Myrian /Barn/    21
+39            Mess /Tess/    21
+40            Jess /Tess/    21
+41            Mess /Tess/    21
+42            Jess /Tess/    21
+43           Karen /Barn/    21
+44          Darren /Barn/    21
+45        Darren /Farmer/    21
+46        Karren /Farmer/    21
+47        Warren /Farmer/    21
+48         Marry /Farmer/    21
+49        Tarren /Farmer/    21
+50        Harren /Farmer/    21
+51        Lauren /Farmer/    21
+52        Praren /Farmer/    21
+INFO: IND: US29: Deceased Records:
+            ID                   Name Gender     Birthday   Age        Death
+0  I0515745822        Terrace /Smith/      M   4 MAY 1700   199   3 JAN 1900
+1  I0516107833      Carrie /Williams/      F   3 APR 3904 -2003  19 AUG 1901
+2  I3711991034  Hamilton /Washington/      M   7 MAY 1999  2021   8 AUG 4020
+3  I3712856872         Jarvis /Stark/      F   8 AUG 1999    19  15 JAN 2019
+4  I0521431830     Jennifer /Tuckers/      M  18 APR 1952    46  13 APR 1999
+            ID                   Name Gender     Birthday   Age        Death
+0  I0515745822        Terrace /Smith/      M   4 MAY 1700   199   3 JAN 1900
+1  I0516107833      Carrie /Williams/      F   3 APR 3904 -2003  19 AUG 1901
+2  I3711991034  Hamilton /Washington/      M   7 MAY 1999  2021   8 AUG 4020
+3  I3712856872         Jarvis /Stark/      F   8 AUG 1999    19  15 JAN 2019
+4  I0521431830     Jennifer /Tuckers/      M  18 APR 1952    46  13 APR 1999
+US30 - List living married
+        Husband Name         Wife Name
+0        Mess /Tess/       Jess /Tess/
+1        Mess /Tess/       Jess /Tess/
+2       Aaron /Barn/      Sarah /Barn/
+3       Baron /Barn/     Myrian /Barn/
+4      Darren /Barn/      Karen /Barn/
+5    Darren /Farmer/   Karren /Farmer/
+6    Warren /Farmer/    Marry /Farmer/
+7    Tarren /Farmer/   Harren /Farmer/
+8    Praren /Farmer/   Lauren /Farmer/
+9      Wally /Stern/     Sally /Stern/
+10              None              None
+11     Barry /Allen/     Marry /Allen/
+12     Larry /Allen/  Sydney /Collins/
+13     Mark /Smelly/    Sharry /Allen/
+14     Terry /Allen/    Scarry /Allen/
+15       Bob /Smith/  Tiffany /Jacobs/
+16  Chris /Smoothie/   Samantha /Cole/
+17     Barney /Dino/     Julia /Smith/
+18    Tony /Baloney/     Julia /Smith/
+19       Joe /Smith/     Jessica /Cho/
+20     Dan /Pancake/     Jessica /Cho/
+21      Bret /Smith/        Ally /Han/
+            ID                   Name Gender     Birthday   Age        Death
+0  I0515745822        Terrace /Smith/      M   4 MAY 1700   199   3 JAN 1900
+1  I0516107833      Carrie /Williams/      F   3 APR 3904 -2003  19 AUG 1901
+2  I3711991034  Hamilton /Washington/      M   7 MAY 1999  2021   8 AUG 4020
+3  I3712856872         Jarvis /Stark/      F   8 AUG 1999    19  15 JAN 2019
+4  I0521431830     Jennifer /Tuckers/      M  18 APR 1952    46  13 APR 1999
+US31 - List living single
+   Living Single
+0   Jill /Smith/
+1  Lairy /Allen/
+2   Kaly /Stern/
+3  Wally /Stern/
+4  Sally /Stern/
+5   Kaly /Stern/
+US34 - List large age differences
+            Husband Name          Wife Name
+0            Bob /Smith/   Tiffany /Jacobs/
+1        Terrace /Smith/  Carrie /Williams/
+2          Barney /Dino/      Julia /Smith/
+3  Hamilton /Washington/      Julia /Smith/
+4         Tony /Baloney/      Julia /Smith/
+5         Jarvis /Stark/      Julia /Smith/
+The recent birthdays are: ['Carrie /Williams/']
+There are no death in the last 30 days
+There are no coming birthdays
+WARN: IND: US43: Aaron /Barn/ was born on (6 SEP 1999) the same date or before his/her father Baron /Barn/ who were born on (6 SEP 1999).
+WARN: IND: US43: Aaron /Barn/ was born on (6 SEP 1999) the same date or before his/her mother Myrian /Barn/ who were born on (6 SEP 1999).
+WARN: IND: US43: Karen /Barn/ was born on (6 SEP 1999) the same date or before his/her father Baron /Barn/ who were born on (6 SEP 1999).
+WARN: IND: US43: Karen /Barn/ was born on (6 SEP 1999) the same date or before his/her mother Myrian /Barn/ who were born on (6 SEP 1999).
+WARN: IND: US43: Sarah /Barn/ was born on (6 SEP 1999) the same date or before his/her father Darren /Barn/ who were born on (6 SEP 1999).
+WARN: IND: US43: Sarah /Barn/ was born on (6 SEP 1999) the same date or before his/her mother Karen /Barn/ who were born on (6 SEP 1999).
+WARN: IND: US43: Tarren /Farmer/ was born on (6 SEP 1999) the same date or before his/her father Darren /Farmer/ who were born on (6 SEP 1999).
+WARN: IND: US43: Tarren /Farmer/ was born on (6 SEP 1999) the same date or before his/her mother Karren /Farmer/ who were born on (6 SEP 1999).
+WARN: IND: US43: Marry /Farmer/ was born on (6 SEP 1999) the same date or before his/her father Tarren /Farmer/ who were born on (6 SEP 1999).
+WARN: IND: US43: Marry /Farmer/ was born on (6 SEP 1999) the same date or before his/her mother Harren /Farmer/ who were born on (6 SEP 1999).
+WARN: IND: US43: Lauren /Farmer/ was born on (6 SEP 1999) the same date or before his/her father Tarren /Farmer/ who were born on (6 SEP 1999).
+WARN: IND: US43: Lauren /Farmer/ was born on (6 SEP 1999) the same date or before his/her mother Harren /Farmer/ who were born on (6 SEP 1999).
+WARN: IND: US43: Warren /Farmer/ was born on (6 SEP 1999) the same date or before his/her father Praren /Farmer/ who were born on (6 SEP 1999).
+WARN: IND: US43: Warren /Farmer/ was born on (6 SEP 1999) the same date or before his/her mother Lauren /Farmer/ who were born on (6 SEP 1999).
+WARN: IND: US43: Kaly /Stern/ was born on (6 SEP 1999) the same date or before his/her father Wally /Stern/ who were born on (6 SEP 1999).
+WARN: IND: US43: Kaly /Stern/ was born on (6 SEP 1999) the same date or before his/her mother Sally /Stern/ who were born on (6 SEP 1999).
+WARN: IND: US43: Larry /Allen/ was born on (6 SEP 1999) the same date or before his/her father Barry /Allen/ who were born on (6 SEP 1999).
+WARN: IND: US43: Larry /Allen/ was born on (6 SEP 1999) the same date or before his/her mother Marry /Allen/ who were born on (6 SEP 1999).
+WARN: IND: US43: Sharry /Allen/ was born on (6 SEP 1999) the same date or before his/her father Barry /Allen/ who were born on (6 SEP 1999).
+WARN: IND: US43: Sharry /Allen/ was born on (6 SEP 1999) the same date or before his/her mother Marry /Allen/ who were born on (6 SEP 1999).
+WARN: IND: US43: Scarry /Allen/ was born on (6 SEP 1999) the same date or before his/her father Larry /Allen/ who were born on (6 SEP 1999).
+WARN: IND: US43: Scarry /Allen/ was born on (6 SEP 1999) the same date or before his/her mother Sydney /Collins/ who were born on (6 SEP 1999).
+WARN: IND: US43: Terry /Allen/ was born on (6 SEP 1999) the same date or before his/her father Mark /Smelly/ who were born on (6 SEP 1999).
+WARN: IND: US43: Terry /Allen/ was born on (6 SEP 1999) the same date or before his/her mother Sharry /Allen/ who were born on (6 SEP 1999).
+WARN: IND: US43: Lairy /Allen/ was born on (6 SEP 1999) the same date or before his/her father Terry /Allen/ who were born on (6 SEP 1999).
+WARN: IND: US43: Lairy /Allen/ was born on (6 SEP 1999) the same date or before his/her mother Scarry /Allen/ who were born on (6 SEP 1999).
+WARN: IND: US43: Joe /Smith/ was born on (4 APR 1951) the same date or before his/her mother Carrie /Williams/ who were born on (3 APR 3904).
+WARN: IND: US43: Bob /Smith/ was born on (19 JUL 1966) the same date or before his/her mother Carrie /Williams/ who were born on (3 APR 3904).
+ERROR: FAMILY: US46: FUnclNiec_2: Age difference between child (IUnclNiec_1) and parent (IUnclNiec_3) is 0 which is not more than 15 years
+STATS: FAMILY: US51: The largest family is FUnclNiec_2 with size 4 (living or deceased)

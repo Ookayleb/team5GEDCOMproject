@@ -1,4 +1,0 @@
-Families Table
-ID		Married		Husband ID		Wife ID		Children		Divorced
-F01		1/1/1980		I012				I020			I50, I52		2004
-F02		1/1/2001		I012				I031			I75, I77		NaN
