@@ -335,7 +335,7 @@ def multipleSiblings(indiList, famList):
 		if 'Children' in famList[family.keys()]:
 			if len(famList[family]['Children']) > 15:
 				return False
-	return True 
+	return True
 
 def multipleBirths(indiList, famList):
 	if 'Children' in famList[individual].keys():
@@ -356,15 +356,7 @@ def correctName(indiList):
 			contains_digit = False
 	return True
 
-def sameName(indiList):
-	for individuals in indiList:
-		Name = modified_lookup('Name', indiList)
-	Name = set(indiList)
-	contains_duplicates = len(indiList) != len('Name')
-			#return True
-	print(contains_duplicates)
-	print('These individuals have the same name.')
-	#return False
+
 
 def largestName(famList):
 	for family in famList:
@@ -654,7 +646,7 @@ def validAge(indiList):
 	for person in indiList:
 		age=person["Age"]
 		if age >= 150:
-			print("ERROR: INDIVIDUAL: US07: " + str(person["ID"]) + ": More than 150 years old - Birth Date: " + str(person["Birthday"])) 
+			print("ERROR: INDIVIDUAL: US07: " + str(person["ID"]) + ": More than 150 years old - Birth Date: " + str(person["Birthday"]))
 			return False
 	return True
 
@@ -807,7 +799,7 @@ def siblingAgeDiff(famList, individualListName):
 					highid=childId
 			ageDiff = dhigh.year - dlow.year - ((dhigh.month, dhigh.day) < (dlow.month, dlow.day))
 			if ageDiff >= 35:
-				print("ERROR: FAMILY: US45:", family["ID"] + ": Age difference between older sibling (" + str(lowid) + ") and younger sibling ("+  str(highid)+ ") is", ageDiff, "which is not less than 35 years")   
+				print("ERROR: FAMILY: US45:", family["ID"] + ": Age difference between older sibling (" + str(lowid) + ") and younger sibling ("+  str(highid)+ ") is", ageDiff, "which is not less than 35 years")
 				return False
 	return True
 
@@ -825,7 +817,7 @@ def childParentAgeDiff(famList, individualListName):
 			birthday = dateToCompare(modified_lookup("Birthday", childId, individualListName))
 			ageDiff = birthday.year - dlow.year - ((birthday.month, birthday.day) < (dlow.month, dlow.day))
 			if ageDiff <= 15:
-				print("ERROR: FAMILY: US46:", family["ID"] + ": Age difference between child (" + str(childId) + ") and parent ("+  str(parid)+ ") is", ageDiff, "which is not more than 15 years")   
+				print("ERROR: FAMILY: US46:", family["ID"] + ": Age difference between child (" + str(childId) + ") and parent ("+  str(parid)+ ") is", ageDiff, "which is not more than 15 years")
 				return False
 	return True
 
@@ -888,7 +880,7 @@ def get_living_married(ind_list, famList):
 	print(df)
 	return living_marriage
 
-#US 35 SJ List recent births, the last 30 days 
+#US 35 SJ List recent births, the last 30 days
 def listRecentBirths(indiList):
 	recentBirthdays = list()
 	today = date.today()
@@ -934,7 +926,7 @@ def findRecentDeath(indiList):
 		return True
 
 
-#US 38 SJ List upcoming, the next 30 days 
+#US 38 SJ List upcoming, the next 30 days
 def listUpcomingBirthdays(indiList):
 	upcomingBirthdays = list()
 	today = date.today()
@@ -952,7 +944,7 @@ def listUpcomingBirthdays(indiList):
 	else:
 		print("The next birthdays are: " + str(upcomingBirthdays))
 		return True
-		
+
 #US 42 Reject Illegitimate Dates
 def isDateLegitimate(date):
 	month_dates = {
@@ -986,13 +978,13 @@ def FindChildrenBornBeforeParent(famList):
 	#loop to retrieve father, mother and children data from family record
 	for i in range(len(famList)):
 		#append specific data from famList to the family list
-		family.append({'Husband_ID':famList[i]['Husband ID'], 
+		family.append({'Husband_ID':famList[i]['Husband ID'],
 			'Wife_ID':famList[i]['Wife ID'],
-			'Husband Name':famList[i]['Husband Name'], 
+			'Husband Name':famList[i]['Husband Name'],
 			'Wife Name':famList[i]['Wife Name'],
 			'Husband Birthday': lookup('Birthday', famList[i]['Husband ID']),
 			'Wife Birthday': lookup('Birthday', famList[i]['Wife ID']),
-			'Husband Age': lookup('Age', famList[i]['Husband ID']), 
+			'Husband Age': lookup('Age', famList[i]['Husband ID']),
 			'Wife Age': lookup('Age', famList[i]['Wife ID']),
 			'Children': replace_id_with_children_data(famList[i]['Children'])})
 
@@ -1003,16 +995,16 @@ def FindChildrenBornBeforeParent(famList):
 			if check_dateOrder(family[j]['Children'][k]['Birthday'],family[j]['Husband Birthday'] ):
 				children_and_parent_data.append([family[j]['Husband Name'],family[j]['Husband Age'],
 					family[j]['Children'][k]['Name'],family[j]['Children'][k]['Age'] ])
-				print("WARN: IND: US43: " + family[j]['Children'][k]['Name'] + " was born on (" + family[j]['Children'][k]['Birthday'] 
+				print("WARN: IND: US43: " + family[j]['Children'][k]['Name'] + " was born on (" + family[j]['Children'][k]['Birthday']
 					+  ") the same date or before his/her father " + family[j]['Husband Name'] + " who were born on (" + family[j]['Husband Birthday'] + ").")
-			
+
 			#check to see if children are not born before or on the same date as their mother
 			if check_dateOrder(family[j]['Children'][k]['Birthday'],family[j]['Wife Birthday'] ):
 				children_and_parent_data.append([family[j]['Wife Name'],family[j]['Wife Age'],
 					family[j]['Children'][k]['Name'],family[j]['Children'][k]['Age'] ])
-				print("WARN: IND: US43: " + family[j]['Children'][k]['Name'] + " was born on (" + family[j]['Children'][k]['Birthday'] 
+				print("WARN: IND: US43: " + family[j]['Children'][k]['Name'] + " was born on (" + family[j]['Children'][k]['Birthday']
 					+  ") the same date or before his/her mother " + family[j]['Wife Name'] + " who were born on (" + family[j]['Wife Birthday'] + ").")
-	
+
 	if len(children_and_parent_data)<=0:
 		print('There are no children born before or on the same date as parent')
 		print('\n\n')
@@ -1059,7 +1051,7 @@ def generateInitialData(fileName):
 				if not isDateLegitimate(arguments):
 					print("ERRO: GEN: US42: Date does not match month. Received: "+ arguments)
 
-				
+
 
 
 			if level == '0':
@@ -1310,7 +1302,7 @@ def main():
 		FindChildrenBornBeforeParent(famList)
 
 		check_dupe_spouses(famList)
-		
+
 
 
 if __name__ == "__main__": 	# execute only if run as a script
