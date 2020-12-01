@@ -409,7 +409,6 @@ def print_data(indiList):
 	df = pd.DataFrame(person_data, columns = ['Name', 'Birth Date','Qualified'])
 	return df
 
-
 #Austin Luo
 def marriageAge(indiList, famList):
 	for family in famList:
@@ -424,7 +423,6 @@ def marriageAge(indiList, famList):
 			print("WARN: IND: US10: " + husbandID + ": Husband married before 14 years old, married at " + str(husbandMarriageAge) + "yrs old")
 		if wifeMarriageAge < 14:
 			print("WARN: IND: US10: " + wifeID + ": Wife married before 14 years old, married at " + str(wifeMarriageAge) + "yrs old")
-
 
 def realBirthday(indiList, famList):
 	count = 0
@@ -443,8 +441,7 @@ def realBirthday(indiList, famList):
 					count += 1
 	return count
 
-
-def multipleSiblings(indfiList, famList):
+def multipleSiblings(indiList, famList):
 	for family in famList:
 		if 'Children' in famList[family.keys()]:
 			if len(famList[family]['Children']) > 15:
@@ -452,10 +449,9 @@ def multipleSiblings(indfiList, famList):
 	return True
 
 
-
 def multipleBirths(indiList, famList):
 	if 'Children' in famList[individual].keys():
-		if len(famList[ID][Children]) >= 5:
+		if len(famList[individual]['Children']) >= 5:
 			for firstchild in famList[individual]['Children']:
 				counter = 1
 				date = indiList[firstchild]['Birthday']
@@ -465,6 +461,21 @@ def multipleBirths(indiList, famList):
 					if(counter > 5):
 						return False
 	return True
+
+def correctName(indiList):
+	for individual in indiList:
+		if 'Name'.isdigit():
+			contains_digit = False
+	return True
+
+
+
+def largestName(famList):
+	for family in famList:
+		for famID in family
+		familyIdentification = modified_lookup('ID', famList)
+
+
 """
 ###########################
 	for family in famList:
@@ -477,6 +488,24 @@ def multipleBirths(indiList, famList):
 	print("All couples have five children or less.")
 	return True
 """
+
+def tooOld(indiList):
+    for individual in indiList:
+        individualAge = lookup("Age", individual)
+        if individualAge > 130:
+            print("No individuals allowed to be older 130 years old.")
+            return False
+    return True
+
+def multipleBirths(famList):
+    for family in famList:
+        childrenList = {}
+        childrenID = lookup("Children", family)
+        for children in family["Children"]:
+            print(childrenID)
+            return True
+    return False
+    print("This perseon does not have a child.")
 
 #Checks date argument to see if that date is not after today's date
 def validDate(arguments):
@@ -735,6 +764,7 @@ def validAge(indiList):
 	for person in indiList:
 		age=person["Age"]
 		if age >= 150:
+
 			print("ERROR: INDIVIDUAL: US07: L" + getIndiLine(person["ID"], "BIRT") + " "  + str(person["ID"]) + ": More than 150 years old - Birth Date: " + str(person["Birthday"]))
 			return False
 	return True
@@ -1338,7 +1368,6 @@ def generateInitialData(fileName):
 
 
 
-
 			if level == '0':
 				if tag == "INDI":
 					try:
@@ -1567,6 +1596,11 @@ def main():
 		#US12
 		get_parents_not_too_old(famList)
 
+		#US14
+		multipleBirths(indiList, famList)
+
+		#US15
+		multipleSiblings(indiList, famList)
 
 		#US16
 		if(maleLastNames(indiDF, famList)):
