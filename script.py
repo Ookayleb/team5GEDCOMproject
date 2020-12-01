@@ -992,15 +992,12 @@ def get_children_same_birthdays(ind_list, famList):
 			used_list = []
 			used_list.append(children[i])
 			birthday_1 = modified_lookup("Birthday", children[i], ind_list)
-			print("1", birthday_1)
 			for j in range(i + 1, len(children)):
 				if children[j] in used_set:
 					continue
 				birthday_2 = modified_lookup("Birthday", children[j], ind_list)
-				print("2", birthday_2)
 				if (birthday_2 == birthday_1):
 					used_list.append(children[j])
-					print("DID")
 			if len(used_list) > 1:
 				same_birthdays.append(used_list)
 				for child in used_list:
