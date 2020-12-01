@@ -1023,6 +1023,47 @@ def get_living_single(ind_list, famList):
 	print(df)
 	return all_good_ids
 
+#JW- US48 List children with same birthdays
+def get_children_same_birthdays(ind_list, famList):
+	same_birthdays = []
+	for family in famList:
+		used_set = set()
+		children = family["Children"]
+		for i in range(0, len(children)):
+			if children[i] in used_set:
+				continue
+			used_list = []
+			used_list.append(children[i])
+			birthday_1 = modified_lookup("Birthday", children[i], ind_list)
+			for j in range(i + 1, len(children)):
+				if children[j] in used_set:
+					continue
+				birthday_2 = modified_lookup("Birthday", children[j], ind_list)
+				if (birthday_2 == birthday_1):
+					used_list.append(children[j])
+			if len(used_list) > 1:
+				same_birthdays.append(used_list)
+				for child in used_list:
+					used_set.add(child)
+	print('US48 - List children with same birthdays\n', same_birthdays)
+	return same_birthdays
+
+
+#JW- US52 List children named after their parent
+def get_children_named_after_parent(ind_list, famList):
+	named_after = []
+	for family in famList:
+		husband = family["Husband Name"]
+		wife = family["Wife Name"]
+		children = family["Children"]
+		for child in children:
+			child_name = modified_lookup("Name", child, ind_list)
+			if (child_name == husband) or (child_name == wife):
+				named_after.append(child)
+	print('US52 - List children named after parent\n', named_after)
+	return named_after
+
+    
 #JW- US34 Large Age Differences
 def get_large_age_diff(ind_list, famList):
 	large_age_list = []
@@ -1610,6 +1651,9 @@ def main():
 		#US46
 		childParentAgeDiff(famList, indiList)
 
+		#US48
+		get_children_same_birthdays(indiList, famList)
+    
 		#US49
 		findTwins(famList)
 
@@ -1619,6 +1663,12 @@ def main():
 		#US51
 		largestFamily(famList)
 
+		#US52
+		get_children_named_after_parent(indiList, famList)
+
+		#US39
+		upcomingAnni(famList)
+        
 		#US53
 		sameName(indiDF)
 
