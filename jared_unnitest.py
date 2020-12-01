@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 from datetime import datetime
 from datetime import date
-from script import generateInitialData, reset, lookup, dateToCompare, validAge, birthBeforeMarriage2, siblingAgeDiff, childParentAgeDiff, largestFamily, get_living_single, get_large_age_diff
+from script import generateInitialData, reset, lookup, dateToCompare, validAge, birthBeforeMarriage2, siblingAgeDiff, childParentAgeDiff, largestFamily, get_living_single, get_large_age_diff, get_children_same_birthdays, get_children_named_after_parent
 
 gedcomStructuredData    = generateInitialData("gedFiles/invalidAge.ged") #store the tables and lists into gedcomStructuredData
 indiList_invalidAge		= gedcomStructuredData['indiList']
@@ -48,6 +48,16 @@ reset()
 gedcomStructuredData    = generateInitialData("gedFiles/large_age_diff.ged") #store the tables and lists into gedcomStructuredData
 indiList_large_age_diff		= gedcomStructuredData['indiList']
 famList_large_age_diff		= gedcomStructuredData['famList']
+reset()
+
+gedcomStructuredData    = generateInitialData("gedFiles/children_same_bday.ged") #store the tables and lists into gedcomStructuredData
+indiList_children_same_bday		= gedcomStructuredData['indiList']
+famList_children_same_bday		= gedcomStructuredData['famList']
+reset()
+
+gedcomStructuredData    = generateInitialData("gedFiles/named_after_parent.ged") #store the tables and lists into gedcomStructuredData
+indiList_named_after_parent  	= gedcomStructuredData['indiList']
+famList_named_after_parent		= gedcomStructuredData['famList']
 reset()
 
 class TestAge(unittest.TestCase):
@@ -98,6 +108,22 @@ class TestAge(unittest.TestCase):
         living_single = ['James /Middleton/', 'Kayla /Middleton/', 'Alex /Middleton/']
         result = get_living_single(indiList_jared, famList_jared)
         self.assertTrue(result,living_single)
+        
+    def test_get_children_same_birthdays(self):
+        same_bday = [['I40', 'I43'], ['I48', 'I49']]
+        result = get_children_same_birthdays(indiList_children_same_bday, famList_children_same_bday)
+        self.assertEqual(result,same_bday)
+        same_bday = []
+        result = get_children_same_birthdays(indiList_normal, famList_normal)
+        self.assertEqual(result,same_bday)
+        
+    def test_get_children_named_after_parent(self):
+        named_after = ['I43', 'I48']
+        result = get_children_named_after_parent(indiList_named_after_parent, famList_named_after_parent)
+        self.assertEqual(result,named_after)
+        named_after = []
+        result = get_children_named_after_parent(indiList_normal, famList_normal)
+        self.assertEqual(result,named_after)
 
 
 if __name__ == "__main__":
