@@ -10,6 +10,7 @@ from datetime import date
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from prettytable import PrettyTable
+import operator
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -1540,12 +1541,15 @@ def get_list_of_oldest(ind, fam):
 			if(lengthy_key>1):
 				first_person_age = modified_lookup('Age', data_id[0], ind)
 				second_person_age = modified_lookup('Age', data_id[1], ind)
+				if first_person_age == None or second_person_age == None:
+					pass
 
-				if(first_person_age>second_person_age):
-					oldest_list.append([key, data_id[0]])
 				else:
-					oldest_list.append([key, data_id[1]])
-
+					if(first_person_age>second_person_age):
+						oldest_list.append([key, data_id[0]])
+					else:
+						oldest_list.append([key, data_id[1]])
+						
 			#if only one parent is alive
 			else:
 				individual_id = data_id[0]
