@@ -441,26 +441,45 @@ def realBirthday(indiList, famList):
 					count += 1
 	return count
 
+#US15 AL
 def multipleSiblings(indiList, famList):
 	for family in famList:
-		if 'Children' in famList[family.keys()]:
-			if len(famList[family]['Children']) > 15:
+		if 'Children' in family.keys():
+			if len(family['Children']) >= 15:
+				print("WARN: FAM: US15: {} doesn't have less than 15 children".format(family["ID"]))
 				return False
+
+	print("INFO: FAM: US15: ALl families have fewer than 15 children")
 	return True
 
 
+#US14 AL
 def multipleBirths(indiList, famList):
-	if 'Children' in famList[individual].keys():
-		if len(famList[individual]['Children']) >= 5:
-			for firstchild in famList[individual]['Children']:
-				counter = 1
-				date = indiList[firstchild]['Birthday']
-				for secondchild in famList [individual]['Children']:
-					if(indiList[secondchild]['Birthday'] == date):
-						counter += 1
-					if(counter > 5):
-						return False
+	for family in famList:
+		if 'Children' in family.keys():
+			if len(family["Children"]) > 5:
+				birthdays =[]
+				for childID in family["Children"]:
+					birthdays.append(modified_lookup("Birthday", childID, indiList))
+
+				birthdays = list(dict.fromkeys(birthdays))
+				if len(birthdays) <= (len(family["Children"]) / 6):
+					print("WARN: FAM: US14: More than 5 Children in {} were born on the same day".format(family["Children"]))
+					return False
+
+	print("INFO: FAM: US14: No more than 5 children born at the same time")
 	return True
+
+		# 	if len(famList[individual]['Children']) >= 5:
+		# 		for firstchild in famList[individual]['Children']:
+		# 			counter = 1
+		# 			date = indiList[firstchild]['Birthday']
+		# 			for secondchild in famList [individual]['Children']:
+		# 				if(indiList[secondchild]['Birthday'] == date):
+		# 					counter += 1
+		# 				if(counter > 5):
+		# 					return False
+		# return True
 
 def correctName(indiList):
 	for individual in indiList:
@@ -472,8 +491,8 @@ def correctName(indiList):
 
 def largestName(famList):
 	for family in famList:
-		for famID in family
-		familyIdentification = modified_lookup('ID', famList)
+		for famID in family:
+			familyIdentification = modified_lookup('ID', famList)
 
 
 """
@@ -497,15 +516,15 @@ def tooOld(indiList):
             return False
     return True
 
-def multipleBirths(famList):
-    for family in famList:
-        childrenList = {}
-        childrenID = lookup("Children", family)
-        for children in family["Children"]:
-            print(childrenID)
-            return True
-    return False
-    print("This perseon does not have a child.")
+# def multipleBirths(famList):
+#     for family in famList:
+#         childrenList = {}
+#         childrenID = lookup("Children", family)
+#         for children in family["Children"]:
+#             print(childrenID)
+#             return True
+#     return False
+#     print("This perseon does not have a child.")
 
 #Checks date argument to see if that date is not after today's date
 def validDate(arguments):
@@ -1093,7 +1112,7 @@ def get_children_named_after_parent(ind_list, famList):
 	print('US52 - List children named after parent\n', named_after)
 	return named_after
 
-    
+
 #JW- US34 Large Age Differences
 def get_large_age_diff(ind_list, famList):
 	large_age_list = []
@@ -1687,7 +1706,7 @@ def main():
 
 		#US48
 		get_children_same_birthdays(indiList, famList)
-    
+
 		#US49
 		findTwins(famList)
 
@@ -1702,7 +1721,7 @@ def main():
 
 		#US39
 		upcomingAnni(famList)
-        
+
 		#US53
 		sameName(indiDF)
 
