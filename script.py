@@ -614,9 +614,9 @@ def SiblingSpacing(indiDF, famList, indiList):
 			birthday_2 = birthdays[index + 1]
 			date_1 = datetime.strptime(birthday_1, "%d %b %Y").date()
 			date_2 = datetime.strptime(birthday_2, "%d %b %Y").date()
-			print("DEBUG")
-			print(date_1)
-			print(date_2)
+			# print("DEBUG")
+			# print(date_1)
+			# print(date_2)
 			dayDifference = abs((date_1 - date_2).days)
 			if dayDifference > 240 or dayDifference < 2:
 				print('INFO: IND: US13: Day difference = ' + str(dayDifference))
@@ -1346,6 +1346,226 @@ def listDeceasedDivor(indiDF, famList):
 		print('Deceased list of divorced members is ' + str(deceasedL))
 		return True
 
+
+#US 57 list living widowed
+def get_list_of_widow(indList, famList):
+	print('US 57: list of living widows')
+	divorced_list = {}
+	no_both_couples_died_list = []
+	no_divorced_array = []
+	decease_array = []
+	all_individuals_alive = []
+	no_both_couples_alive = []
+	marriage_with_widowed = []
+	living_couples = []
+
+	#get individuals ids who died
+	decease_list = get_deceased_records(indList)[1]
+	for i in range(len(decease_list)):
+		decease_array.append(decease_list[i][0])
+
+	#get all individual ids who are alive
+	for indi_record in indList:
+		if indi_record['Alive'] == True:
+			all_individuals_alive.append(indi_record['ID'])
+
+	#get all ids of marriage with divorce
+	for divorced in famList:
+		formal_divorce = divorced.get('Divorced')
+		if formal_divorce != None:
+			divorced_list[divorced['ID']] = formal_divorce
+
+	family_ids_of_divorcees = divorced_list.keys()
+
+	#get family marriage that does not have any divorce
+	for a_record in famList:
+		if a_record['ID'] not in family_ids_of_divorcees:
+			no_divorced_array.append(a_record)
+
+	# get marriage where both couples are not dead
+	for marriage_record in no_divorced_array:
+		husband_ids = marriage_record.get('Husband ID')
+		wife_ids = marriage_record.get('Wife ID')
+		if husband_ids not in decease_array or wife_ids not in decease_array:
+			no_both_couples_died_list.append(marriage_record)
+
+	#get marriage where one spouse died
+	for m_record in no_both_couples_died_list:
+		husband_ids = m_record.get('Husband ID')
+		wife_ids = m_record.get('Wife ID')
+		if husband_ids not in all_individuals_alive and wife_ids in all_individuals_alive:
+			marriage_with_widowed.append(m_record)
+		elif wife_ids not in all_individuals_alive and husband_ids in all_individuals_alive:
+			marriage_with_widowed.append(m_record)
+
+	#get marriage records where both couples are alive
+	for alive_record in no_both_couples_died_list:
+		husband_ids = alive_record.get('Husband ID')
+		wife_ids = alive_record.get('Wife ID')
+		if husband_ids in all_individuals_alive and wife_ids in all_individuals_alive:
+			living_couples.append(alive_record)
+
+	#get ids for all living couples
+	living_couples_ids=[]
+	for c_record in living_couples:
+		living_couples_ids.append(c_record['Husband ID'])
+		living_couples_ids.append(c_record['Wife ID'])
+
+	#remove duplicate living couple ids
+	formal_living_couples_ids = list(set(living_couples_ids))
+
+	#get ids of marriage with widows that are alive
+	widow_marriage_ids = []
+	for widow_marriage in marriage_with_widowed:
+		valid_husband_death = modified_lookup('Death',widow_marriage['Husband ID'], indList)
+		valid_wife_death = modified_lookup('Death',widow_marriage['Wife ID'], indList)
+		if valid_husband_death == None:
+			widow_marriage_ids.append(widow_marriage['Husband ID'])
+		if valid_wife_death == None:
+			widow_marriage_ids.append(widow_marriage['Wife ID'])
+
+	#check to see if widow is currently married and if not add to list
+	widow_ids = []
+	for w_record in widow_marriage_ids:
+		if w_record not in formal_living_couples_ids:
+			widow_ids.append(w_record)
+
+	#return name of living widows
+	living_widow_list = []
+	for p_id in widow_ids:
+		living_widow_list.append(modified_lookup('Name', p_id, indList))
+
+	if(len(living_widow_list)<=0):
+		print('No living widow')
+		return False
+	else:
+		print(living_widow_list)
+		return True
+
+
+#US61 list of oldest in family
+#helper method to locate if one parent or both parents are alive
+def check_if_parents_alive(indList, famList):
+	#retrieve ids all the person who died
+	decease_array = []
+	family_obj = {}
+	deceased_data = get_deceased_records(indList)[1]
+	for dead_person in deceased_data:
+		decease_array.append(dead_person[0])
+
+	#check if at least one parent is alive or both
+	for fam_record in famList:
+		husband_id = fam_record.get('Husband ID')
+		wife_id = fam_record.get('Wife ID')
+		if(husband_id in decease_array and wife_id in decease_array):
+			family_obj[fam_record['ID']] = []
+		if husband_id in decease_array and wife_id not in decease_array:
+			family_obj[fam_record['ID']] = [wife_id]
+		if husband_id not in decease_array and wife_id in decease_array:
+			family_obj[fam_record['ID']] = [husband_id]
+		if(husband_id not in decease_array and wife_id not in decease_array):
+			family_obj[fam_record['ID']] = [husband_id, wife_id]
+	return family_obj
+
+def get_list_of_oldest(ind, fam):
+	print('US 61: list of oldest in family')
+	oldest_list = []
+	children_alive = {}
+
+	#get marriage where at least there is one parent or both alive or no parent is alive
+	data = check_if_parents_alive(ind, fam)
+
+	#loop to see who is the oldest parent in family if at least one is alive
+	#or who is the oldest child if no parent are live
+	#or if everyone in the family died including parents and children
+	for key in data:
+		data_id = data[key]
+		lengthy_key = len(data_id)
+
+		#if there is no parent alive, go to children hierarchy in family
+		if lengthy_key < 1:
+
+			#list of ids of deceased person
+			decease_array = []
+			deceased_data = get_deceased_records(ind)[1]
+			for dead_person in deceased_data:
+				decease_array.append(dead_person[0])
+
+			#when there is no parent alive, loop to find all children alive in their respective family
+			for marr in fam:
+				fam_id = marr['ID']
+				if key == fam_id:
+					children_data = marr['Children']
+
+					#remove children that are not alive
+					alive_arr = []
+					for ind_kid in children_data:
+						if ind_kid not in decease_array:
+							alive_arr.append(ind_kid)
+					children_count = len(alive_arr)
+
+					#if no parent or children is alive in family
+					if(children_count<1):
+						print('No one is alive in family' + " " + key)
+
+					#if at least a child is alive, add to children_alive
+					else:
+						group_children = []
+						for child in alive_arr:
+							group_children.append(child)
+						children_alive[fam_id] = group_children
+
+			#check which child is oldest and get their ids
+			for ind_child in children_alive:
+				children_arr = children_alive[ind_child]
+
+				#if there is only one child alive in family
+				if(len(children_arr)== 1):
+					oldest_list.append([ind_child, children_arr[0]])
+
+				#if there is more than 1 child alive
+				else:
+					children_ages = {}
+					for i in range(len(children_arr)):
+						children_ages[children_arr[i]] = modified_lookup('Age', children_arr[i], ind)
+
+					#get the id of person who is oldest when there are more than 1 child alive in family
+					child_id = max(children_ages.items(), key=operator.itemgetter(1))[0]
+					oldest_list.append([ind_child, child_id])
+
+
+		#if parent or parents are  alive, go to parent hierarchy, check who is the oldest
+		else:
+			#if both parents are alive
+			if(lengthy_key>1):
+				first_person_age = modified_lookup('Age', data_id[0], ind)
+				second_person_age = modified_lookup('Age', data_id[1], ind)
+
+				if(first_person_age>second_person_age):
+					oldest_list.append([key, data_id[0]])
+				else:
+					oldest_list.append([key, data_id[1]])
+
+			#if only one parent is alive
+			else:
+				individual_id = data_id[0]
+				oldest_list.append([key, individual_id])
+
+	#remove duplicate arrays
+	modified_oldest_list = np.unique(oldest_list,axis=0)
+
+	#now replace ids with name of person the id belong to
+	message = [[item[0], modified_lookup('Name', item[1], ind)] for item in modified_oldest_list]
+
+	#print names of person who is the oldest in their respective family
+	for data in message:
+		print(str(data[1]) + ' is the oldest in family ' + str(data[0]))
+	if(len(modified_oldest_list)<=0):
+		return False
+	else:
+		return True
+
+
 #---------------------### CORE FUNCTIONS ###---------------------#
 #Given a gedcom file, returns indi and fam tables, and also returns indi and fam lists.
 def generateInitialData(fileName):
@@ -1729,7 +1949,10 @@ def main():
 		listDeceasedDivor(indiDF, famList)
 
 		#US57
-		# get_list_of_widow(indiList, famList)
+		get_list_of_widow(indiList, famList)
+
+		#US61
+		get_list_of_oldest(indiList, famList)
 
 		check_dupe_spouses(famList)
 
