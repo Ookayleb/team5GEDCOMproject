@@ -162,7 +162,7 @@ class TestSameName(unittest.TestCase):
 		gedcomStructuredData	= generateInitialData("gedFiles/allTest.ged") #store the tables and lists into gedcomStructuredData
 		indiDF				= gedcomStructuredData['indiDF']
 		result 				= sameName(indiDF)
-		self.assertEqual(result, 4)
+		self.assertEqual(result, 12)
 
 	def testTestSameName_0(self):
 		reset()

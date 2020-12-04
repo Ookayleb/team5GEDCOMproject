@@ -222,7 +222,6 @@ def get_parents_not_too_old(famList):
 	print(x)
 	return 1, x
 
-	#************************************************************************end
 
 #US20: Aunts and uncles | CC Sprint 3
 # Aunts and uncles should not marry their nieces or nephews
@@ -1549,7 +1548,7 @@ def get_list_of_oldest(ind, fam):
 						oldest_list.append([key, data_id[0]])
 					else:
 						oldest_list.append([key, data_id[1]])
-						
+
 			#if only one parent is alive
 			else:
 				individual_id = data_id[0]
@@ -1568,6 +1567,36 @@ def get_list_of_oldest(ind, fam):
 		return False
 	else:
 		return True
+
+
+
+def findTwins(famList):
+	twins = []
+	for family in famList:
+		children = family["Children"]
+		for i in range(0, len(children)):
+			birthday1 = lookup("Birthday", children[i])
+			for j in range(i + 1, len(children)):
+				birthday2 = lookup("Birthday", children[j])
+				if birthday1 == birthday2:
+					twins.append([children[i], children[j]])
+	print("Twins are:", twins)
+	return twins
+
+def findTriplets(famList):
+	triplets = []
+	for family in famList:
+		children = family["Children"]
+		for i in range(0, len(children)):
+			birthday_1 = lookup("Birthday", children[i])
+			for j in range(i + 1, len(children)):
+				birthday_2 = lookup("Birthday", children[j])
+				for k in range(j + 1, len(children)):
+					birthday_3 = lookup("Birthday", children[k])
+					if birthday_1 == birthday_2 == birthday_3:
+						triplets.append([children[i], children[j], children[k]])
+	print("triplets are:", triplets)
+	return triplets
 
 
 #---------------------### CORE FUNCTIONS ###---------------------#
@@ -1740,33 +1769,6 @@ def reset():
 	famDF = []
 	famList = []
 
-def findTwins(famList):
-	twins = []
-	for family in famList:
-		children = family["Children"]
-		for i in range(0, len(children)):
-			birthday1 = lookup("Birthday", children[i])
-			for j in range(i + 1, len(children)):
-				birthday2 = lookup("Birthday", children[j])
-				if birthday1 == birthday2:
-					twins.append([children[i], children[j]])
-	print("Twins are:", twins)
-	return twins
-
-def findTriplets(famList):
-	triplets = []
-	for family in famList:
-		children = family["Children"]
-		for i in range(0, len(children)):
-			birthday_1 = lookup("Birthday", children[i])
-			for j in range(i + 1, len(children)):
-				birthday_2 = lookup("Birthday", children[j])
-				for k in range(j + 1, len(children)):
-					birthday_3 = lookup("Birthday", children[k])
-					if birthday_1 == birthday_2 == birthday_3:
-						triplets.append([children[i], children[j], children[k]])
-	print("triplets are:", triplets)
-	return triplets
 
 
 #---------------------### MAIN CODE ###---------------------#
@@ -1852,6 +1854,7 @@ def main():
 			print("\n")
 			print('All males do not have the same last name')
 			print("\n")
+
 		#US13
 		if SiblingSpacing(indiDF,famList) == False:
 			print('Siblings are too close together and they are not twins check birth dates')
@@ -1943,9 +1946,6 @@ def main():
 		#US52
 		get_children_named_after_parent(indiList, famList)
 
-		#US39
-		upcomingAnni(famList)
-
 		#US53
 		sameName(indiDF)
 
@@ -1958,7 +1958,6 @@ def main():
 		#US61
 		get_list_of_oldest(indiList, famList)
 
-		check_dupe_spouses(famList)
 
 
 
